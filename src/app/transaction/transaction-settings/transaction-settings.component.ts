@@ -23,6 +23,7 @@ import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MatFormField } from '@angular/material/form-field';
 import {Link, tabLinks} from '../../header/Links';
 import { environment } from '../../../environments/environment';
+import { StorageService } from '../../services/storage.service';
 import { ListConfirmDialogComponent } from '../../list-confirm-dialog/list-confirm-dialog.component';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -120,14 +121,18 @@ searchTypeString:string = "";
   cngfMode = "Batch";
   private _snackBar = inject(MatSnackBar);
 
-  constructor(private TransactionService: TransRestServiceComponent,
-    private formBuilder: FormBuilder, private router: Router, private route: ActivatedRoute){
-      tpId: new FormControl();
-
+  constructor(
+    private TransactionService: TransRestServiceComponent,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private storageService: StorageService
+  ) {
+    tpId: new FormControl();
   }
 
   ngOnInit() {
-    this.searchTypeString = sessionStorage.getItem("searchTypeString");
+    this.searchTypeString = this.storageService.getItem<string>("searchTypeString");
     this.initForm();
     this.initTransactionTypes();
     this.initFromSessionStorage();
@@ -162,9 +167,9 @@ searchTypeString:string = "";
   }
 
   private initFromSessionStorage() {
-    if (sessionStorage.getItem('transConfig') !== undefined && sessionStorage.getItem('transConfig') !== null) {
-      let jsonString = sessionStorage.getItem('transConfig');
-      let formFields = JSON.parse(jsonString);
+    const transConfig = this.storageService.getItem<string>('transConfig');
+    if (transConfig !== undefined && transConfig !== null) {
+      let formFields = JSON.parse(transConfig);
       console.info("transConfig from sessionStorage: " + formFields.currentTransType + ", Mode: " + formFields.mode);
       this.dispTransType = formFields.currentTransType;
       this.form.controls.dispTransType.setValue(this.dispTransType);

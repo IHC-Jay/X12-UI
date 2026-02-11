@@ -10,7 +10,10 @@ import {WfRestServiceComponent} from '../services/wfrest-service.component';
 import {WorkFlowEntry, IrisUsers} from './WorkFlowEntry';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
+
+
 import { environment } from '../../environments/environment';
+import { StorageService } from '../services/storage.service';
 
 
 @Component({
@@ -20,16 +23,13 @@ import { environment } from '../../environments/environment';
     standalone: false
 })
 
-export class WorkflowComponent implements OnInit {
-
-
- @ViewChild(MatPaginator) paginator: MatPaginator;
+export class WorkflowComponent implements OnInit, AfterViewInit {
+  @ViewChild(MatPaginator) paginator: MatPaginator;
 
   pageLength= 25;
   pageIndex = 1;
   pageSize = 25;
-   @ViewChild('dataPaginator') dataPaginator: MatPaginator;
-
+  @ViewChild('dataPaginator') dataPaginator: MatPaginator;
 
   @ViewChild(MatSort) sort: MatSort;
 
@@ -106,10 +106,15 @@ export class WorkflowComponent implements OnInit {
   searchTransaction = false;
 
 
-  constructor(private WfService: WfRestServiceComponent,
-    private formBuilder: FormBuilder, private router: Router, private route: ActivatedRoute){
-      tpId: new FormControl();
-
+  constructor(
+    private WfService: WfRestServiceComponent,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    private storageService: StorageService
+  ) {
+    // If you need to initialize FormControl here, do so
+    // tpId: new FormControl();
   }
   get f() { return this.form.controls; }
 
@@ -142,8 +147,8 @@ export class WorkflowComponent implements OnInit {
   }
 
   private initSessionTab() {
-    sessionStorage.removeItem("currentTab");
-    sessionStorage.setItem("currentTab", "Work Flow");
+    this.storageService.removeItem("currentTab");
+    this.storageService.setItem("currentTab", "Work Flow");
   }
 
   private initForm() {
@@ -164,11 +169,12 @@ export class WorkflowComponent implements OnInit {
   }
 
   private hasSessionConfig(key: string): boolean {
-    return sessionStorage.getItem(key) !== undefined && sessionStorage.getItem(key) !== null;
+    const item = this.storageService.getItem<string>(key);
+    return item !== undefined && item !== null;
   }
 
   private initFromSessionConfig(): number {
-    const searchParams = sessionStorage.getItem('wfConfig');
+    const searchParams = this.storageService.getItem<string>('wfConfig');
     if (!searchParams) return 0;
     console.info("Init from session prev Config: " + searchParams);
     this.transTypeStr = this.extractSessionValue(searchParams, "transaction::");
@@ -217,7 +223,7 @@ export class WorkflowComponent implements OnInit {
   }
 
   private initFromUserConfig(): void {
-    const userConfig = sessionStorage.getItem('UserConfig');
+    const userConfig = this.storageService.getItem<string>('UserConfig');
     if (!userConfig) return;
     const parsedObject = JSON.parse(userConfig);
     console.info("Init from session UserConfig: " + parsedObject.WfTime + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
@@ -331,12 +337,12 @@ onSubmit()
 
   console.info("WfService.fetchWorkFlowItems, params: " + paramsList.toString())
 
-  sessionStorage.setItem("wfConfig", "errorType::" + this.form.controls.errorType.value +";" +
-          "transaction::"+this.form.controls.transType.value +";" +
-          "mode::"+ this.form.controls.mode.value +";" +
-          "status::"+this.form.controls.statusType.value +";" +
-          "wfStartDtTm::" + this.startDate +" "+ this.startTm +";" +
-          "wfEndDtTm::" + this.endDate+" " +this.endTm +";" );
+    this.storageService.setItem("wfConfig", "errorType::" + this.form.controls.errorType.value +";" +
+      "transaction::"+this.form.controls.transType.value +";" +
+      "mode::"+ this.form.controls.mode.value +";" +
+      "status::"+this.form.controls.statusType.value +";" +
+      "wfStartDtTm::" + this.startDate +" "+ this.startTm +";" +
+      "wfEndDtTm::" + this.endDate+" " +this.endTm +";" );
 
   let mode = this.form.controls.mode.value;
 

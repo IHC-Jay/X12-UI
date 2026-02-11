@@ -4,6 +4,7 @@ import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms'
 
 
 import {WfRestServiceComponent} from '../../services/wfrest-service.component';
+import { StorageService } from '../../services/storage.service';
 
 import { MatTable,  MatTableDataSource } from '@angular/material/table';
 
@@ -114,10 +115,15 @@ export class RdpValidationErrorsComponent implements OnInit {
   selection = new SelectionModel<RdpX12Error>(false, []);
 
 
-  constructor(private WfService: WfRestServiceComponent,
-    private formBuilder: FormBuilder, private router: Router, private route: ActivatedRoute, public dialog: MatDialog){
-      tpId: new FormControl();
-
+  constructor(
+    private WfService: WfRestServiceComponent,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    public dialog: MatDialog,
+    private storageService: StorageService
+  ) {
+    tpId: new FormControl();
   }
 
 
@@ -138,8 +144,8 @@ export class RdpValidationErrorsComponent implements OnInit {
    * Remove and set the current tab in session storage.
    */
   private setupSessionTab() {
-    sessionStorage.removeItem("currentTab");
-    sessionStorage.setItem("currentTab", "Work Flow");
+    this.storageService.removeItem("currentTab");
+    this.storageService.setItem("currentTab", "Work Flow");
   }
 
   /**
@@ -426,26 +432,22 @@ export class RdpValidationErrorsComponent implements OnInit {
 
       console.log('To TP create: ' + this.tpId +", " + this.tpRelId  );
 
-      if (this.tpId !== "")
-      {
-        sessionStorage.setItem("TpOperation", "tp-add");
-        sessionStorage.setItem("NewTpId", this.tpId);
+      if (this.tpId !== "") {
+        this.storageService.setItem("TpOperation", "tp-add");
+        this.storageService.setItem("NewTpId", this.tpId);
       }
-      if (this.tpRelId !== "")
-      {
-        if (sessionStorage.getItem("TpOperation") == null || sessionStorage.getItem("TpOperation") == "")
-        {
-            sessionStorage.setItem("TpOperation", "tpLink-add");
+      if (this.tpRelId !== "") {
+        const tpOperation = this.storageService.getItem<string>("TpOperation");
+        if (tpOperation == null || tpOperation == "") {
+          this.storageService.setItem("TpOperation", "tpLink-add");
+        } else {
+          this.storageService.setItem("TpOperation", "tp-add;tpLink-add");
         }
-        else{
-            sessionStorage.setItem("TpOperation", "tp-add;tpLink-add");
-        }
-        sessionStorage.setItem("NewTpRelId", this.tpRelId);
+        this.storageService.setItem("NewTpRelId", this.tpRelId);
       }
 
-
-      sessionStorage.removeItem("currentTab")
-      sessionStorage.setItem("currentTab", "Trading Partners");
+      this.storageService.removeItem("currentTab");
+      this.storageService.setItem("currentTab", "Trading Partners");
 
       this.router.navigate(["/TradingPartners"]);
   }

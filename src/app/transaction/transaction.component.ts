@@ -21,15 +21,15 @@ import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MatFormField } from '@angular/material/form-field';
 import { catchError } from 'rxjs';
-
+import { environment } from '../../environments/environment';
 import { Modalx12Component } from './transaction-details/modal/modal-x12.component';
 import { MatDialog } from '@angular/material/dialog';
 
     // =====================
     // Table & Paginator Events
     // =====================
-import { environment } from '../../environments/environment';
-import { MatIconModule } from '@angular/material/icon';
+
+import { StorageService } from '../services/storage.service';
 
 @Component({
     selector: 'app-transaction',
@@ -60,9 +60,8 @@ export class TransactionComponent implements OnInit, AfterViewInit {
 
     rightClickMenu: string[] = ['Details in New Tab', 'Details in Same Window'] ;
 
-   org = `${environment.org}`;
-
-  transactionTypes: string[] ;
+  org: string = `${environment.org}`;
+  transactionTypes: string[] = [];
    pageLength= 25;
    pageIndex = 1;
    pageSize = 25;
@@ -148,10 +147,15 @@ export class TransactionComponent implements OnInit, AfterViewInit {
   fileName:string="";
 
 
-  constructor(private TransactionService: TransRestServiceComponent,
-    private formBuilder: FormBuilder, private router: Router, private route: ActivatedRoute, public dialog: MatDialog){
-      tpId: new FormControl();
-
+  constructor(
+    private TransactionService: TransRestServiceComponent,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    public dialog: MatDialog,
+    private storageService: StorageService
+  ) {
+    tpId: new FormControl();
   }
 
 
@@ -188,8 +192,8 @@ export class TransactionComponent implements OnInit, AfterViewInit {
       this.transactionTypes = [ "835", "837I", "837P", "837D", "999", "277CA", "TA1"];
     }
     this.formFields.currentTransType = '';
-    sessionStorage.removeItem("currentTab");
-    sessionStorage.setItem("currentTab", "Transactions");
+    this.storageService.removeItem("currentTab");
+    this.storageService.setItem("currentTab", "Transactions");
   }
 
   private initFormFields() {
@@ -232,26 +236,27 @@ export class TransactionComponent implements OnInit, AfterViewInit {
   }
 
   private initFromSessionStorage() {
-    if(this.formFields.currentTransType === '') {
-      if(sessionStorage.getItem('transConfig') !== undefined && sessionStorage.getItem('transConfig') !== null) {
-        let jsonString = sessionStorage.getItem('transConfig');
+    if (this.formFields.currentTransType === '') {
+      const jsonString = this.storageService.getItem<string>('transConfig');
+      if (jsonString) {
         console.info("transConfig from sessionStorage: " + jsonString);
         this.formFields = JSON.parse(jsonString);
         let nowDt = new Date(new Date().getTime());
-        let tmVal = ((nowDt.getHours()< 10)? "0"+ nowDt.getHours() : "" + nowDt.getHours()) + ":" ;
-        tmVal += (nowDt.getMinutes() < 10)? "0"+ nowDt.getMinutes(): "" + nowDt.getMinutes();
-        this.formFields.endTm= tmVal;
+        let tmVal = ((nowDt.getHours() < 10) ? "0" + nowDt.getHours() : "" + nowDt.getHours()) + ":";
+        tmVal += (nowDt.getMinutes() < 10) ? "0" + nowDt.getMinutes() : "" + nowDt.getMinutes();
+        this.formFields.endTm = tmVal;
       }
     }
   }
 
   private initFromUserConfig() {
     let stDt = 1;
-    if(this.formFields.currentTransType === '') {
-      console.log('sessionStorage UserConfig: ' + sessionStorage.getItem('UserConfig'));
-      if (sessionStorage.getItem('UserConfig') !== undefined && sessionStorage.getItem('UserConfig') !== null) {
-        let parsedObject = JSON.parse(sessionStorage.getItem('UserConfig'));
-        console.info("Init from session UserConfig: " + parsedObject.TranType +", " + parsedObject.DispCnt +", " + parsedObject.Mode);
+    if (this.formFields.currentTransType === '') {
+      const userConfigStr = this.storageService.getItem<string>('UserConfig');
+      console.log('sessionStorage UserConfig: ' + userConfigStr);
+      if (userConfigStr) {
+        let parsedObject = JSON.parse(userConfigStr);
+        console.info("Init from session UserConfig: " + parsedObject.TranType + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
         this.formFields.currentTransType = parsedObject.TranType;
         this.formFields.mode = parsedObject.Mode;
         this.formFields.rowCnt = parsedObject.DispCnt;
@@ -260,31 +265,31 @@ export class TransactionComponent implements OnInit, AfterViewInit {
         this.form.controls.mode.setValue(this.formFields.mode);
         this.pageSize = parsedObject.DispCnt;
         let stDtStr = parsedObject.TranTime;
-        if(stDtStr.toString().indexOf('7') > 1) {
+        if (stDtStr.toString().indexOf('7') > 1) {
           stDt = 7;
-        } else if(stDtStr.toString().indexOf('30') > 1) {
+        } else if (stDtStr.toString().indexOf('30') > 1) {
           stDt = 30;
-        } else if(stDtStr.toString().indexOf('90') > 1) {
+        } else if (stDtStr.toString().indexOf('90') > 1) {
           stDt = 90;
-        } else if(stDtStr.toString().indexOf('365') > 1) {
+        } else if (stDtStr.toString().indexOf('365') > 1) {
           stDt = 365;
         }
-        console.info("Init from session: " +  this.formFields.currentTransType + ", Search from " + stDt + " days. " + stDtStr);
+        console.info("Init from session: " + this.formFields.currentTransType + ", Search from " + stDt + " days. " + stDtStr);
       }
       console.info('Set valid date time');
       this.nowDt = new Date((new Date().getTime() - (stDt * 24 * 60 * 60 * 1000)));
-      let mm= (this.nowDt.getMonth() < 9)? "0"+(this.nowDt.getMonth() + 1): this.nowDt.getMonth() + 1;
-      let dt= (this.nowDt.getDate() < 10)? "0"+this.nowDt.getDate(): this.nowDt.getDate();
-      this.formFields.startDate = this.nowDt.getFullYear() +"-" + mm +"-" + dt;
-      let tmVal = ((this.nowDt.getHours()< 10)? "0"+ this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":" ;
-      tmVal += (this.nowDt.getMinutes() < 10)? "0"+ this.nowDt.getMinutes(): "" + this.nowDt.getMinutes();
+      let mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
+      let dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
+      this.formFields.startDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
+      let tmVal = ((this.nowDt.getHours() < 10) ? "0" + this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":";
+      tmVal += (this.nowDt.getMinutes() < 10) ? "0" + this.nowDt.getMinutes() : "" + this.nowDt.getMinutes();
       this.formFields.startTm = tmVal;
       console.info("Start Time: " + this.formFields.startDate + ", " + this.formFields.startTm);
       this.nowDt = new Date(new Date().getTime());
-      mm= (this.nowDt.getMonth() < 9)? "0"+(this.nowDt.getMonth() + 1): this.nowDt.getMonth() + 1;
-      dt= (this.nowDt.getDate() < 10)? "0" + this.nowDt.getDate(): this.nowDt.getDate();
-      this.formFields.endDate =this.nowDt.getFullYear() +"-" + mm +"-" + dt;
-      this.formFields.endTm= tmVal;
+      mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
+      dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
+      this.formFields.endDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
+      this.formFields.endTm = tmVal;
       console.info("End Time: " + this.formFields.endDate + ", " + this.formFields.endTm);
     }
   }
@@ -457,9 +462,9 @@ export class TransactionComponent implements OnInit, AfterViewInit {
     this.paramsList.forEach(val => {
       this.transUserFlds += val + ';';
     });
-    sessionStorage.setItem("transUserFlds", this.transUserFlds);
+    this.storageService.setItem("transUserFlds", this.transUserFlds);
     const jsonString = JSON.stringify(this.formFields);
-    sessionStorage.setItem("transConfig", jsonString);
+    this.storageService.setItem("transConfig", jsonString);
   }
 
   private fetchTransactionData() {
@@ -914,60 +919,58 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
 }
 
 
-handleContextMenu(item: Item, menu: string)  {
-  console.log('Click on Action 2 ' + item.ID +", " + menu);
-
-  this.transUserFlds = "";
-  this.paramsList.forEach( val => {
-    this.transUserFlds += val +";";
-   });
-   const jsonString = JSON.stringify(this.formFields);
-   if (menu === 'WorkFlow')
-   {
-      console.log('Item: ' + item.ID +", " + item.sessionId );
-      sessionStorage.removeItem("currentTab")
-      sessionStorage.setItem("currentTab", "Work Flow");
-
-      const url = this.router.serializeUrl(this.router.createUrlTree([ `${environment.org}` + "/workflow/workflowDetails/"],
-         {queryParams: { sessionID:  (item.sessionId),  mode:  this.formFields.mode , TransactionType: this.formFields.currentTransType } }
+  handleContextMenu(item: Item, menu: string)  {
+    console.log('Click on Action 2 ' + item.ID + ", " + menu);
+    this.transUserFlds = "";
+    this.paramsList.forEach(val => {
+      this.transUserFlds += val + ";";
+    });
+    const jsonString = JSON.stringify(this.formFields);
+    if (menu === 'WorkFlow') {
+      console.log('Item: ' + item.ID + ", " + item.sessionId);
+      this.storageService.removeItem("currentTab");
+      this.storageService.setItem("currentTab", "Work Flow");
+      const url = this.router.serializeUrl(this.router.createUrlTree([`${environment.org}` + "/workflow/workflowDetails/"],
+        { queryParams: { sessionID: (item.sessionId), mode: this.formFields.mode, TransactionType: this.formFields.currentTransType } }
       ));
       console.log("Details in new tab URL: " + url);
-          const newTab = window.open(url, '_blank');
-          if(newTab) {
-              newTab.opener = null;
-          }
-
-
-   }
-   else if (menu === 'Details in Same Window')
-   {
+      const newTab = window.open(url, '_blank');
+      if (newTab) {
+        newTab.opener = null;
+      }
+    } else if (menu === 'Details in Same Window') {
       this.transUserFlds += ";sameWindow::true";
-
       this.router.navigate(["/transaction/transaction-details/"],
-      {queryParams: { ID:  item.ID, 'transConfig': jsonString,
-         'transaction': this.form.controls.transType.value,
-         'additionalSearch': this.staticSearchStr,
-         'searchTypeString': this.transUserFlds } }
-       );
-      }
-      else
-      {
-        this.transUserFlds += ";sameWindow::false";
-
-        const jsonString = JSON.stringify(this.formFields);
-
-            const url = this.router.serializeUrl(this.router.createUrlTree([ `${environment.org}` + "/transaction/transaction-details/"],
-            {queryParams: { ID:  item.ID, 'transaction': this.form.controls.transType.value,
-              'additionalSearch': this.staticSearchStr, 'searchTypeString': this.transUserFlds } }
-            ));
-            console.log("Details in new tab URL: " + url);
-          const newTab = window.open(url, '_blank');
-          if(newTab) {
-              newTab.opener = null;
+        {
+          queryParams: {
+            ID: item.ID,
+            'transConfig': jsonString,
+            'transaction': this.form.controls.transType.value,
+            'additionalSearch': this.staticSearchStr,
+            'searchTypeString': this.transUserFlds
           }
+        }
+      );
+    } else {
+      this.transUserFlds += ";sameWindow::false";
+      const jsonString = JSON.stringify(this.formFields);
+      const url = this.router.serializeUrl(this.router.createUrlTree([`${environment.org}` + "/transaction/transaction-details/"],
+        {
+          queryParams: {
+            ID: item.ID,
+            'transaction': this.form.controls.transType.value,
+            'additionalSearch': this.staticSearchStr,
+            'searchTypeString': this.transUserFlds
+          }
+        }
+      ));
+      console.log("Details in new tab URL: " + url);
+      const newTab = window.open(url, '_blank');
+      if (newTab) {
+        newTab.opener = null;
       }
-
-}
+    }
+  }
 
 
 applyFilter(event: Event) {

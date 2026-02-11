@@ -17,6 +17,7 @@ import { catchError } from 'rxjs';
 import { MatDialog } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
 import { environment } from '../../environments/environment';
+import { StorageService } from '../services/storage.service';
 import { BaseChartDirective } from 'ng2-charts';
 import { Chart, registerables, ChartOptions, ChartType, ChartDataset, LabelItem } from 'chart.js';
 
@@ -82,11 +83,16 @@ export class DashBoardComponent implements OnInit {
   currentMode = 'Batch';
   sub:any;
 
-  constructor(private DashBoardService: TransRestServiceComponent,
-    private formBuilder: FormBuilder, private router: Router, private route: ActivatedRoute, public dialog: MatDialog){
-      tpId: new FormControl();
-      Chart.register(...registerables);
-
+  constructor(
+    private DashBoardService: TransRestServiceComponent,
+    private formBuilder: FormBuilder,
+    private router: Router,
+    private route: ActivatedRoute,
+    public dialog: MatDialog,
+    private storageService: StorageService
+  ) {
+    tpId: new FormControl();
+    Chart.register(...registerables);
   }
 
 
@@ -182,7 +188,7 @@ export class DashBoardComponent implements OnInit {
         this.searchTypeString += val +";";
        });
 
-      sessionStorage.setItem("searchTypeString", this.searchTypeString)
+      this.storageService.setItem("searchTypeString", this.searchTypeString)
 
           this.DashBoardService.fetchDashboardentries(this.paramsList).subscribe((res: any) => {
 
@@ -332,8 +338,8 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
 
 onContextMenuNew(item: Item) {
   console.log("Click on Action id: " + item.rowId);
-  sessionStorage.removeItem("currentTab")
-  sessionStorage.setItem("currentTab", "Transactions");
+  this.storageService.removeItem("currentTab");
+  this.storageService.setItem("currentTab", "Transactions");
 
     this.searchTypeString = "";
     this.paramsList.forEach( val => {
@@ -364,8 +370,8 @@ onContextMenuNew(item: Item) {
 onContextMenuSame(item: Item) {
 
   this.searchTypeString = "";
-  sessionStorage.removeItem("currentTab")
-  sessionStorage.setItem("currentTab", "Transactions");
+  this.storageService.removeItem("currentTab");
+  this.storageService.setItem("currentTab", "Transactions");
 
     this.paramsList.forEach( val => {
       this.searchTypeString += val +";";
