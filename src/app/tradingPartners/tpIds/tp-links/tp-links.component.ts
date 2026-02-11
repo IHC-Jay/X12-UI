@@ -1,27 +1,24 @@
 
+
+// Angular and Material imports
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core';
 import { animate, state, style, transition, trigger } from '@angular/animations';
-import { MatTableModule, MatTableDataSource } from '@angular/material/table';
+import { MatTableDataSource } from '@angular/material/table';
 import { Router, ActivatedRoute } from '@angular/router';
-import { map } from 'rxjs/operators';
 import { Subscription } from 'rxjs';
 import { tpLinks } from './tp-links';
 import { TpRestServiceComponent } from '../../../services/tprest-service.component';
-import { Injectable } from '@angular/core';
-import * as _ from 'lodash';
 import { MatPaginator } from '@angular/material/paginator';
-import { MatSort, MatSortHeader } from '@angular/material/sort';
-import { RouterLinkWithHref } from '@angular/router';
-import { TpId } from '../TpId';
-import { TradingPartner } from '../../TradingPartner';
+import { MatSort } from '@angular/material/sort';
 import { MatDialog } from '@angular/material/dialog';
 import { ConfirmDialogComponent } from '../../../confirm-dialog/confirm-dialog.component';
-import { MatIconModule } from '@angular/material/icon';
+
+// Utility imports
+import * as _ from 'lodash';
 
 
-@Injectable({
-  providedIn: 'root'
-})
+
+// Injectable not needed for component
 
 @Component({
     selector: 'app-tp-links',
@@ -38,177 +35,179 @@ import { MatIconModule } from '@angular/material/icon';
 })
 
 
-export class tpLinksComponent implements OnInit, OnDestroy {
 
+/**
+ * Component for displaying and managing Trading Partner Links
+ */
+export class tpLinksComponent implements OnInit, OnDestroy {
+  // --- Table and Pagination ---
   public size = 5;
   public pageNumber = 0;
-
-  bulkInsert = false;
-  tpIdToLink:String;
-  tpId:String;
-  tpName:string;
-
-  isTableExpanded = false;
-
-  loadedPosts: tpLinks[] = [];
-
-  isFetching = false;
-  mySelect = '1';
-  error = null;
-
-  private errorSub: Subscription;
-
   @ViewChild(MatSort) sort: MatSort;
   @ViewChild(MatPaginator) paginator: MatPaginator;
-
+  displayedtpLinksColumnsList: string[] = ['Link', 'IsaSenderId', 'IsaReceiverId', 'TransType', 'Mode', 'Active', 'actions'];
   tpIdLinksList = new MatTableDataSource<tpLinks>();
 
-  displayedtpLinksColumnsList: string[] = ['Link', 'IsaSenderId', 'IsaReceiverId', 'TransType', 'Mode', 'Active', 'actions'];
-
+  // --- State ---
+  bulkInsert = false;
+  tpIdToLink: string;
+  tpId: string;
+  tpName: string;
+  isTableExpanded = false;
+  loadedPosts: tpLinks[] = [];
+  isFetching = false;
+  mySelect = '1';
+  error: string | null = null;
+  private errorSub: Subscription;
   tpLinksArray: tpLinks[] = [];
 
-
-  constructor(public dialog: MatDialog, private router: Router, private route: ActivatedRoute, private tpLinksService: TpRestServiceComponent
+  constructor(
+    public dialog: MatDialog,
+    private router: Router,
+    private route: ActivatedRoute,
+    private tpLinksService: TpRestServiceComponent
   ) {
-    this.tpIdToLink = this.tpId;
-
+    this.tpIdToLink = '';
   }
 
+  /**
+   * Lifecycle: OnInit
+   */
   ngOnInit() {
-
     console.info("ngOnInit");
-    const routeParams = this.route.snapshot.paramMap;
-    this.tpId = routeParams.get('tpId');
-    this.tpName = routeParams.get('tpName');
-    console.info("tpLink init:" + this.tpName + ", " + this.tpId);
-    this.errorSub = this.tpLinksService.error.subscribe(errorMessage => {
-      this.error = errorMessage;
-    });
-    this.Refresh();
-
-
-    this.errorSub = this.tpLinksService.error.subscribe(errorMessage => {
-      this.error = errorMessage;
-    });
+    this.initRouteParams();
+    this.subscribeToErrors();
+    this.refreshLinks();
   }
 
+  /**
+   * Lifecycle: AfterViewInit
+   */
   ngAfterViewInit() {
     this.tpIdLinksList.paginator = this.paginator;
     this.tpIdLinksList.sort = this.sort;
-
   }
 
+  /**
+   * Lifecycle: OnDestroy
+   */
+  ngOnDestroy() {
+    if (this.errorSub) {
+      this.errorSub.unsubscribe();
+    }
+  }
 
+  // --- Initialization Helpers ---
 
-  Refresh()
-  {
+  /**
+   * Initialize route parameters
+   */
+  private initRouteParams() {
+    const routeParams = this.route.snapshot.paramMap;
+    this.tpId = routeParams.get('tpId') || '';
+    this.tpName = routeParams.get('tpName') || '';
+    this.tpIdToLink = this.tpId;
+    console.info("tpLink init:" + this.tpName + ", " + this.tpId);
+  }
 
+  /**
+   * Subscribe to error messages from the service
+   */
+  private subscribeToErrors() {
+    this.errorSub = this.tpLinksService.error.subscribe(errorMessage => {
+      this.error = errorMessage;
+    });
+  }
+
+  // --- Data Fetching and Refresh ---
+
+  /**
+   * Refresh the list of TP Links
+   */
+  refreshLinks() {
     this.isFetching = true;
-
     this.tpLinksService.fetchTpLinks(this.tpId).subscribe(
       tpLinksData => {
         this.isFetching = false;
-
         this.loadedPosts = tpLinksData;
         this.tpIdLinksList.data = this.loadedPosts;
-        console.info("tpIdLinksList: " + this.tpIdLinksList.data.length)
-        if(this.tpIdLinksList.data == null || this.tpIdLinksList.data.length <= 0)
-        {
-          this.bulkInsert = true;
-        }
-        else {
-          this.bulkInsert = false;
-        }
+        console.info("tpIdLinksList: " + this.tpIdLinksList.data.length);
+        this.bulkInsert = !this.tpIdLinksList.data || this.tpIdLinksList.data.length <= 0;
       },
       error => {
         this.isFetching = false;
         this.error = error.message;
       }
     );
-
-
     console.debug("Got TPLink records");
-
   }
 
+  // --- Table and Row Actions ---
 
-  // Toggel Rows
+  /**
+   * Toggle expansion of all table rows
+   */
   toggleTableRows() {
     this.isTableExpanded = !this.isTableExpanded;
-
     this.tpIdLinksList.data.forEach((row: any) => {
       row.isExpanded = this.isTableExpanded;
-      // console.info("toggleTableRows: " + row.isExpanded);
-    })
+    });
   }
 
-  onHandleError() {
-    this.error = null;
-  }
-
-  ngOnDestroy() {
-    this.errorSub.unsubscribe();
-  }
-
-  SelecttpLinks(nm: String) {
+  /**
+   * Toggle expansion for a single row by Link name
+   */
+  selectTpLinks(nm: string) {
     console.info("fetchtp-links: " + nm);
-
     this.tpIdLinksList.data.forEach((row: any) => {
-
-      if(row.Link == nm )
-      {
-        row.isExpanded = ! row.isExpanded;
+      if (row.Link === nm) {
+        row.isExpanded = !row.isExpanded;
       }
-    })
-
+    });
   }
 
-  addRow()
-  {
+  /**
+   * Add a new TP Link row
+   */
+  addRow() {
     console.info("Call add for: " + this.tpId);
-    this.router.navigate(["/TradingPartners/tpIds/tp-links/add-edit/tp-add/" + this.tpId +"/" + this.tpName] );
+    this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-add/${this.tpId}/${this.tpName}`]);
   }
 
-  bulkRow()
-  {
-    this.router.navigate(["/TradingPartners/tpIds/tp-links/add-edit/tp-bulkAdd/" + this.tpId +"/" + this.tpName] );
+  /**
+   * Bulk add TP Links
+   */
+  bulkRow() {
+    this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-bulkAdd/${this.tpId}/${this.tpName}`]);
   }
 
-  editRow(tpLink: tpLinks)
-  {
-    console.info("Call edit for: " + typeof tpLink +", " + tpLink.IsaSenderId + " -> " + tpLink.IsaReceiverId +", " + tpLink.Direction);
-    let newTpNm = this.tpName.replace("/", "%2F");
-    if(tpLink.Direction.indexOf("In") >=0  )
-    {
-      this.router.navigate(["/TradingPartners/tpIds/tp-links/add-edit/tp-edit/" +  tpLink.IsaSenderId +"/" + this.tpName +"/" + tpLink.Link] );
+  /**
+   * Edit a TP Link row
+   */
+  editRow(tpLink: tpLinks) {
+    console.info(`Call edit for: ${typeof tpLink}, ${tpLink.IsaSenderId} -> ${tpLink.IsaReceiverId}, ${tpLink.Direction}`);
+    if (tpLink.Direction.indexOf("In") >= 0) {
+      this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-edit/${tpLink.IsaSenderId}/${this.tpName}/${tpLink.Link}`]);
+    } else {
+      this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-edit/${tpLink.IsaReceiverId}/${this.tpName}/${tpLink.Link}`]);
     }
-    else
-    {
-      this.router.navigate(["/TradingPartners/tpIds/tp-links/add-edit/tp-edit/" +  tpLink.IsaReceiverId +"/" + this.tpName +"/" + tpLink.Link] );
-    }
-
   }
 
+  /**
+   * Delete a TP Link
+   */
   delete(tpLink: string) {
-
-    try
-    {
-
-      this.dialog
-      .open(ConfirmDialogComponent)
-      .afterClosed()
-      .subscribe((confirm) => {
-        if (confirm) {
-
-          this.tpLinksService.deleteTpLink(tpLink).subscribe(
-            {
-              next: (res) =>
-              {
+    try {
+      this.dialog.open(ConfirmDialogComponent)
+        .afterClosed()
+        .subscribe((confirm) => {
+          if (confirm) {
+            this.tpLinksService.deleteTpLink(tpLink).subscribe({
+              next: (res) => {
                 if (res["Status"] !== undefined) {
-                  this.Refresh();
-                }
-                else if(res["Error"] !== undefined) {
-                  alert(res["Error"])
+                  this.refreshLinks();
+                } else if (res["Error"] !== undefined) {
+                  alert(res["Error"]);
                 }
                 console.info('deleteTpLink: Json: ' + JSON.stringify(res));
                 return;
@@ -217,23 +216,20 @@ export class tpLinksComponent implements OnInit, OnDestroy {
                 alert('deleteTpLink catchError: ' + e);
                 return;
               }
-            })
+            });
+          }
+        });
+    } catch (e) {
+      console.error('Exception: ' + e);
     }
-    });
-
-
-
-    }
-    catch(e)
-    {
-      console.error('Exception: ' + e)
-    }
-
-
-
   }
 
-
+  /**
+   * Clear error state
+   */
+  onHandleError() {
+    this.error = null;
+  }
 }
 
 

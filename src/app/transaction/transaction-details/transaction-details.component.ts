@@ -49,147 +49,76 @@ export class TransactionDetailComponent {
   }
 
   ngOnInit() {
-
     this.sub = this.route.queryParams.subscribe(params => {
-      // Defaults to 0 if no query param provided.
-      this.ID = ''+params['ID'] || '0';
-      this.transaction = ''+params['transaction'] || '0';
+      this.ID = '' + params['ID'] || '0';
+      this.transaction = '' + params['transaction'] || '0';
       this.additionalSearchStr = params['additionalSearch'];
       this.searchTypeString = params['searchTypeString'];
       this.mode = params['mode'];
       this.transConfigJsonString = params['transConfig'];
-      console.log('Query params ID: ', this.ID + ', trans: ' + this.transaction + ", additionalSearch: " + this.additionalSearchStr +", searchTypeString: " + this.searchTypeString);
-      if (this.mode != "" && this.searchTypeString.indexOf("Batch") > 0)
-      {
-        this.mode = "Batch"
+      console.log('Query params ID: ', this.ID + ', trans: ' + this.transaction + ", additionalSearch: " + this.additionalSearchStr + ", searchTypeString: " + this.searchTypeString);
+      if (this.mode != "" && this.searchTypeString.indexOf("Batch") > 0) {
+        this.mode = "Batch";
       }
       this.prevWindow = (this.searchTypeString.indexOf("sameWindow::true") > 1);
-
     });
-
     this.TransactionService.fetchTransactionFields().subscribe((res: any) => {
-
       this.displayedColumns = [];
-
-        for (var item of res)
-        {
-
-          if( ((Number.isNaN(item.TransactionCode) === false) && (item.TransactionCode ===  this.transaction) ) ||
-          ( (Number.isNaN(item.TransactionCode) === true) && Number.parseInt(item.TransactionCode) ===  Number.parseInt(this.transaction) )
-          || Number.parseInt(item.TransactionCode) == 1)
-          {
-            this.displayedColumns.push({key: item.Key, type: item.Type, label: item.TransactionLabel, transactionCode: item.TransactionCode});
-            // console.log(Number.isNaN(item.TransactionCode) + ", Display: " + item.TransactionCode +" ===  " + this.transaction +" || " + item.TransactionCode +": " + item.Key)
-          }
-
+      for (var item of res) {
+        if (
+          ((Number.isNaN(item.TransactionCode) === false) && (item.TransactionCode === this.transaction)) ||
+          ((Number.isNaN(item.TransactionCode) === true) && Number.parseInt(item.TransactionCode) === Number.parseInt(this.transaction)) ||
+          Number.parseInt(item.TransactionCode) == 1
+        ) {
+          this.displayedColumns.push({ key: item.Key, type: item.Type, label: item.TransactionLabel, transactionCode: item.TransactionCode });
         }
-        console.log(this.transaction + '- Display columns: ' + this.displayedColumns.length);
-        let paramsList: string[]= [];
-        paramsList.push("ID::" + this.ID);
-        paramsList.push("count::" + 1);
-        // paramsList.push("searchType::" + this.searchTypeString);
-
-        if(this.transaction === '270')
-        {
-
-          this.TransactionService.fetchEligibilityRequests(this.mode, paramsList).subscribe((res: any) => {
-
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-
-            console.log("# of records: " + res.length)
-          });
-        }
-        if(this.transaction === '271')
-        {
-
-          this.TransactionService.fetchEligibilityBenefitResponses(this.mode, paramsList).subscribe((res: any) => {
-
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-            console.log("# of records: " + res.length + ", parent Id:" + this.dataSource.data[0].X12DataParentId)
-          });
-        }
-        else if(this.transaction.startsWith('837')){
-
-          this.TransactionService.fetchClaims(this.mode, paramsList).subscribe((res: any) => {
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-          });
-
-        }
-        else if(this.transaction === '835'){
-          this.TransactionService.fetchClaimPayment(this.mode, paramsList).subscribe((res: any) => {
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-          });
-
-        }
-        else if(this.transaction === '276'){
-
-          this.TransactionService.fetchClaimStatusReq(this.mode, paramsList).subscribe((res: any) => {
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-          });
-
-        }
-        else if(this.transaction === '277'){
-
-          this.TransactionService.fetchClaimStatusResp(this.mode, paramsList).subscribe((res: any) => {
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-          });
-
-        }
-        else if(this.transaction.toString() === '277CA'){
-
-          this.TransactionService.fetchClaimAcknowledgment(this.mode, paramsList).subscribe((res: any) => {
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-          });
-
-        }
-        else if(this.transaction === '999'){
-
-          this.TransactionService.fetchImplementationAcknowledgment(this.mode, paramsList).subscribe((res: any) => {
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-            this.ak1CtrlNum = this.dataSource.data[0].GroupRespControlNumber	;
-            this.ak1ver= this.dataSource.data[0].GroupRespVersion;
-            this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-          });
-
-        }
-        else if(this.transaction === 'TA1'){
-
-          this.TransactionService.fetchTA1(this.mode, paramsList).subscribe((res: any) => {
-            this.canRenderDetails = true;
-            this.dataSource.data = res;
-            this.X12DataParentId = this.dataSource.data[0].X12DataParentId;
-             this.fileName = this.dataSource.data[0].FileName.replace(/^.*[\\\/]/, '');
-          });
-
-        }
-
-
-  });
-
+      }
+      console.log(this.transaction + '- Display columns: ' + this.displayedColumns.length);
+      let paramsList: string[] = [];
+      paramsList.push("ID::" + this.ID);
+      paramsList.push("count::" + 1);
+      this.fetchTransactionDetailData(this.transaction, this.mode, paramsList);
+    });
   }
+
+  // --- Refactored fetch logic for ngOnInit ---
+  private fetchTransactionDetailData(transaction: string, mode: string, paramsList: string[]) {
+    const setResult = (res: any) => {
+      this.canRenderDetails = true;
+      this.dataSource.data = res;
+      if (res && res[0]) {
+        this.X12DataParentId = res[0].X12DataParentId;
+        this.fileName = res[0].FileName.replace(/^.*[\\\/]/, '');
+        if (transaction === '999') {
+          this.ak1CtrlNum = res[0].GroupRespControlNumber;
+          this.ak1ver = res[0].GroupRespVersion;
+        }
+      }
+      if (res) {
+        console.log("# of records: " + res.length + (transaction === '271' ? ", parent Id:" + res[0].X12DataParentId : ''));
+      }
+    };
+    if (transaction === '270') {
+      this.TransactionService.fetchEligibilityRequests(mode, paramsList).subscribe(setResult);
+    } else if (transaction === '271') {
+      this.TransactionService.fetchEligibilityBenefitResponses(mode, paramsList).subscribe(setResult);
+    } else if (transaction.startsWith('837')) {
+      this.TransactionService.fetchClaims(mode, paramsList).subscribe(setResult);
+    } else if (transaction === '835') {
+      this.TransactionService.fetchClaimPayment(mode, paramsList).subscribe(setResult);
+    } else if (transaction === '276') {
+      this.TransactionService.fetchClaimStatusReq(mode, paramsList).subscribe(setResult);
+    } else if (transaction === '277') {
+      this.TransactionService.fetchClaimStatusResp(mode, paramsList).subscribe(setResult);
+    } else if (transaction.toString() === '277CA') {
+      this.TransactionService.fetchClaimAcknowledgment(mode, paramsList).subscribe(setResult);
+    } else if (transaction === '999') {
+      this.TransactionService.fetchImplementationAcknowledgment(mode, paramsList).subscribe(setResult);
+    } else if (transaction === 'TA1') {
+      this.TransactionService.fetchTA1(mode, paramsList).subscribe(setResult);
+    }
+  }
+
 
   getSelectedValue(loopnum: number, question:string)
   {

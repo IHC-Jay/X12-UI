@@ -19,6 +19,8 @@ import { MatIconModule } from '@angular/material/icon';
 
 
 export class copyTPComponent implements OnInit, AfterViewInit {
+  // ...existing code...
+  // Refactor large methods into private helpers for clarity and maintainability
   tpNames: string[] = [];
   form!: FormGroup;
   created:boolean=false;

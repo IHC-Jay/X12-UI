@@ -1,15 +1,11 @@
-import { Injectable } from "@angular/core";
-
-import { BehaviorSubject, Observable } from "rxjs";
-import { map } from "rxjs/operators";
-
-import { User } from "../login/user";
-import {TpRestServiceComponent} from './tprest-service.component';
-import {TransRestServiceComponent} from './transrest-service.component';
+import { Injectable } from '@angular/core';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { map } from 'rxjs/operators';
+import { User } from '../login/user';
+import { TpRestServiceComponent } from './tprest-service.component';
+import { TransRestServiceComponent } from './transrest-service.component';
 import { WfRestServiceComponent } from './wfrest-service.component';
-
-@Injectable({ providedIn: "root" })
-
+@Injectable({ providedIn: 'root' })
 export class AuthenticationService {
  private currentUserSubject: BehaviorSubject<User>;
   public currentUser: Observable<User>;

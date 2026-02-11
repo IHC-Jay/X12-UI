@@ -8,6 +8,8 @@ import { PdfReaderService } from './pdf-reader.service';
 	standalone: false
 })
 export class PdfReaderComponent implements OnInit, AfterViewInit {
+	// ...existing code...
+	// Refactor large methods into private helpers for clarity and maintainability
 	assetGuideFiles: string[] = [];
 	selectedAssetGuideFile: string | null = null;
 	fileSrc: ArrayBuffer | null = null;

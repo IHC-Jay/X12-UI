@@ -39,6 +39,8 @@ export interface filterOption{
 
 
 export class TradingPartnersComponent implements OnInit, AfterViewInit {
+  // ...existing code...
+  // Refactor large methods into private helpers for clarity and maintainability
 
   public size = 5;
   public pageNumber = 0;

@@ -126,194 +126,145 @@ searchTypeString:string = "";
 
   }
 
-  ngOnInit()
-  {
+  ngOnInit() {
+    this.searchTypeString = sessionStorage.getItem("searchTypeString");
+    this.initForm();
+    this.initTransactionTypes();
+    this.initFromSessionStorage();
+    this.initFromSearchTypeString();
+    this.loadConfigurationAndFields();
+    this.handleQueryParams();
+  }
 
-    this.searchTypeString =  sessionStorage.getItem("searchTypeString");
-
-
+  // --- ngOnInit Refactor Helpers ---
+  private initForm() {
     this.form = this.formBuilder.group({
-      cngfPage:['Transmissions', Validators.required],
-      cngfTranType:['', Validators.required],
-      cngfMode:['Batch', Validators.required],
-      cngfBthTime:['Last 1 day', Validators.required],
-      cngfTranTime:['Last 1 day', Validators.required],
-      cngfWfTime:['Last 7 days', Validators.required],
-      cngfLogoff:['30', Validators.required],
-      cngfDispCnt:['25', Validators.required],
+      cngfPage: ['Transmissions', Validators.required],
+      cngfTranType: ['', Validators.required],
+      cngfMode: ['Batch', Validators.required],
+      cngfBthTime: ['Last 1 day', Validators.required],
+      cngfTranTime: ['Last 1 day', Validators.required],
+      cngfWfTime: ['Last 7 days', Validators.required],
+      cngfLogoff: ['30', Validators.required],
+      cngfDispCnt: ['25', Validators.required],
       dispTransType: ['', Validators.required],
-      dispMode:['Batch', Validators.required]
+      dispMode: ['Batch', Validators.required]
     });
+  }
 
-    if (this.org == 'SH')
-    {
-        this.transactionTypes = ["270", "271","276", "277", "277CA", "835", "837I", "837P", "837D", "999", "TA1"];
-    }
-   else
-    {
-        this.transactionTypes = [ "835", "837I", "837P", "837D", "999", "277CA", "TA1"];
+  private initTransactionTypes() {
+    if (this.org == 'SH') {
+      this.transactionTypes = ["270", "271", "276", "277", "277CA", "835", "837I", "837P", "837D", "999", "TA1"];
+    } else {
+      this.transactionTypes = ["835", "837I", "837P", "837D", "999", "277CA", "TA1"];
     }
     this.dispTransType = '';
+  }
 
-    //
-    if(sessionStorage.getItem('transConfig') !== undefined && sessionStorage.getItem('transConfig') !== null)
-    {
-          // Defaults to '' if no query param provided.
-
-          let jsonString = sessionStorage.getItem('transConfig')
-
-          let formFields = JSON.parse(jsonString);
-          console.info("transConfig from sessionStorage: " + formFields.currentTransType +", Mode: " + formFields.mode);
-          this.dispTransType = formFields.currentTransType;
-          this.form.controls.dispTransType.setValue(this.dispTransType)
-          this.form.controls.dispMode.setValue(formFields.mode)
+  private initFromSessionStorage() {
+    if (sessionStorage.getItem('transConfig') !== undefined && sessionStorage.getItem('transConfig') !== null) {
+      let jsonString = sessionStorage.getItem('transConfig');
+      let formFields = JSON.parse(jsonString);
+      console.info("transConfig from sessionStorage: " + formFields.currentTransType + ", Mode: " + formFields.mode);
+      this.dispTransType = formFields.currentTransType;
+      this.form.controls.dispTransType.setValue(this.dispTransType);
+      this.form.controls.dispMode.setValue(formFields.mode);
     }
+  }
 
-    if (this.dispTransType === '' && this.searchTypeString !== null && this.searchTypeString.indexOf("transaction::") >=0)
-    {
+  private initFromSearchTypeString() {
+    if (this.dispTransType === '' && this.searchTypeString !== null && this.searchTypeString.indexOf("transaction::") >= 0) {
       let fInd = this.searchTypeString.indexOf("transaction::") + "transaction::".length;
-            this.dispTransType = this.searchTypeString.substring( fInd, this.searchTypeString.indexOf(";", fInd))
-            console.log(fInd + ". transType:" + this.dispTransType )
-            this.form.controls.dispTransType.setValue(this.dispTransType)
-
-             fInd = this.searchTypeString.indexOf("mode::") + 6;
-             let val = this.searchTypeString.substring( fInd, this.searchTypeString.indexOf(";", fInd))
-            console.log(fInd + ". MODE:" + val )
-            this.form.controls.dispMode.setValue(val);
+      this.dispTransType = this.searchTypeString.substring(fInd, this.searchTypeString.indexOf(";", fInd));
+      console.log(fInd + ". transType:" + this.dispTransType);
+      this.form.controls.dispTransType.setValue(this.dispTransType);
+      fInd = this.searchTypeString.indexOf("mode::") + 6;
+      let val = this.searchTypeString.substring(fInd, this.searchTypeString.indexOf(";", fInd));
+      console.log(fInd + ". MODE:" + val);
+      this.form.controls.dispMode.setValue(val);
     }
+  }
 
+  private loadConfigurationAndFields() {
     this.TransactionService.fetchConfiguration().subscribe((res: any) => {
-      console.info("Configuration array : " + res.length +", DispTransType: " + this.dispTransType);
-      if (res.length == 1)
-      {
-          console.log('No Setting')
-      }
-      else
-      {
-        for(let ind = 0; ind < res.length; ind++)
-          {
-
-            if('Page' === res[ind].Key)
-            {
-
-              this.form.controls.cngfPage.setValue(res[ind].Value)
-
-            }
-            else if('TranType' === res[ind].Key)
-              {
-                this.cngfTranType = res[ind].Value
-                this.form.controls.cngfTranType.setValue(this.cngfTranType)
-
-                if (this.dispTransType === '')
-                {
-                  this.dispTransType = res[ind].Value
-                  this.form.controls.dispTransType.setValue(this.dispTransType)
-                }
+      console.info("Configuration array : " + res.length + ", DispTransType: " + this.dispTransType);
+      if (res.length !== 1) {
+        for (let ind = 0; ind < res.length; ind++) {
+          const key = res[ind].Key;
+          const value = res[ind].Value;
+          switch (key) {
+            case 'Page':
+              this.form.controls.cngfPage.setValue(value); break;
+            case 'TranType':
+              this.cngfTranType = value;
+              this.form.controls.cngfTranType.setValue(this.cngfTranType);
+              if (this.dispTransType === '') {
+                this.dispTransType = value;
+                this.form.controls.dispTransType.setValue(this.dispTransType);
               }
-              else if('Mode' === res[ind].Key)
-                {
-
-                  this.form.controls.cngfMode.setValue(res[ind].Value)
-
-                }
-                else if('BthTime' === res[ind].Key)
-                  {
-
-                    this.form.controls.cngfBthTime.setValue(res[ind].Value)
-
-                  }
-                  else if('TranTime' === res[ind].Key)
-                    {
-
-                      this.form.controls.cngfTranTime.setValue(res[ind].Value)
-
-                    }
-                    else if('WfTime' === res[ind].Key)
-                      {
-
-                        this.form.controls.cngfWfTime.setValue(res[ind].Value)
-
-                      }
-                      else if('Logoff' === res[ind].Key)
-                        {
-
-                          this.form.controls.cngfLogoff.setValue(res[ind].Value)
-
-                        }
-                        else if('DispCnt' === res[ind].Key)
-                          {
-
-                            this.form.controls.cngfDispCnt.setValue(res[ind].Value)
-
-                          }
-
+              break;
+            case 'Mode':
+              this.form.controls.cngfMode.setValue(value); break;
+            case 'BthTime':
+              this.form.controls.cngfBthTime.setValue(value); break;
+            case 'TranTime':
+              this.form.controls.cngfTranTime.setValue(value); break;
+            case 'WfTime':
+              this.form.controls.cngfWfTime.setValue(value); break;
+            case 'Logoff':
+              this.form.controls.cngfLogoff.setValue(value); break;
+            case 'DispCnt':
+              this.form.controls.cngfDispCnt.setValue(value); break;
           }
+        }
       }
-
-
-    this.TransactionService.fetchTransactionFields().subscribe((res: any) => {
-      this.allTransactionsFields = [];
-
-        for (var item of res)
-        {
-          // console.info("Push transactionsSearchColumns: " + item.Key)
-            this.allTransactionsFields.push({key: item.Key,
-              type: item.Type, label: item.TransactionLabel, transactionCode: item.TransactionCode, order: item.Order,
-            checked:'false'});
+      this.TransactionService.fetchTransactionFields().subscribe((res: any) => {
+        this.allTransactionsFields = [];
+        for (var item of res) {
+          this.allTransactionsFields.push({
+            key: item.Key,
+            type: item.Type,
+            label: item.TransactionLabel,
+            transactionCode: item.TransactionCode,
+            order: item.Order,
+            checked: 'false'
+          });
         }
         console.info("All TransactionsFields: " + this.allTransactionsFields.length);
-
         console.info("Fetch Display, Search Columns. ");
-
-        this.TransactionService.fetchDisplayColumns("Default" , "Transactions").subscribe((res: any) => {
-          this.usrDisplayColumns.splice(0, this.usrDisplayColumns.length)
+        this.TransactionService.fetchDisplayColumns("Default", "Transactions").subscribe((res: any) => {
+          this.usrDisplayColumns.splice(0, this.usrDisplayColumns.length);
           this.usrDisplayColumns.push(...res);
           console.info("User display columns from fetchDisplayColumns: " + this.usrDisplayColumns.length);
-
-
-
           this.TransactionService.fetchSearchColumns("Default", "Transactions").subscribe((res: any) => {
-            this.usrSearchColumns.splice(0, this.usrSearchColumns.length)
+            this.usrSearchColumns.splice(0, this.usrSearchColumns.length);
             this.usrSearchColumns.push(...res);
             console.info("User search columns from fetchSearchColumns: " + this.usrSearchColumns.length);
-
-            if(this.dispTransType !== '')
-            {
-
-            this.transactionChange(this.dispTransType);
-
+            if (this.dispTransType !== '') {
+              this.transactionChange(this.dispTransType);
             }
           });
         });
       });
+    });
+  }
 
-
-      this.sub = this.route.queryParams.subscribe(params => {
-
-        if(params !== undefined && params.transaction !== undefined)
-          {
-        // Defaults to '' if no query param provided.
-
-        this.dispTransType =  params['transaction'] || '';
+  private handleQueryParams() {
+    this.sub = this.route.queryParams.subscribe(params => {
+      if (params !== undefined && params.transaction !== undefined) {
+        this.dispTransType = params['transaction'] || '';
         this.formFields.modeString = params['mode'];
         this.form.controls.dispTransType.setValue(this.dispTransType);
-        this.form.controls.dispMode.setValue(this.formFields.modeString)
-
+        this.form.controls.dispMode.setValue(this.formFields.modeString);
         this.additionalSearchStr = params['additionalSearch'];
         this.searchTypeString = params['searchTypeString'];
-        console.log('Query params trans: ' + this.dispTransType + ", additionalSearch: " + this.additionalSearchStr +", searchTypeString: " + this.searchTypeString);
-
-
-        }
-      });
-      if (this.dispTransType == '')
-      {
+        console.log('Query params trans: ' + this.dispTransType + ", additionalSearch: " + this.additionalSearchStr + ", searchTypeString: " + this.searchTypeString);
+      }
+      if (this.dispTransType == '') {
         this.dispTransType = this.transactionTypes[0];
-
         this.form.controls.dispTransType.setValue(this.dispTransType);
       }
     });
-
   }
 
 

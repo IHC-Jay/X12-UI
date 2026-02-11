@@ -16,7 +16,7 @@ import {MatButtonModule} from '@angular/material/button';
 import {MatBadgeModule} from '@angular/material/badge';
 import { tpLinks } from '../tradingPartners/tpIds/tp-links/tp-links';
 import { environment } from '../../environments/environment';
-
+import { StorageService } from '../services/storage.service';
 
 const CHECK_INTERVAL = 5000 // in ms
 const STORE_KEY =  'lastAction';
@@ -66,12 +66,15 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
   background = 'white';
 
-  constructor(private router: Router, private authenticationService: AuthenticationService,
-      private formBuilder: FormBuilder,
-      private route: ActivatedRoute,
-      private TransactionService: TransRestServiceComponent,
-      private WfService: WfRestServiceComponent
-    )
+  constructor(
+    private router: Router,
+    private authenticationService: AuthenticationService,
+    private formBuilder: FormBuilder,
+    private route: ActivatedRoute,
+    private TransactionService: TransRestServiceComponent,
+    private WfService: WfRestServiceComponent,
+    private storage: StorageService
+  )
     {
       console.log('**** HeaderComponent constructor ****');
 
@@ -105,8 +108,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
       // get return url from route parameters or default to '/'
 
       this.route.queryParams.subscribe(params => {
-
-        let retTab =  sessionStorage.getItem("currentTab");
+        let retTab =  this.storage.getItem<string>("currentTab");
         console.log('HeaderComponent currentTab: '+ retTab);
         let tabInd = 0
 
@@ -208,7 +210,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
   logout() {
     this.authenticationService.logout();
-    sessionStorage.clear();
+    this.storage.clear();
     this.isLogin = false;
     this.f.username.setValue('');
     this.f.password.setValue('');
@@ -276,7 +278,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
                           jsonString += ',"' + res[ind].Key + '":"' + res[ind].Value +'"'
 
                         }
-                        sessionStorage.setItem(res[ind].Key, res[ind].Value);
+                        this.storage.setItem(res[ind].Key, res[ind].Value);
                         console.log('Store in sessionStorage ' + res[ind].Key +", " + res[ind].Value);
                       }
 
@@ -298,12 +300,10 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
                     jsonString += "}"
                       console.log('JSON string:' + jsonString)
 
-                      let parsedObject = JSON.parse(jsonString);
-                      sessionStorage.setItem('UserConfig', jsonString)
-
-                    if (sessionStorage.getItem('Logoff') !== undefined && sessionStorage.getItem('Logoff') !== null)
-                    {
-                        this.loginForm.controls.logoutTime.setValue(sessionStorage.getItem('Logoff'));
+                      this.storage.setItem('UserConfig', jsonString)
+                    const logoffValue = this.storage.getItem<string>('Logoff');
+                    if (logoffValue !== undefined && logoffValue !== null) {
+                        this.loginForm.controls.logoutTime.setValue(logoffValue);
                     }
 
 
@@ -340,7 +340,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
                 this.initListener();
                 this.initInterval();
                 console.log('Store in sessionStorage')
-                sessionStorage.setItem(STORE_KEY,Date.now().toString());
+                this.storage.setItem(STORE_KEY,Date.now().toString());
                 return;
 
               });
@@ -384,8 +384,8 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
           let numItems = this.NumAssignedItems
 
             this.NumAssignedItems = 0;
-            sessionStorage.removeItem("currentTab")
-            sessionStorage.setItem("currentTab", this.links[event.index].name);
+            this.storage.removeItem("currentTab")
+            this.storage.setItem("currentTab", this.links[event.index].name);
 
             this.router.navigate([this.links[event.index].link], {queryParams: { 'WFitems':  numItems}} );
 
@@ -397,8 +397,8 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
           if (event.index != 0)
           {
-            sessionStorage.removeItem("currentTab")
-            sessionStorage.setItem("currentTab", this.links[event.index].name);
+            this.storage.removeItem("currentTab")
+            this.storage.setItem("currentTab", this.links[event.index].name);
           }
           this.router.navigate([this.links[event.index].link]);
 
@@ -452,11 +452,11 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
    // Auto logout
 
    public getLastAction() {
-    return parseInt(sessionStorage.getItem(STORE_KEY));
+    return parseInt(this.storage.getItem<string>(STORE_KEY));
   }
 
  public setLastAction(lastAction: number) {
-  sessionStorage.setItem(STORE_KEY, lastAction.toString());
+  this.storage.setItem(STORE_KEY, lastAction.toString());
   }
 
    initListener() {
@@ -473,7 +473,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
   reset() {
 
     this.setLastAction(Date.now());
-    // console.log('store key',sessionStorage.getItem(STORE_KEY));
+    // console.log('store key',this.storage.getItem(STORE_KEY));
 
   }
 
@@ -505,7 +505,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
   storageEvt(){
 	  console.log("storage");
-	  this.val = sessionStorage.getItem(STORE_KEY);
+	  this.val = this.storage.getItem<string>(STORE_KEY);
   }
 
 

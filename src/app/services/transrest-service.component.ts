@@ -1,42 +1,24 @@
-import { Component } from '@angular/core';
-import { Injectable } from '@angular/core';
-import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
-import { forkJoin, Observable, pipe } from 'rxjs';
-import { map, catchError, tap } from 'rxjs/operators';
-import { Subject, throwError } from 'rxjs';
-import { formatDate } from '@angular/common';
-import { LOCALE_ID, NgModule } from '@angular/core';
+import { Injectable, Inject, LOCALE_ID } from '@angular/core';
 import { environment } from '../../environments/environment';
-
-import { Inject } from "@angular/core";
-
-
-import {TransactionData} from '../transaction/TransactionData'
-
-
-import {WorkFlowEntry, IrisUsers} from '../workflow/WorkFlowEntry';
-import { transition } from '@angular/animations';
+import { Subject, throwError, Observable, BehaviorSubject, of, forkJoin } from 'rxjs';
+import { map, catchError } from 'rxjs/operators';
 import { AuthenticationService } from './authentication.service';
-import {TpRestServiceComponent} from './tprest-service.component';
-
-import {DisplayColumns, DisplayColumnsArray} from '../transaction/DisplayColumns';
-import {ConfirationArray, ConfigColumns} from '../transaction/Configuration';
-
-import {SearchColumns, SearchColumnsArray} from '../transaction/SearchColumns';
-import { Router, ActivatedRoute} from '@angular/router';
-import {User} from '../login/user';
-
-
-
+import { HttpClient, HttpHeaders, HttpParams } from '@angular/common/http';
+import { Router } from '@angular/router';
+import { TpRestServiceComponent } from './tprest-service.component';
+import { TradingPartner } from '../tradingPartners/TradingPartner';
+import { TpId } from '../tradingPartners/tpIds/TpId';
+import { tpLinks } from '../tradingPartners/tpIds/tp-links/tp-links';
+import { TransactionData } from '../transaction/TransactionData';
+import { DisplayColumns, DisplayColumnsArray } from '../transaction/DisplayColumns';
+import { SearchColumns, SearchColumnsArray } from '../transaction/SearchColumns';
+import { ConfirationArray } from '../transaction/Configuration';
+import { WorkFlowEntry } from '../workflow/WorkFlowEntry';
+import { formatDate } from '@angular/common';
 @Injectable({ providedIn: 'root' })
-
-@Component({
-    selector: 'app-rest-service',
-    templateUrl: './rest-service.component.html',
-    standalone: false
-})
-
 export class TransRestServiceComponent {
+  // ...existing code...
+  // Add private helper methods for API calls and error handling as needed
 
    rtTransUrl = `${environment.rtDevTransUrl}`;
    batchTransUrl = `${environment.batchDevTransUrl}`;

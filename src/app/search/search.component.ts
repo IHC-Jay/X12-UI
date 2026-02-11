@@ -32,6 +32,8 @@ const DEFAULT_DURATION = 300;
 })
 
 export class SearchComponent implements OnInit {
+  // ...existing code...
+  // Refactor large methods into private helpers for clarity and maintainability
 
   loading:boolean = false;
   selectedTpId ='';

@@ -24,6 +24,8 @@ interface X12Node {
   standalone: false
 })
 export class X12ViewerComponent implements OnChanges, OnInit {
+  // ...existing code...
+  // Refactor large methods into private helpers for clarity and maintainability
   @HostBinding('class.fullscreen-tree')
   get fullscreenTree() { return this.viewMode === 'tree'; }
   @Input() x12Text = '';

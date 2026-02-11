@@ -15,27 +15,37 @@ export class CodeValueLookupComponent implements OnInit {
   constructor(private lookupSvc: CodeValueLookupService) {}
 
   ngOnInit(): void {
-    // Attempt to load CSV from assets/HL3Values.csv
-    this.loadFromAssets();
+    this.loadLookupData();
   }
 
-  private async loadFromAssets() {
+  private async loadLookupData() {
     try {
-      const ok = await this.lookupSvc.loadLookupForPrefix(this.prefix);
-      if (ok) {
-        const rows = this.lookupSvc.getRows();
-        this.hl3rows = rows.map(r => ({ hl3lookupvalues: [r.id, r.value] }));
+      const loaded = await this.lookupSvc.loadLookupForPrefix(this.prefix);
+      if (loaded) {
+        this.setRowsFromService();
         return;
       }
-      // fallback: try HL3Values.csv directly
-      const resp = await fetch('/assets/HL3Values.csv');
-      if (!resp.ok) return;
-      const txt = await resp.text();
-      this.parseCsv(txt);
+      await this.loadFromCsvAsset();
     } catch (e) {
-      // ignore — asset may not exist in dev workspace
-      return;
+      this.handleError(e);
     }
+  }
+
+  private setRowsFromService() {
+    const rows = this.lookupSvc.getRows();
+    this.hl3rows = rows.map(r => ({ hl3lookupvalues: [r.id, r.value] }));
+  }
+
+  private async loadFromCsvAsset() {
+    const resp = await fetch('/assets/HL3Values.csv');
+    if (!resp.ok) return;
+    const txt = await resp.text();
+    this.parseCsv(txt);
+  }
+
+  private handleError(e: any) {
+    this.error = 'Failed to load lookup data.';
+    // Optionally log error or show user feedback
   }
 
   async loadByPrefix() {

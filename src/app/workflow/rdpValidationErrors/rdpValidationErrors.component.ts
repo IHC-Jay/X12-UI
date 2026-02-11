@@ -127,65 +127,84 @@ export class RdpValidationErrorsComponent implements OnInit {
     console.info("In ngAfterViewInit")
   }
 
-  ngOnInit()
-  {
+  ngOnInit() {
     console.info("ngOnInit");
+    this.setupSessionTab();
+    this.initForm();
+    this.handleQueryParams();
+  }
 
-     sessionStorage.removeItem("currentTab")
-      sessionStorage.setItem("currentTab", "Work Flow");
+  /**
+   * Remove and set the current tab in session storage.
+   */
+  private setupSessionTab() {
+    sessionStorage.removeItem("currentTab");
+    sessionStorage.setItem("currentTab", "Work Flow");
+  }
 
+  /**
+   * Initialize the reactive form and set default status type.
+   */
+  private initForm() {
     this.form = this.formBuilder.group({
       statusType: ['', Validators.required]
     });
-
     this.form.controls.statusType.setValue(this.statusTypes[0]);
-     this.wfStatus = this.statusTypes[0];
+    this.wfStatus = this.statusTypes[0];
+  }
 
-    this.sub = this.route
-    .queryParams
-    .subscribe(searchParams => {
-
-      if (searchParams['sessionID'] !== undefined && searchParams['sessionID'] !== null)
-      {
-        this.sessionID = searchParams['sessionID'];
-        this.TransactionType = searchParams['TransactionType'];
-        console.log("sessionID query sessionID provided!" + this.sessionID +", FileName: " + searchParams['searchParams']  +", TransactionType: " + this.TransactionType);
-        this.fileName = searchParams['searchParams'];
-        this.wfMode = searchParams['mode'];
-        this.getX12( 'ID=&SessionID=' + this.sessionID);
+  /**
+   * Subscribe to query params and handle workflow initialization.
+   */
+  private handleQueryParams() {
+    this.sub = this.route.queryParams.subscribe(searchParams => {
+      if (searchParams['sessionID'] !== undefined && searchParams['sessionID'] !== null) {
+        this.handleSessionIdParams(searchParams);
+      } else {
+        this.handleDefaultParams(searchParams);
       }
-      else
-      {
-
-            // Defaults to 0 if no query param provided.
-            this.ID = ''+searchParams['ID'] || '0';
-            this.TransactionType = searchParams['TransactionType'];
-
-            this.searchParams = searchParams['searchParams'];
-
-            let fInd = this.searchParams.indexOf("status::") + "status::".length;
-            let val = this.searchParams.substring( fInd, this.searchParams.indexOf(";", fInd))
-            console.log(fInd + ". statusType:" + val )
-            this.wfStatus = val
-
-            fInd = this.searchParams.indexOf("mode::") + "mode::".length;
-            val = this.searchParams.substring( fInd, this.searchParams.indexOf(";", fInd))
-            console.log(fInd + ". mode:" + val )
-            this.wfMode = val
-
-            fInd = this.searchParams.indexOf("transaction::") + "transaction::".length;
-            val = this.searchParams.substring( fInd, this.searchParams.indexOf(";", fInd))
-            console.log(fInd + ". transaction:" + val )
-            this.transTypeStr = val;
-
-            console.log('Query params ID: ', this.ID + ', params: ' + this.searchParams );
-
-            this.getX12("ID=" + this.ID +'&SessionID=');
-      }
-
     });
+  }
 
+  /**
+   * Handle initialization when sessionID is present in query params.
+   */
+  private handleSessionIdParams(searchParams: any) {
+    this.sessionID = searchParams['sessionID'];
+    this.TransactionType = searchParams['TransactionType'];
+    console.log("sessionID query sessionID provided!" + this.sessionID + ", FileName: " + searchParams['searchParams'] + ", TransactionType: " + this.TransactionType);
+    this.fileName = searchParams['searchParams'];
+    this.wfMode = searchParams['mode'];
+    this.getX12('ID=&SessionID=' + this.sessionID);
+  }
 
+  /**
+   * Handle initialization when sessionID is not present in query params.
+   */
+  private handleDefaultParams(searchParams: any) {
+    // Defaults to 0 if no query param provided.
+    this.ID = '' + searchParams['ID'] || '0';
+    this.TransactionType = searchParams['TransactionType'];
+    this.searchParams = searchParams['searchParams'];
+
+    // Extract status, mode, and transaction type from searchParams string
+    this.wfStatus = this.extractParam(this.searchParams, "status::");
+    this.wfMode = this.extractParam(this.searchParams, "mode::");
+    this.transTypeStr = this.extractParam(this.searchParams, "transaction::");
+
+    console.log('Query params ID: ', this.ID + ', params: ' + this.searchParams);
+    this.getX12("ID=" + this.ID + '&SessionID=');
+  }
+
+  /**
+   * Helper to extract a value from a semicolon-delimited param string.
+   */
+  private extractParam(paramStr: string, key: string): string {
+    const fInd = paramStr.indexOf(key) + key.length;
+    if (fInd < key.length) return '';
+    const endInd = paramStr.indexOf(";", fInd);
+    if (endInd === -1) return paramStr.substring(fInd);
+    return paramStr.substring(fInd, endInd);
   }
   get f() { return this.form.controls; }
 
@@ -196,170 +215,152 @@ export class RdpValidationErrorsComponent implements OnInit {
 }
 
 
-getX12(searchStr: string = "")
-{
-  this.canRenderDetails = false;
-
-  searchStr = "ID=&X12DataId=&SessionID=" + this.sessionID +"&WFID=" + this.ID +"&TransactionType=" + this.TransactionType ;
-
-  console.log("Call service for " +searchStr);
-
-      console.log(searchStr);
-      this.WfService.fetchRdpCrytalEntries(this.wfMode, searchStr ).subscribe((res: any) => {
+  getX12(searchStr: string = "") {
+    this.canRenderDetails = false;
+    searchStr = this.buildX12SearchString();
+    console.log("Call service for " + searchStr);
+    this.WfService.fetchRdpCrytalEntries(this.wfMode, searchStr).subscribe((res: any) => {
       console.log("Call to get RDP Crystal Entries, count: " + Object.keys(res).length);
-
-      // console.log("# of records: " + res.length +", first row: " + JSON.stringify(res[0]) );
-
-        let x12DataLns = res[0].X12.split( String(res[0].X12).substr(105, 1) );
-        this.separator = res[0].X12.substr(3, 1)
-        console.log("Sep: " + this.separator)
-        let wfErr = (String)(res[0].Error).replaceAll(";", "\n");
-
-        let tpInd = wfErr.indexOf("TP Not found:")
-        if (tpInd >=0)
-        {
-          this.tpCreate = true;
-          this.tpId = wfErr.substring(tpInd + "TP Not found:".length).trim();
-          if (this.tpId.indexOf("TP Not found:") >=0  ) // In case two TPs are missing
-          {
-            this.tpId = this.tpId.substring(0, this.tpId.indexOf("TP Not found:")).trim();
-          }
-        }
-
-        tpInd = wfErr.indexOf("Relation Not found:")
-        if (tpInd >=0)
-        {
-          this.tpCreate = true;
-          this.tpRelId = wfErr.substring(tpInd + "TRelation Not found:".length).trim();
-        }
-
-
-        this.x12Array.splice(0, this.x12Array.length)
-        let lenNum = 0;
-        let segEle = ""
-        this.selectedRow = -1;
-
-
-        let errFound:boolean = false;
-
-
-        x12DataLns.forEach((item, index) => {
-          let err = '';
-          var ind=1;
-          segEle ='';
-
-            lenNum++;
-
-
-            if(item.startsWith('ST' + this.separator))
-            {
-              const words = item.split(this.separator);
-
-            }
-
-            // Error details
-
-            for (ind=1; ind < res.length ; ind++) {
-
-
-              if(lenNum == res[ind].LineNum)
-              {
-                segEle = "Loop: " + res[ind].Loop +", " + res[ind].Segment +"/" + res[ind].Element
-                err =  segEle + ": " + res[ind].ErrorDesc + "(" + res[ind].ErrorCode + ")";
-
-                if (this.selectedRow === -1 && err !== '')
-                {
-                  this.selectedRow = index + 1;
-
-                }
-
-                break;
-              }
-            }
-
-
-            if(item !== '')
-            {
-
-              if(err !== '')
-                {
-                  this.errArray.push({'Num' :''+ind, 'LineNum':''+lenNum, 'Segment': res[ind].Segment, 'Element': res[ind].Element, 'Error' : err})
-              }
-              if (this.checked) // Show errors only
-              {
-                if(err !== '')
-                {
-                  this.x12Array.push({'LineNum' :''+lenNum, 'Data':item, Error:err});
-                  errFound = true;
-
-                }
-              }
-              else
-              {
-                this.x12Array.push({'LineNum' :''+lenNum, 'Data':item,  Error:err});
-              }
-            }
-
-
-        });
-
-
-      console.log(this.checked + ", x12Array: " + this.x12Array.length +", errors:" + this.errArray.length)
-
-      if (this.errArray.length > 0)
-      {
-        this.errorStr += "Number of errors: " +this.errArray.length + ", ";
-
-      }
-
-      if (this.fileName == undefined || this.fileName == null || this.fileName == ''  )
-        {
-          this.wfInfo = "Workflow ID: " + this.ID + ", Filename:" + res[0].Filename ;
-          this.errorStr +=  wfErr + ", WF Status: " + this.wfStatus;
-        }
-        else
-        {
-            this.wfInfo = "Workflow ID: " + this.ID + ", Filename:" + this.fileName ;
-            this.errorStr += wfErr + ", WF Status: " + this.wfStatus;
-        }
-
-
-
-      if(!errFound)
-      {
-        this.selectedRow = 0
-      }
-      this.dataSource.data = this.x12Array;
-      this.errorDataSource.data = this.errArray;
-      console.log("Data lines #" +  this.x12Array.length + ", # of error lines: "  + ", " + this.errorDataSource.data.length  )
-      this.totalErrRecords = this.errorDataSource.data.length;
-
-      this.canRenderDetails = true;
-
-      console.log("Remove " + this.wfStatus +" from " + this.statusTypes.length)
-
-      var index = this.statusTypes.indexOf(this.wfStatus); // get index if value found otherwise -1
-
-      if (index > -1) { //if found
-        this.statusTypes.splice(index, 1);
-      }
-      if(this.errArray.length > 0)
-      {
-        this.dataError = true;
-      }
-      else
-      {
-        this.dataError = false;
-        this.errArray.push({'Num': '1', 'LineNum': '1', 'Segment': '-', 'Element':'-', 'Error' : "-"});
-        this.errorDataSource.data = this.errArray;
-
-      }
-
-
+      this.processX12Response(res);
     });
+  }
 
+  /**
+   * Build the search string for fetching X12 data.
+   */
+  private buildX12SearchString(): string {
+    return (
+      "ID=&X12DataId=&SessionID=" + this.sessionID +
+      "&WFID=" + this.ID +
+      "&TransactionType=" + this.TransactionType
+    );
+  }
 
-}
+  /**
+   * Process the response from fetchRdpCrytalEntries and update component state.
+   */
+  private processX12Response(res: any) {
+    if (!res || !res[0] || !res[0].X12) {
+      this.canRenderDetails = true;
+      return;
+    }
+    // Parse X12 data and error info
+    const x12DataLns = res[0].X12.split(String(res[0].X12).substr(105, 1));
+    this.separator = res[0].X12.substr(3, 1);
+    console.log("Sep: " + this.separator);
+    const wfErr = String(res[0].Error).replaceAll(";", "\n");
+    this.handleTPNotFound(wfErr);
+    this.x12Array.splice(0, this.x12Array.length);
+    this.errArray.splice(0, this.errArray.length);
+    let lenNum = 0;
+    let segEle = "";
+    this.selectedRow = -1;
+    let errFound: boolean = false;
+    x12DataLns.forEach((item, index) => {
+      lenNum++;
+      let err = '';
+      let ind = 1;
+      segEle = '';
+      // Error details
+      for (ind = 1; ind < res.length; ind++) {
+        if (lenNum == res[ind].LineNum) {
+          segEle = "Loop: " + res[ind].Loop + ", " + res[ind].Segment + "/" + res[ind].Element;
+          err = segEle + ": " + res[ind].ErrorDesc + "(" + res[ind].ErrorCode + ")";
+          if (this.selectedRow === -1 && err !== '') {
+            this.selectedRow = index + 1;
+          }
+          break;
+        }
+      }
+      if (item !== '') {
+        if (err !== '') {
+          this.errArray.push({
+            'Num': '' + ind,
+            'LineNum': '' + lenNum,
+            'Segment': res[ind]?.Segment ?? '-',
+            'Element': res[ind]?.Element ?? '-',
+            'Error': err
+          });
+        }
+        if (this.checked) {
+          if (err !== '') {
+            this.x12Array.push({ 'LineNum': '' + lenNum, 'Data': item, Error: err });
+            errFound = true;
+          }
+        } else {
+          this.x12Array.push({ 'LineNum': '' + lenNum, 'Data': item, Error: err });
+        }
+      }
+    });
+    this.updateErrorInfo(wfErr, res);
+    if (!errFound) {
+      this.selectedRow = 0;
+    }
+    this.dataSource.data = this.x12Array;
+    this.errorDataSource.data = this.errArray;
+    this.totalErrRecords = this.errorDataSource.data.length;
+    this.canRenderDetails = true;
+    this.removeCurrentStatusFromTypes();
+    this.updateDataErrorState();
+  }
+
+  /**
+   * Handle TP Not found and Relation Not found errors.
+   */
+  private handleTPNotFound(wfErr: string) {
+    let tpInd = wfErr.indexOf("TP Not found:");
+    if (tpInd >= 0) {
+      this.tpCreate = true;
+      this.tpId = wfErr.substring(tpInd + "TP Not found:".length).trim();
+      if (this.tpId.indexOf("TP Not found:") >= 0) {
+        this.tpId = this.tpId.substring(0, this.tpId.indexOf("TP Not found:")).trim();
+      }
+    }
+    tpInd = wfErr.indexOf("Relation Not found:");
+    if (tpInd >= 0) {
+      this.tpCreate = true;
+      this.tpRelId = wfErr.substring(tpInd + "TRelation Not found:".length).trim();
+    }
+  }
+
+  /**
+   * Update workflow and error info strings.
+   */
+  private updateErrorInfo(wfErr: string, res: any) {
+    if (this.errArray.length > 0) {
+      this.errorStr += "Number of errors: " + this.errArray.length + ", ";
+    }
+    if (this.fileName == undefined || this.fileName == null || this.fileName == '') {
+      this.wfInfo = "Workflow ID: " + this.ID + ", Filename:" + res[0].Filename;
+      this.errorStr += wfErr + ", WF Status: " + this.wfStatus;
+    } else {
+      this.wfInfo = "Workflow ID: " + this.ID + ", Filename:" + this.fileName;
+      this.errorStr += wfErr + ", WF Status: " + this.wfStatus;
+    }
+  }
+
+  /**
+   * Remove the current status from the statusTypes array.
+   */
+  private removeCurrentStatusFromTypes() {
+    const index = this.statusTypes.indexOf(this.wfStatus);
+    if (index > -1) {
+      this.statusTypes.splice(index, 1);
+    }
+  }
+
+  /**
+   * Update the dataError state and ensure errorDataSource is not empty.
+   */
+  private updateDataErrorState() {
+    if (this.errArray.length > 0) {
+      this.dataError = true;
+    } else {
+      this.dataError = false;
+      this.errArray.push({ 'Num': '1', 'LineNum': '1', 'Segment': '-', 'Element': '-', 'Error': "-" });
+      this.errorDataSource.data = this.errArray;
+    }
+  }
 
 
  exportX12()

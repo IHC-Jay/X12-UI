@@ -89,9 +89,9 @@ import { CodeValueLookupComponent } from './codeValue-lookup/codeValue-lookup.co
 @NgModule({ declarations: [
         AppComponent,
         HeaderComponent,
-        TpRestServiceComponent,
-        TransRestServiceComponent,
-        WfRestServiceComponent,
+        // TpRestServiceComponent, // Service, should not be declared
+        // TransRestServiceComponent, // Service, should not be declared
+        // WfRestServiceComponent, // Service, should not be declared
         TradingPartnersComponent,
         copyTPComponent,
         ConfirmDialogComponent,

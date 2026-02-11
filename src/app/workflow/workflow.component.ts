@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef, Injectable } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
 import { SelectionModel } from "@angular/cdk/collections";
 import { MatTableDataSource } from "@angular/material/table";
 
@@ -11,7 +11,7 @@ import {WorkFlowEntry, IrisUsers} from './WorkFlowEntry';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort, MatSortHeader } from '@angular/material/sort';
 import { environment } from '../../environments/environment';
-import e from 'express';
+
 
 @Component({
     selector: 'app-workflow',
@@ -114,180 +114,144 @@ export class WorkflowComponent implements OnInit {
   get f() { return this.form.controls; }
 
   ngOnInit() {
+    this.initTransactionTypes();
+    this.initSessionTab();
+    this.initForm();
+    this.canRenderDetails = false;
+    this.irisUsers = [];
+    this.getUsers();
+    let wfItems = 0;
+    let stDt = 30;
+    let mode = 'RealTime';
 
-   if (`${environment.org}` == 'SH')
-  {
-    this.transactionTypes = ["All Batch", "All RT", "270", "271","276", "277", "277CA", "835", "837"];
+    if (this.hasSessionConfig('wfConfig')) {
+      wfItems = this.initFromSessionConfig();
+    }
+    if (wfItems !== 1 && this.hasSessionConfig('UserConfig')) {
+      this.initFromUserConfig();
+    }
+    this.onSubmit();
   }
-  else{
-    this.transactionTypes = ["All Batch",  "277CA", "835", "837"];
-  }
-    sessionStorage.removeItem("currentTab")
-    sessionStorage.setItem("currentTab", "Work Flow")
 
+  private initTransactionTypes() {
+    if (`${environment.org}` === 'SH') {
+      this.transactionTypes = ["All Batch", "All RT", "270", "271", "276", "277", "277CA", "835", "837"];
+    } else {
+      this.transactionTypes = ["All Batch", "277CA", "835", "837"];
+    }
+  }
+
+  private initSessionTab() {
+    sessionStorage.removeItem("currentTab");
+    sessionStorage.setItem("currentTab", "Work Flow");
+  }
+
+  private initForm() {
     this.form = this.formBuilder.group({
       statusType: ['', Validators.required],
       transType: ['', Validators.required],
       assignedUser: [''],
-      mode:['Batch', Validators.required],
+      mode: ['Batch', Validators.required],
       errorType: ['', Validators.required],
       rowSelected: [''],
       updStatusType: ['', Validators.required],
-      notes:[''],
-      assignee:[''],
-      wfID:[''],
-      senderID:[''],
-      receiverID:['']
+      notes: [''],
+      assignee: [''],
+      wfID: [''],
+      senderID: [''],
+      receiverID: ['']
     });
-    this.canRenderDetails = false;
-    this.irisUsers = [];
-    let wfItems = 0;
-    let stDt = 30;
-    let mode = 'RealTime';
-    this.getUsers();
+  }
 
-    if (sessionStorage.getItem('wfConfig') !== undefined && sessionStorage.getItem('wfConfig') !== null)
-      {
-            console.info("Init from session prev Config: " + sessionStorage.getItem('wfConfig'));
+  private hasSessionConfig(key: string): boolean {
+    return sessionStorage.getItem(key) !== undefined && sessionStorage.getItem(key) !== null;
+  }
 
-            let searchParams =  sessionStorage.getItem('wfConfig');
+  private initFromSessionConfig(): number {
+    const searchParams = sessionStorage.getItem('wfConfig');
+    if (!searchParams) return 0;
+    console.info("Init from session prev Config: " + searchParams);
+    this.transTypeStr = this.extractSessionValue(searchParams, "transaction::");
+    this.form.controls.transType.setValue(this.transTypeStr);
+    const errorType = this.extractSessionValue(searchParams, "errorType::");
+    if (errorType !== '') {
+      this.errorTypeStr = errorType;
+      this.form.controls.errorType.setValue(this.errorTypeStr);
+      console.log("ngOnInit - errorType: " + this.errorTypeStr);
+    }
+    const statusType = this.extractSessionValue(searchParams, "status::");
+    if (statusType !== '') {
+      this.statusTypeString = statusType;
+      this.form.controls.statusType.setValue(this.statusTypeString);
+    }
+    const mode = this.extractSessionValue(searchParams, "mode::");
+    this.form.controls.mode.setValue(mode);
+    this.showMode = !(this.transTypeStr.startsWith('83') || this.transTypeStr.indexOf('277CA') === 0 || this.transTypeStr.indexOf('All') >= 0);
+    console.log("mode: " + mode);
+    this.startDate = this.extractSessionDate(searchParams, "wfStartDtTm::");
+    this.startTm = this.extractSessionTime(searchParams, "wfStartDtTm::");
+    this.endDate = this.extractSessionDate(searchParams, "wfEndDtTm::");
+    this.endTm = this.extractSessionTime(searchParams, "wfEndDtTm::");
+    return 1;
+  }
 
-            let fInd = searchParams.indexOf("transaction::") + "transaction::".length;
-            let val = searchParams.substring( fInd, searchParams.indexOf(";", fInd))
-            this.transTypeStr =  val;
-            this.form.controls.transType.setValue(this.transTypeStr);
+  private extractSessionValue(params: string, key: string): string {
+    const fInd = params.indexOf(key) + key.length;
+    if (fInd < key.length) return '';
+    return params.substring(fInd, params.indexOf(";", fInd));
+  }
 
-            fInd = searchParams.indexOf("errorType::") + "errorType::".length;
-            val = searchParams.substring( fInd, searchParams.indexOf(";", fInd))
-            if (val != '')
-            {
-              this.errorTypeStr =  val;
-              this.form.controls.errorType.setValue(this.errorTypeStr);
-              console.log("ngOnInit - errorType: " + this.errorTypeStr);
-            }
+  private extractSessionDate(params: string, key: string): string {
+    const fInd = params.indexOf(key) + key.length;
+    const fInd2 = params.indexOf(" ", fInd);
+    if (fInd < key.length || fInd2 === -1) return '';
+    return params.substring(fInd, fInd2);
+  }
 
-            fInd = searchParams.indexOf("status::") + "status::".length;
-            val = searchParams.substring( fInd, searchParams.indexOf(";", fInd))
+  private extractSessionTime(params: string, key: string): string {
+    const fInd = params.indexOf(key) + key.length;
+    const fInd2 = params.indexOf(" ", fInd);
+    const fInd3 = params.indexOf(";", fInd2);
+    if (fInd < key.length || fInd2 === -1 || fInd3 === -1) return '';
+    return params.substring(fInd2 + 1, fInd3);
+  }
 
-            if (val != '')
-            {
-              this.statusTypeString = val;
-              this.form.controls.statusType.setValue(this.statusTypeString);
+  private initFromUserConfig(): void {
+    const userConfig = sessionStorage.getItem('UserConfig');
+    if (!userConfig) return;
+    const parsedObject = JSON.parse(userConfig);
+    console.info("Init from session UserConfig: " + parsedObject.WfTime + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
+    let stDt = this.parseDays(parsedObject.WfTime);
+    let mode = parsedObject.Mode;
+    this.nowDt = new Date((new Date().getTime() - (stDt * 24 * 60 * 60 * 1000)));
+    let mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
+    let dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
+    this.startDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
+    let tmVal = ((this.nowDt.getHours() < 10) ? "0" + this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":";
+    tmVal += (this.nowDt.getMinutes() < 10) ? "0" + this.nowDt.getMinutes() : "" + this.nowDt.getMinutes();
+    this.startTm = tmVal;
+    this.endTm = tmVal;
+    console.info("Time: " + tmVal + ", Status: " + this.statusTypeString);
+    this.nowDt = new Date(new Date().getTime());
+    mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
+    dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
+    this.endDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
+    this.form.controls.statusType.setValue(this.statusTypes[0]);
+    this.form.controls.transType.setValue(mode === 'Batch' ? this.transactionTypes[0] : this.transactionTypes[1]);
+    this.transTypeStr = this.form.controls.transType.value;
+    this.form.controls.errorType.setValue(this.errorTypes[0]);
+    this.form.controls.updStatusType.setValue(this.updStatusTypes[0]);
+    this.statusTypeString = this.statusTypes[0];
+    this.errorTypeStr = this.errorTypes[0];
+  }
 
-            }
-
-            fInd = searchParams.indexOf("count::") + "count::".length;
-            val = searchParams.substring( fInd, searchParams.indexOf(";", fInd))
-
-            fInd = searchParams.indexOf("mode::") + "mode::".length;
-            val = searchParams.substring( fInd, searchParams.indexOf(";", fInd))
-            this.form.controls.mode.setValue(val)
-            if (this.transTypeStr.startsWith('83') || (this.transTypeStr.indexOf('277CA') == 0) || (this.transTypeStr.indexOf('All') >= 0))
-            {
-              this.showMode = false;
-            }
-            else
-            {
-              this.showMode = true;
-            }
-            console.log("mode: " + val)
-
-            fInd = searchParams.indexOf("wfStartDtTm::") + "wfStartDtTm::".length;
-            let fInd2 = searchParams.indexOf(" ", fInd)
-            val = searchParams.substring( fInd, fInd2)
-            console.log(fInd + ". startDate:" + val )
-            this.startDate = val
-
-            let fInd3 = searchParams.indexOf(";", fInd2)
-            val = searchParams.substring( fInd2+1, fInd3)
-            console.log(fInd + ". startTm:" + val )
-            this.startTm = val
-
-            fInd = searchParams.indexOf("wfEndDtTm::") + "wfEndDtTm::".length;
-            fInd2 = searchParams.indexOf(" ", fInd)
-            val = searchParams.substring( fInd, fInd2)
-            console.log(fInd + ". endDate:" + val )
-            this.endDate = val
-
-            fInd3 = searchParams.indexOf(";", fInd2)
-            val = searchParams.substring( fInd2+1, fInd3)
-            console.log(fInd + ". endTm:" + val )
-            this.endTm = val
-
-            wfItems = 1
-
-      }
-
-      if (wfItems != 1 && sessionStorage.getItem('UserConfig') !== undefined && sessionStorage.getItem('UserConfig') !== null)
-      {
-        let parsedObject = JSON.parse(sessionStorage.getItem('UserConfig'));
-
-        console.info("Init from session UserConfig: " + parsedObject.WfTime +", " + parsedObject.DispCnt +", " + parsedObject.Mode);
-
-
-        let stDtStr = parsedObject.WfTime;
-        mode = parsedObject.Mode;
-
-        // Format: Last 90 days
-
-        if(stDtStr.toString().indexOf('1') > 1)
-        {
-          stDt = 1
-        }
-        else if(stDtStr.toString().indexOf('7') > 1)
-        {
-          stDt = 7
-        }
-        else if(stDtStr.toString().indexOf('30') > 1)
-        {
-          stDt = 30
-        }
-        else if(stDtStr.toString().indexOf('90') > 1)
-        {
-          stDt = 90
-        }
-        else if(stDtStr.toString().indexOf('365') > 1)
-        {
-          stDt = 365
-        }
-          console.info("Search from " + stDt + " days. " + stDtStr);
-            this.nowDt = new Date((new Date().getTime() - (stDt *24 * 60 * 60 * 1000)));
-            let mm= (this.nowDt.getMonth() < 9)? "0"+(this.nowDt.getMonth() + 1): this.nowDt.getMonth() + 1;
-            let dt= (this.nowDt.getDate() < 10)? "0"+this.nowDt.getDate(): this.nowDt.getDate();
-            this.startDate = this.nowDt.getFullYear() +"-" + mm +"-" + dt; //  "2023-01-12"; // new Date();
-            let tmVal = ((this.nowDt.getHours()< 10)? "0"+ this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":" ;
-
-            tmVal += (this.nowDt.getMinutes() < 10)? "0"+ this.nowDt.getMinutes(): "" + this.nowDt.getMinutes(); // "13:30";
-            this.startTm = tmVal
-            this.endTm= tmVal
-            console.info("Time: " + tmVal +", Status: " + this.statusTypeString)
-            this.nowDt = new Date(new Date().getTime());
-            mm= (this.nowDt.getMonth() < 9)? "0"+(this.nowDt.getMonth() + 1): this.nowDt.getMonth() + 1;
-            dt= (this.nowDt.getDate() < 10)? "0" + this.nowDt.getDate(): this.nowDt.getDate();
-            this.endDate =this.nowDt.getFullYear() +"-" + mm +"-" + dt;
-
-
-            this.form.controls.statusType.setValue(this.statusTypes[0]);
-            if (mode  == 'Batch' )
-            {
-              this.form.controls.transType.setValue(this.transactionTypes[0])
-            }
-            else
-            {
-              this.form.controls.transType.setValue(this.transactionTypes[1])
-            }
-            this.transTypeStr = this.form.controls.transType.value;
-            this.form.controls.errorType.setValue(this.errorTypes[0])
-            this.form.controls.updStatusType.setValue(this.updStatusTypes[0])
-
-            this.statusTypeString = this.statusTypes[0];
-            this.errorTypeStr = this.errorTypes[0];
-      }
-
-
-      this.onSubmit()
-
-
+  private parseDays(str: string): number {
+    if (str.toString().indexOf('1') > 1) return 1;
+    if (str.toString().indexOf('7') > 1) return 7;
+    if (str.toString().indexOf('30') > 1) return 30;
+    if (str.toString().indexOf('90') > 1) return 90;
+    if (str.toString().indexOf('365') > 1) return 365;
+    return 30;
   }
 
   ngAfterViewInit() {

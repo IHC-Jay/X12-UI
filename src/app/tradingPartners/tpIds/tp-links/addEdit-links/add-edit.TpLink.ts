@@ -112,268 +112,236 @@ public initializeData()
  });
 }
 
-    async ngOnInit()
-    {
+    async ngOnInit() {
       console.info("AddEditTpLink ngOnInit");
 
-      if (`${environment.org}` == 'SH')
-      {
-
-          this.direcTypes=["In", "Out"];
-      }
-      else
-      {
-        this.direcTypes=["Out", "In"];
-      }
-
-       this.form = this.formBuilder.group({
-          ParentTpId: [''],
-          Link: ['', Validators.required],
-          TransType: ['', Validators.required],
-          TransactionSetId: [''],
-          Mode: ['', Validators.required],
-          Direction: ['', Validators.required],
-          ISAAck: ['', Validators.required],
-          GSAck: ['', Validators.required],
-          STAck: ['', Validators.required],
-          GsReceiverId: ['', Validators.required],
-          GsSenderId: ['', Validators.required],
-          IsaSenderId: ['', Validators.required],
-          IsaReceiverId: ['', Validators.required],
-          Routing: ['', Validators.required],
-          SNIP: ['', Validators.required],
-          Separators   : ['|*^:', Validators.maxLength(4)],
-          ValidationRuleFile: [''],
-          UniqueId: [''],
-          MergeFlg: [''],
-          customProp: [''],
-          Active: ['']
-      });
-
-
-      // From Workflow
-      if (sessionStorage.getItem("NewTpRelId") !== null) {
-          let inpStr = sessionStorage.getItem("NewTpRelId") || '';
-          console.info('Set TPID: ' + inpStr);
-
-          // HT000015-001->HT006748-001, Version: V5010X279A1, Mode: Batch, Direction: In
-          this.parentTpId =inpStr.substring(0, inpStr.indexOf('->'));
-          let receiverId = inpStr.substring(inpStr.indexOf('->') + 2, inpStr.indexOf(', Version:'));
-          this.tpLinkNm = ""
-          this.transaction = inpStr.substring(inpStr.indexOf('Version:') + 9, inpStr.indexOf(', Mode:')).trim();
-          console.info('TPIDs: ' + this.parentTpId +", " + receiverId +", Transaction: " + this.transaction);
-          this.isAddMode = true;
-          this.form.controls.IsaReceiverId.setValue(receiverId);
-          this.form.controls.GsSenderId.setValue(this.parentTpId);
-          this.form.controls.IsaSenderId.setValue(this.parentTpId);
-          this.form.controls.GsReceiverId.setValue(receiverId);
-
-          this.ownerTpIds.push(receiverId);
-          this.ownerTpIds.push(this.parentTpId);
-       }
-       else {
-
-        this.parentTpId = this.route.snapshot.params['tpId'];
-        this.tpName = this.route.snapshot.params['tpName'];
-        this.tpLinkNm = this.route.snapshot.params['tpLink'];
-
-        this.sub = this.route.queryParams
-        .subscribe(params => {
-          this.transaction = ''+params['transaction']
-        });
-
-        this.isAddMode = !this.tpLinkNm;
-
-        if( this.isAddMode)
-        {
-          this.parentTpId = this.route.snapshot.params['tpId'];
-          console.info("Get parent: " + this.parentTpId);
-        }
-      }
-
+      this.setDirectionTypes();
+      this.initForm();
+      this.handleWorkflowOrRouteParams();
       this.initializeData();
+      await this.waitForCanRender();
+      this.handleFormPopulation();
+    }
 
+    /**
+     * Set direction types based on environment
+     */
+    private setDirectionTypes() {
+      if (`${environment.org}` == 'SH') {
+        this.direcTypes = ["In", "Out"];
+      } else {
+        this.direcTypes = ["Out", "In"];
+      }
+    }
 
-      let myPromise = () => new Promise((resolve, reject) => {
-        setTimeout(function(){
-          resolve('Count')
-        }, 1000)
-      })
+    /**
+     * Initialize the reactive form
+     */
+    private initForm() {
+      this.form = this.formBuilder.group({
+        ParentTpId: [''],
+        Link: ['', Validators.required],
+        TransType: ['', Validators.required],
+        TransactionSetId: [''],
+        Mode: ['', Validators.required],
+        Direction: ['', Validators.required],
+        ISAAck: ['', Validators.required],
+        GSAck: ['', Validators.required],
+        STAck: ['', Validators.required],
+        GsReceiverId: ['', Validators.required],
+        GsSenderId: ['', Validators.required],
+        IsaSenderId: ['', Validators.required],
+        IsaReceiverId: ['', Validators.required],
+        Routing: ['', Validators.required],
+        SNIP: ['', Validators.required],
+        Separators: ['|*^:', Validators.maxLength(4)],
+        ValidationRuleFile: [''],
+        UniqueId: [''],
+        MergeFlg: [''],
+        customProp: [''],
+        Active: ['']
+      });
+    }
 
+    /**
+     * Handle session workflow or route params to set up form state
+     */
+    private handleWorkflowOrRouteParams() {
+      if (sessionStorage.getItem("NewTpRelId") !== null) {
+        this.handleSessionWorkflow();
+      } else {
+        this.handleRouteParams();
+      }
+    }
+
+    private handleSessionWorkflow() {
+      let inpStr = sessionStorage.getItem("NewTpRelId") || '';
+      console.info('Set TPID: ' + inpStr);
+      this.parentTpId = inpStr.substring(0, inpStr.indexOf('->'));
+      let receiverId = inpStr.substring(inpStr.indexOf('->') + 2, inpStr.indexOf(', Version:'));
+      this.tpLinkNm = "";
+      this.transaction = inpStr.substring(inpStr.indexOf('Version:') + 9, inpStr.indexOf(', Mode:')).trim();
+      console.info('TPIDs: ' + this.parentTpId + ", " + receiverId + ", Transaction: " + this.transaction);
+      this.isAddMode = true;
+      this.form.controls.IsaReceiverId.setValue(receiverId);
+      this.form.controls.GsSenderId.setValue(this.parentTpId);
+      this.form.controls.IsaSenderId.setValue(this.parentTpId);
+      this.form.controls.GsReceiverId.setValue(receiverId);
+      this.ownerTpIds.push(receiverId);
+      this.ownerTpIds.push(this.parentTpId);
+    }
+
+    private handleRouteParams() {
+      this.parentTpId = this.route.snapshot.params['tpId'];
+      this.tpName = this.route.snapshot.params['tpName'];
+      this.tpLinkNm = this.route.snapshot.params['tpLink'];
+      this.sub = this.route.queryParams.subscribe(params => {
+        this.transaction = '' + params['transaction'];
+      });
+      this.isAddMode = !this.tpLinkNm;
+      if (this.isAddMode) {
+        this.parentTpId = this.route.snapshot.params['tpId'];
+        console.info("Get parent: " + this.parentTpId);
+      }
+    }
+
+    /**
+     * Wait for canRender to be true (max 5 seconds)
+     */
+    private async waitForCanRender() {
+      let myPromise = () => new Promise((resolve) => {
+        setTimeout(function () {
+          resolve('Count');
+        }, 1000);
+      });
       for (let index = 0; index < 5; index++) {
-        let count = await myPromise()
-        console.log('waiting for service: ' +`${count}: ${index}`);
-        if(this.canRender)
+        let count = await myPromise();
+        console.log('waiting for service: ' + `${count}: ${index}`);
+        if (this.canRender)
           break;
       }
+    }
 
-      let ttype ='' ;
-
+    /**
+     * Populate form with data if editing, or set up for add mode
+     */
+    private handleFormPopulation() {
+      let ttype = '';
       if (!this.isAddMode) {
         this.tpService.fetchTpLink(this.tpLinkNm)
-            .pipe(first())
-            .subscribe(x => {
-              this.form.patchValue(x);
-
-              for (let key in x) {
-
-                if(key === 'TransType')
-                {
-                  ttype =x[key].toString();
-
-                  this.form.controls.TransType.setValue(ttype);
-                  this.setTransactionSetId();
-
-                }
-                if(key === 'Mode')
-                {
-                  this.form.controls['Mode'].setValue(x[key].toString());
-                }
-                else if(key === 'ISAAck')
-                {
-                  this.form.controls['ISAAck'].setValue(x[key].toString());
-                  if (this.form.controls['ISAAck'].value == "")
-                  {
-                    this.form.controls['ISAAck'].setValue('NEVER')
-                  }
-                }
-                else if(key === 'GSAck')
-                {
-                  this.form.controls['GSAck'].setValue(x[key].toString());
-                  if (this.form.controls['GSAck'].value == "")
-                  {
-                    this.form.controls['GSAck'].setValue('NEVER')
-                  }
-                }
-                else if(key === 'STAck')
-                {
-                  this.form.controls['STAck'].setValue(x[key].toString());
-                  if (this.form.controls['STAck'].value == "")
-                  {
-                    this.form.controls['STAck'].setValue('NEVER')
-                  }
-                }
-                else if(key === 'Routing')
-                {
-                  this.routeVal = x[key].toString()
-                  this.form.controls['Routing'].setValue(this.routeVal);
-
-                }
-                else if(key === 'Direction')
-                {
-                  this.form.controls['Direction'].setValue(x[key].toString());
-                }
-                else if(key === 'Separators')
-                {
-                  this.form.controls['Separators'].setValue(x[key].toString());
-                }
-                else if(key === 'ValidationRuleFile')
-                {
-                  this.form.controls['ValidationRuleFile'].setValue(x[key].toString());
-                }
-                else if(key === 'SNIP')
-                {
-                  this.form.controls['SNIP'].setValue(x[key].toString());
-                }
-                else if(key === 'TransType')
-                {
-                  this.form.controls['TransType'].setValue(x[key].toString());
-                }
-                else if(key === 'GsReceiverId')
-                {
-                this.form.controls.GsReceiverId.setValue(x[key].toString());
-                }
-                else if(key === 'IsaReceiverId')
-                {
-                  console.log("IsaReceiverId.setValue " + x[key].toString());
-                    this.form.controls.IsaReceiverId.setValue(x[key].toString());
-                }
-                else if(key === 'GsSenderId')
-                {
-                 this.form.controls.GsSenderId.setValue(x[key].toString());
-                }
-                else if(key === 'IsaSenderId')
-                {
-                  console.log("IsaSenderId.setValue " + x[key].toString());
-                  this.form.controls.IsaSenderId.setValue(x[key].toString());
-                }
-
-                else if(key === 'customProp')
-                {
-
-                  for(var index in x[key])
-                  {
-                      console.log(index +". " + x[key][index].Key + "> " + x[key][index].Value);
-
-                      let cs = new KVP();
-                      cs.id =  Number(index);
-                      cs.Key = x[key][index].Key;
-                      cs.Value = x[key][index].Value;
-
-                      if(cs.Key === 'BatchingMode835')
-                      {
-                        if(cs.Value === 'Batched')
-                        {
-                          this.form.controls.MergeFlg.setValue(true);
-                        }
-                        else {
-                          this.form.controls.MergeFlg.setValue(false);
-                        }
-                      }
-                      else
-                      {
-
-                        this.customProp.push(cs)
-                      }
-                  }
-
-                }
-                else{
-                  console.log(key +"-- Not mapped")
+          .pipe(first())
+          .subscribe(x => {
+            this.form.patchValue(x);
+            for (let key in x) {
+              if (key === 'TransType') {
+                ttype = x[key].toString();
+                this.form.controls.TransType.setValue(ttype);
+                this.setTransactionSetId();
+              }
+              if (key === 'Mode') {
+                this.form.controls['Mode'].setValue(x[key].toString());
+              }
+              else if (key === 'ISAAck') {
+                this.form.controls['ISAAck'].setValue(x[key].toString());
+                if (this.form.controls['ISAAck'].value == "") {
+                  this.form.controls['ISAAck'].setValue('NEVER');
                 }
               }
-             }
-            );
-
-        this.form.controls.ParentTpId.setValue(this.parentTpId);
-
-      }
-      else{
-          if(this.transaction === 'undefined')
-          {
-            console.info('setTransactionSetId search is undefined');
-
-          }
-          else if(this.transaction !== "")
-          {
-            if (sessionStorage.getItem("NewTpRelId") !== null) {
-              this.transactionTypes.forEach( item => {
-                if( (item.VERSION.indexOf(this.transaction)) >= 0)
-                {
-                  console.info(this.transaction + '- found: ' + item.NAME );
-                  this.form.controls.TransType.setValue(item.NAME);
-                  console.log("Set transaction type: " + item.NAME +' , input: ' + this.transaction)
-                  this.setTransactionSetId();
+              else if (key === 'GSAck') {
+                this.form.controls['GSAck'].setValue(x[key].toString());
+                if (this.form.controls['GSAck'].value == "") {
+                  this.form.controls['GSAck'].setValue('NEVER');
                 }
-              });
+              }
+              else if (key === 'STAck') {
+                this.form.controls['STAck'].setValue(x[key].toString());
+                if (this.form.controls['STAck'].value == "") {
+                  this.form.controls['STAck'].setValue('NEVER');
+                }
+              }
+              else if (key === 'Routing') {
+                this.routeVal = x[key].toString();
+                this.form.controls['Routing'].setValue(this.routeVal);
+              }
+              else if (key === 'Direction') {
+                this.form.controls['Direction'].setValue(x[key].toString());
+              }
+              else if (key === 'Separators') {
+                this.form.controls['Separators'].setValue(x[key].toString());
+              }
+              else if (key === 'ValidationRuleFile') {
+                this.form.controls['ValidationRuleFile'].setValue(x[key].toString());
+              }
+              else if (key === 'SNIP') {
+                this.form.controls['SNIP'].setValue(x[key].toString());
+              }
+              else if (key === 'TransType') {
+                this.form.controls['TransType'].setValue(x[key].toString());
+              }
+              else if (key === 'GsReceiverId') {
+                this.form.controls.GsReceiverId.setValue(x[key].toString());
+              }
+              else if (key === 'IsaReceiverId') {
+                console.log("IsaReceiverId.setValue " + x[key].toString());
+                this.form.controls.IsaReceiverId.setValue(x[key].toString());
+              }
+              else if (key === 'GsSenderId') {
+                this.form.controls.GsSenderId.setValue(x[key].toString());
+              }
+              else if (key === 'IsaSenderId') {
+                console.log("IsaSenderId.setValue " + x[key].toString());
+                this.form.controls.IsaSenderId.setValue(x[key].toString());
+              }
+              else if (key === 'customProp') {
+                for (var index in x[key]) {
+                  console.log(index + ". " + x[key][index].Key + "> " + x[key][index].Value);
+                  let cs = new KVP();
+                  cs.id = Number(index);
+                  cs.Key = x[key][index].Key;
+                  cs.Value = x[key][index].Value;
+                  if (cs.Key === 'BatchingMode835') {
+                    if (cs.Value === 'Batched') {
+                      this.form.controls.MergeFlg.setValue(true);
+                    } else {
+                      this.form.controls.MergeFlg.setValue(false);
+                    }
+                  } else {
+                    this.customProp.push(cs);
+                  }
+                }
+              }
+              else {
+                console.log(key + "-- Not mapped");
+              }
             }
+          });
+        this.form.controls.ParentTpId.setValue(this.parentTpId);
+      } else {
+        if (this.transaction === 'undefined') {
+          console.info('setTransactionSetId search is undefined');
+        } else if (this.transaction !== "") {
+          if (sessionStorage.getItem("NewTpRelId") !== null) {
+            this.transactionTypes.forEach(item => {
+              if ((item.VERSION.indexOf(this.transaction)) >= 0) {
+                console.info(this.transaction + '- found: ' + item.NAME);
+                this.form.controls.TransType.setValue(item.NAME);
+                console.log("Set transaction type: " + item.NAME + ' , input: ' + this.transaction);
+                this.setTransactionSetId();
+              }
+            });
           }
-          else
-          {
-            // Search
-            console.info('setTransactionSetId search: ' + this.transaction + ', ' + this.transactionTypes.length);
-
-            var result = this.transactionTypes.findIndex(item => (item.TransactionSetId + '(' +	item.VERSION +')') === this.transaction);
-            console.info(this.transaction + '- result: ' + result);
-            if( result > 0 )
-            {
-              this.form.controls.TransType.setValue(this.transactionTypes[result].NAME);
-              console.log("Set transaction type: " + this.transactionTypes[result].NAME +' , input: ' + this.transaction)
-
-              this.setTransactionSetId();
-            }
+        } else {
+          // Search
+          console.info('setTransactionSetId search: ' + this.transaction + ', ' + this.transactionTypes.length);
+          var result = this.transactionTypes.findIndex(item => (item.TransactionSetId + '(' + item.VERSION + ')') === this.transaction);
+          console.info(this.transaction + '- result: ' + result);
+          if (result > 0) {
+            this.form.controls.TransType.setValue(this.transactionTypes[result].NAME);
+            console.log("Set transaction type: " + this.transactionTypes[result].NAME + ' , input: ' + this.transaction);
+            this.setTransactionSetId();
           }
         }
+      }
     }
 
       openSnackBar(message: string, action: string) {
@@ -448,51 +416,62 @@ public initializeData()
       }
     }
 
-    setTransactionSetId()
-    {
-
-
-      var ttVal = this.form.controls['TransType'].value
+    setTransactionSetId() {
+      const ttVal = this.form.controls['TransType'].value;
       console.info('setTransactionSetId search: ' + ttVal + ', ' + this.transactionTypes.length);
-       var result = this.transactionTypes.findIndex(item => item.NAME === ttVal);
-       console.info(ttVal + '- result: ' + result);
-      this.form.controls['TransactionSetId'].setValue(this.transactionTypes[result].TransactionSetId +' / ' +  this.transactionTypes[result].VERSION );
-      console.info('TransType : ' +this.form.controls['TransactionSetId'].value);
-
-      if(this.transactionTypes[result].TransactionSetId === '271' ||
-      this.transactionTypes[result].TransactionSetId === '277' ||
-      this.transactionTypes[result].TransactionSetId === '835'
-      )
-      {
-        this.form.controls.Direction.setValue(this.direcTypes[1]);
+      const result = this.transactionTypes.findIndex(item => item.NAME === ttVal);
+      console.info(ttVal + '- result: ' + result);
+      if (result < 0) {
+        console.warn('Transaction type not found for: ' + ttVal);
+        return;
       }
-      else
-      {
+      const typeObj = this.transactionTypes[result];
+      this.setTransactionSetIdControl(typeObj);
+      this.setDirectionAndMode(typeObj);
+      this.setTpIdHelpersAndLists(typeObj);
+      this.setTransaction835Flag(typeObj);
+      this.showTpIds = true;
+    }
+
+    /**
+     * Set the TransactionSetId form control
+     */
+    private setTransactionSetIdControl(typeObj: TransTypes) {
+      this.form.controls['TransactionSetId'].setValue(typeObj.TransactionSetId + ' / ' + typeObj.VERSION);
+      console.info('TransType : ' + this.form.controls['TransactionSetId'].value);
+    }
+
+    /**
+     * Set direction and mode based on transaction type
+     */
+    private setDirectionAndMode(typeObj: TransTypes) {
+      // Set direction
+      if (['271', '277', '835'].includes(typeObj.TransactionSetId)) {
+        this.form.controls.Direction.setValue(this.direcTypes[1]);
+      } else {
         this.form.controls.Direction.setValue(this.direcTypes[0]);
       }
-
-      if( this.transactionTypes[result].TransactionSetId.startsWith('27'))
-      {
-        this.modeTypes = ["Batch","RT"];
-      }
-      else
-      {
+      // Set mode
+      if (typeObj.TransactionSetId.startsWith('27')) {
+        this.modeTypes = ["Batch", "RT"];
+      } else {
         this.modeTypes = ["Batch"];
       }
-
       this.form.controls.Mode.setValue(this.modeTypes[0]);
       this.setRtBatch();
+    }
 
-      if( this.form.controls['Direction'].value === 'In')
-      {
+    /**
+     * Set TPId help text and lists based on direction
+     */
+    private setTpIdHelpersAndLists(typeObj: TransTypes) {
+      if (this.form.controls['Direction'].value === 'In') {
         this.sendertpIdHelp = 'Parent TPId';
         this.receivertpIdHelp = 'TPIds for owner';
-        this.sendingTpIds =[];
-        this.receivingTpIds=[];
-        this.sendingTpIds[0] = this.parentTpId ;
-        if(this.form.controls.GsSenderId.value !== this.parentTpId)
-        {
-          this.sendingTpIds.push( this.form.controls.GsSenderId.value );
+        this.sendingTpIds = [this.parentTpId];
+        this.receivingTpIds = [];
+        if (this.form.controls.GsSenderId.value !== this.parentTpId) {
+          this.sendingTpIds.push(this.form.controls.GsSenderId.value);
         }
         this.receivingTpIds = this.ownerTpIds;
         if (this.isAddMode) {
@@ -501,16 +480,13 @@ public initializeData()
           this.form.controls.GsSenderId.setValue(this.sendingTpIds[0]);
           this.form.controls.IsaSenderId.setValue(this.sendingTpIds[0]);
         }
-      }
-      else {
+      } else {
         this.sendertpIdHelp = 'TPIds for owner';
         this.receivertpIdHelp = 'Parent TPId';
-        this.receivingTpIds =[];
+        this.receivingTpIds = [this.parentTpId];
         this.sendingTpIds = [];
-        this.receivingTpIds[0] = this.parentTpId ;
-        if(this.form.controls.GsReceiverId.value !== this.parentTpId)
-        {
-          this.receivingTpIds.push( this.form.controls.GsReceiverId.value );
+        if (this.form.controls.GsReceiverId.value !== this.parentTpId) {
+          this.receivingTpIds.push(this.form.controls.GsReceiverId.value);
         }
         this.sendingTpIds = this.ownerTpIds;
         if (this.isAddMode) {
@@ -518,18 +494,15 @@ public initializeData()
           this.form.controls.IsaReceiverId.setValue(this.receivingTpIds[0]);
           this.form.controls.GsSenderId.setValue(this.sendingTpIds[0]);
           this.form.controls.IsaSenderId.setValue(this.sendingTpIds[0]);
-          }
+        }
       }
-      if(this.transactionTypes[result].TransactionSetId === '835')
-      {
-        this.transaction835 = true;
-      }
-      else
-      {
-        this.transaction835 = false;
-      }
+    }
 
-      this.showTpIds = true;
+    /**
+     * Set transaction835 flag
+     */
+    private setTransaction835Flag(typeObj: TransTypes) {
+      this.transaction835 = (typeObj.TransactionSetId === '835');
     }
 
     private createUpdateTpLink(addFlg: boolean) {
