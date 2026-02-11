@@ -1,0 +1,59 @@
+.no-wrap {
+  white-space: nowrap;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  width: 120px;
+}
+
+.button-row {
+  display: table-cell;
+  max-width: 600px;
+}
+
+table {
+  background-color: azure;
+}
+
+tr.tpId-element-row:not(.tpId-expanded-row):hover {
+  background: rgb(233, 215, 193);
+}
+
+tr.tpId-element-row:not(.tpId-expanded-row):active {
+  background: rgb(233, 215, 193);
+}
+
+
+.mat-header-cell {
+  text-align: center;
+  max-width: 300px;
+  font-weight: bolder;
+  font-size: larger;
+  color:navy ;
+}
+
+button {
+  margin-left :10px;
+  width: 100pt;
+  border-radius: 4px;
+margin-bottom: 10px;
+border-color: black;
+border-style: groove;
+}
+
+.btn-act {
+  flex: none;
+  width: 50px;
+  font-size: xx-small;
+}
+
+.mat-icon {
+  background-repeat: no-repeat;
+  display: inline-block;
+  fill: currentColor;
+  height: 24px;
+  width: 24px;
+  vertical-align: middle;
+  }

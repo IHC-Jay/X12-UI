@@ -1,0 +1,139 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<article class="table-header">
+
+    <table  style="font-size: 5px; background-color: azure; border-style: groove;border-width: thin; ">
+      <tr>
+        <td>
+          <h4>Search for trading partner</h4>
+          <mat-form-field class="full-width" *ngIf="!ifAdd">
+            <input matInput (keyup)="applyFilter($event)" placeholder="TP name" #input>
+        </mat-form-field>
+        </td> <td>
+
+          <button class="btn-act" (click)="addRow()" *ngIf="!ifSelect">
+            <mat-icon style="border-width: 5px;">add</mat-icon>
+            Add TP
+          </button>
+          <button class="btn-act" (click)="copyTP()" *ngIf="!ifSelect">
+            <mat-icon style="border-width: 5px;">copy_all</mat-icon>
+            Copy TP
+          </button>
+
+        </td>
+
+  </tr>
+  </table>
+
+</article>
+
+<hr>
+<div>
+<table  style="font-size: 5px; background-color: azure; border-style: groove;border-width: thin; "
+ mat-table [dataSource]="dataSource" matSort multiTemplateDataRows>
+  <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
+    <th class="mat-header-cell" *matHeaderCellDef mat-sort-header >
+      {{ col.label }}
+    </th>
+    <td mat-cell *matCellDef="let element" >
+      <!-- Three buttons for Edit, Delete and List-->
+      <div [ngSwitch]="col.type" *ngIf="!element.isEdit" >
+        <span *ngSwitchDefault>
+          {{ element[col.key] }}
+        </span>
+
+        <ng-container *ngSwitchCase="'isSelected'">
+        </ng-container>
+        <td >
+            <div  *ngSwitchCase="'isEdit'">
+              <button class="btn-act" (click)="editTp(element);">
+                <mat-icon>edit</mat-icon>
+                Edit
+              </button>
+              </div>
+        </td><td>
+              <div  *ngSwitchCase="'isEdit'">
+              <button class="btn-act"  (click)="removeRow(element);" >
+                <mat-icon>delete</mat-icon>
+                Delete
+              </button>
+            </div>
+          </td>
+        <td>
+            <div  *ngSwitchCase="'isEdit'">
+            <button class="btn-act" [routerLink]="['tpIds', element.Name]">
+              <mat-icon>list</mat-icon>
+              TPIDs
+            </button>
+            </div>
+        </td>
+
+      </div>
+      <!-- Edit Mode -->
+      <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+        <div *ngSwitchCase="'isSelected'"></div>
+        <div  *ngSwitchCase="'isEdit'">
+          <button
+          class="btn-act"
+            (click)="editRow(element)"
+            [disabled]="disableSubmit('Save', col.key )"
+          >
+          <mat-icon style="border-width: 5px;">save</mat-icon>
+          Save
+          </button>
+
+          <button
+            class="btn-act"
+            (click)="cancelRow(element)"
+            [disabled]="disableSubmit('Cancel', element.Name)"
+            >
+            <mat-icon style="border-width: 5px;">cancel</mat-icon>
+            cancel
+          </button>
+        </div>
+        <!-- TradingPartnerColumns type for TPtype is drop-->
+         <div class="form-row">
+
+        <mat-form-field *ngSwitchCase="'drop'" appearance="fill">
+          <mat-label style="font-size: medium; ">TP type:</mat-label>
+          <mat-select [(ngModel)]="element[col.key]">
+            <mat-option value={{tpType}}>{{tpType}}</mat-option>
+            <mat-option value="Clearinghouse">Clearinghouse</mat-option>
+            <mat-option value="Owner">Owner</mat-option>
+          </mat-select>
+        </mat-form-field>
+        </div>
+
+        <mat-form-field *ngSwitchCase="'readonly'" appearance="readonly">
+          <input style="color: grey;" readonly matInput [(ngModel)]="element[col.key]" matTooltip="Read Only, Edit in TPID screen" />
+        </mat-form-field>
+
+        <mat-form-field class="form-input" *ngSwitchDefault>
+          <input
+            matInput
+            [required]="col.required"
+            [pattern]="col.pattern"
+            [type]="col.type"
+            [(ngModel)]="element[col.key]"
+            (change)="inputHandler($event, element.id, col.key)"
+          />
+        </mat-form-field>
+      </div>
+    </td>
+
+
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+  <tr mat-row *matRowDef="let element; columns: displayedColumns;" class="tp-element-row"
+    [class.tp-expanded-row]="element.isExpanded"></tr>
+
+</table>
+<mat-paginator
+[length]="100"
+[pageSize]="10"
+[pageSizeOptions]="[10, 20, 30]"
+showFirstLastButtons >
+</mat-paginator>
+</div>
+
+

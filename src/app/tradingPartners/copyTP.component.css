@@ -1,0 +1,72 @@
+
+.no-wrap {
+  white-space: nowrap;
+}
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  width: 120px;
+}
+
+.button-row {
+  display: table-cell;
+  max-width: 600px;
+}
+
+table {
+  width: 100%;
+  overflow-x: auto;
+  overflow-y: hidden;
+  min-width: 500px;
+  background-color: azure;
+}
+
+.mat-header-cell {
+  text-align: center;
+  max-width: 300px;
+  font-weight: bolder;
+  font-size: larger;
+  color:navy ;
+}
+
+.full-width {
+  font-size: 14px;
+  width: 300pt;
+}
+
+button {
+  margin-left :10px;
+  width: 100pt;
+  border-radius: 4px;
+}
+.mat-form-field {
+  margin-right: 12px;
+}
+
+mat-paginator {
+  background-color: transparent;
+}
+tr.tp-element-row:not(.tpId-expanded-row):hover {
+  background: rgb(233, 215, 193);
+}
+
+tr.tp-element-row:not(.tpId-expanded-row):active {
+  background: rgb(233, 215, 193);
+}
+
+.btn-act {
+  flex: none;
+  width: 50px;
+  font-size: xx-small;
+}
+
+.mat-icon {
+  background-repeat: no-repeat;
+  display: inline-block;
+  fill: currentColor;
+  height: 24px;
+  width: 24px;
+  vertical-align: middle;
+  }
+

@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../../../GitTP-X12"
+		},
+		{
+			"name": "TP-X12",
+			"path": "../../.."
+		}
+	],
+	"settings": {
+		"angular.enable-strict-mode-prompt": false
+	}
+}

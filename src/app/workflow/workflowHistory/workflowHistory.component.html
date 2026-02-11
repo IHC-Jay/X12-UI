@@ -1,0 +1,45 @@
+
+<form [formGroup]="form"  class="form-group" >
+
+  <div style="width: 100%; height: 100%; background: white;">
+
+
+    <button style="font-size: 12px; margin-right: 10px;" class="btn btn-primary"
+      (click)="toWorkFlow()">
+      Back to Workflow
+    </button>
+
+
+    @if (canRenderHistory && dataSource.data.length > 0) {
+      <table id="wftab" mat-table [dataSource]="dataSource"
+        style="width: 100%; font-size: smaller; font-family: 'Courier New', Courier, monospace;" matSort>
+        <ng-container matColumnDef="Status">
+          <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Status </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.Status}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="ModUser">
+          <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Modified User </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.ModUser}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="ModDateTime">
+          <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef>Modified Date Time </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.ModDateTime}} </mat-cell>
+        </ng-container>
+        <ng-container matColumnDef="Notes">
+          <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Notes </mat-header-cell>
+          <mat-cell *matCellDef="let element"> {{element.Notes}} </mat-cell>
+        </ng-container>
+        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+        <mat-row style="font-size: smaller; font-family: 'Courier New', Courier, monospace;" *matRowDef="let row; columns: displayedColumns;">
+        </mat-row>
+      </table>
+    }
+
+    <div> # of entries  {{dataSource.data.length}}</div>
+    @if (canRenderHistory && dataSource.data.length === 0) {
+      <div>No workflow items found for {{f.transType.value}} </div>
+    }
+
+
+  </div>
+</form>

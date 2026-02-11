@@ -1,0 +1,24 @@
+<div class="note-box">
+  <table>
+    <tr>
+      <td class="form-group col-1">
+
+        <p>{{ singleNote.id + 1 }} </p>
+
+      </td>
+      <td class="form-group col-3">
+        <div >
+        <p>{{ singleNote.Key }}: <b>{{ singleNote.Value }}  </b>  </p>
+      </div>
+      </td>
+
+      <td class="form-group col-2"  align="center" >
+        <div >
+        <button (click)="deleteNote(singleNote)">Delete</button>
+      </div>
+      </td>
+    </tr>
+  </table>
+
+
+</div>

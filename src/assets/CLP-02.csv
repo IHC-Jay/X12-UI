@@ -1,0 +1,42 @@
+"ID(String)","Name(String)"
+1,Processed as Primary
+2,Processed as Secondary
+3,Processed as Tertiary
+4,Denied
+5,Pended
+6,Approved as amended
+7,Approved as submitted
+8,Cancelled due to inactivity
+9,Pending - under investigation
+I,Initial
+10,"Received
+11,"Rejected
+12,"Rejected
+13,Suspended
+14,Suspended - incomplete claim
+15,Suspended - investigation with field
+16,Suspended - return with material
+17,Suspended - review pending
+18,Suspended Product Registration
+19,"Processed as Primary
+20,"Processed as Secondary
+21,"Processed as Tertiary
+22,Reversal of Previous Payment
+23,"Not Our Claim
+24,Transferred to Proper Carrier
+25,Predetermination Pricing Only - No Payment
+26,Documentation Claim - No Payment Associated
+27,Reviewed
+28,Repriced
+29,Audited
+30,Processed as Conditional
+AD,Additional
+AP,Appealed
+CC,Weekly Certification
+CL,Closed
+CP,Open
+RA,Reaudited
+RB,Reissue
+RC,Reopened and Closed
+RD,Redetermination
+RO,Reopened

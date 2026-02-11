@@ -1,0 +1,71 @@
+<div class="pdf-reader">
+  <div *ngIf="showProgress" class="loading-overlay">
+    <div class="loading-bar"><div class="loading-indicator"></div></div>
+    <div class="loading-text">Loading…</div>
+  </div>
+  <div class="controls">
+    <!-- Dropdown for assets/X12-Guides (falls back to 'No guides found' when manifest missing) -->
+    <select [(ngModel)]="selectedAssetGuideFile" (change)="onAssetSelected()" style="margin-left:8px; min-width:320px;">
+      <option *ngIf="!assetGuideFiles || assetGuideFiles.length===0" disabled>No guides found</option>
+      <option *ngFor="let f of assetGuideFiles" [value]="f">{{ f }}</option>
+    </select>
+
+    <!-- fallback: keep native file picker available via small link -->
+    <button mat-button style="margin-left:8px;" (click)="fileInput.click()">Choose File...</button>
+    <input #fileInput type="file" accept="application/pdf" (change)="onFileSelected($event)" style="display:none" />
+  </div>
+  <div *ngIf="selectedFileName" style="margin-bottom:8px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
+    <span style="font-weight:600; white-space:nowrap;">Selected: {{ selectedFileName }} <span *ngIf="selectedFileSize">({{ selectedFileSize }})</span></span>
+
+    <div style="border:1px solid #ddd; padding:8px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:#fafafa; flex-shrink:0;">
+      <label style="margin:0 4px;">Start Page:
+        <input type="number" min="1" [max]="selectedFilePages" [(ngModel)]="startPage" (change)="onStartInputChange(startPage)" style="width:90px; margin-left:6px;" />
+      </label>
+      <label style="margin:0 4px;">End Page:
+        <input type="number" [min]="startPage" [max]="selectedFilePages" [(ngModel)]="endPage" (change)="onEndInputChange(endPage)" style="width:90px; margin-left:6px;" />
+      </label>
+      <button mat-button (click)="extractText()" [disabled]="!fileSrc || isLoading" style="margin-left:6px;">Extract Text</button>
+    </div>
+  </div>
+
+  <div *ngIf="errorMessage" style="color: #b00020; background:#fff0f0; padding:8px; border:1px solid #f2c0c0; margin-bottom:8px;">
+    Error: {{ errorMessage }}
+  </div>
+
+  <div *ngIf="fileSrc" class="viewer">
+    <div *ngIf="selectedFilePages !== null" style="display:flex; align-items:center; gap:8px; margin-bottom:8px; justify-content:space-between;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <button mat-mini-button (click)="prevPage()" [disabled]="currentPage<=1">Prev</button>
+        <label style="margin:0 4px;">Page</label>
+        <input type="number" min="1" [max]="selectedFilePages" [(ngModel)]="currentPage" (change)="goToPage(currentPage)" style="width:80px;" />
+        <span>/ {{ selectedFilePages }}</span>
+        <button mat-mini-button (click)="nextPage()" [disabled]="currentPage>=selectedFilePages">Next</button>
+      </div>
+
+      <div style="display:flex; align-items:center; gap:6px;">
+        <button class="zoom-btn" (click)="zoomOut()">-</button>
+        <input type="number" step="1" [value]="scale * 100 | number:'1.0-0'" (change)="setZoom($event.target.valueAsNumber / 100)" style="width:70px; text-align:center;" />
+        <span style="min-width:18px; text-align:left;">%</span>
+        <button class="zoom-btn" (click)="zoomIn()">+</button>
+      </div>
+    </div>
+    <div style="display:flex; gap:8px; align-items:center; margin-bottom:8px;">
+      <input placeholder="Search text..." [(ngModel)]="searchQuery" style="flex:1; min-width:180px;" />
+      <button mat-mini-button (click)="runSearch()" [disabled]="!searchQuery">Search</button>
+      <button mat-mini-button (click)="prevMatch()" [disabled]="matches.length===0">Prev</button>
+      <button mat-mini-button (click)="nextMatch()" [disabled]="matches.length===0">Next</button>
+      <span *ngIf="matches.length>0">{{currentMatchIndex+1}}/{{matches.length}}</span>
+      <button mat-mini-button (click)="clearSearch()">Clear</button>
+    </div>
+    <div #pdfContainer class="pdf-pages" style="display:flex;flex-direction:column;gap:12px;align-items:center;width:100%;"></div>
+    <div style="display:flex; align-items:center; gap:8px; margin-top:8px; justify-content:center;">
+      <button mat-mini-button (click)="prevPage()" [disabled]="currentPage<=1">Prev</button>
+      <label style="margin:0 4px;">Page</label>
+      <input type="number" min="1" [max]="selectedFilePages" [(ngModel)]="currentPage" (change)="goToPage(currentPage)" style="width:80px;" />
+      <span>/ {{ selectedFilePages }}</span>
+      <button mat-mini-button (click)="nextPage()" [disabled]="currentPage>=selectedFilePages">Next</button>
+    </div>
+  </div>
+
+  <pre *ngIf="extractedText" class="extracted">{{ extractedText }}</pre>
+</div>

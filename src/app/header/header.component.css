@@ -1,0 +1,51 @@
+
+
+.mat-icon {
+  background-repeat: no-repeat;
+  display: inline-block;
+  fill: currentColor;
+  height: 24px;
+  width: 24px;
+  vertical-align: middle;
+  }
+
+a {
+  color: blue;
+  background-color: azure;
+  font-family: Verdana, Geneva, Tahoma, sans-serif;
+}
+
+
+button {
+  justify-content: center;
+  width: 100pt;
+  background-color: azure;
+  color: azure;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  align-items: center;
+}
+
+
+button:hover {
+  cursor: pointer;
+  color:   rgb(4, 4, 109);
+  background-color: rgb(119, 119, 101);
+}
+
+button:active {
+  cursor: pointer;
+  color:   rgb(4, 4, 109);
+  background-color: rgb(119, 119, 101);
+}
+
+table {
+  background-color: rgb(4, 4, 109);
+  color: yellow;
+  width: 100%;
+}
+.tp-button-row {
+  display: table-cell;
+  max-width: 600px;
+}

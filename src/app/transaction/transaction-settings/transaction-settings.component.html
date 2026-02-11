@@ -1,0 +1,444 @@
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<form [formGroup]="form"  class="form-group" >
+
+  <div style="width: 100%; height: 800px; background: white; ">
+
+    <table style="width: 100%;  background-color: azure;">
+      <tr style="vertical-align: top;">
+        <td style="vertical-align: top;">
+          <table style="font-size: 10px; border-color: gray; border-style: groove;border-width: thin; background-color: azure;">
+            <tr style="vertical-align:top" >
+              <td></td>
+              <td class="form-group col-1" style=" vertical-align:top;   width: 150px;">
+                <label style="font-size: 16px;text-align: left ;">Default Configurations</label>
+              </td>
+            </tr>
+
+            <tr style="align-items: center; align-content: center;vertical-align: middle;">
+              <td style="align-items: center;align-content: center;vertical-align: middle;">
+
+                <button class="icon" style="height: 40pt; background-color: navy;  font-size: 10pt;margin-right:16px"
+                  class="btn btn-primary" (click)="saveConfig()">
+                  Save Configuration
+                </button>
+              </td>
+              <td>
+
+                <button class="icon" style=" height: 40pt; background-color: navy; font-size: 10pt; margin-left:16px"
+                  class="btn btn-primary" (click)="toTransactions()"> Return
+                </button>
+
+              </td>
+            </tr>
+            <tr><td> <hr> </td> <td> <hr> </td></tr>
+
+
+            <tr>
+              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                <label style="font-size: 10pt; text-align: left ;">Start Tab</label>
+              </td>
+              <td class="form-group col-1" style="vertical-align: top;">
+
+                <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+
+                  <mat-select formControlName="cngfPage" style="font-size: 10px;"
+                    [multiple]="false" >
+                    @for (rowCnt of landingPage; track rowCnt) {
+                      <mat-option [value]="rowCnt" style="font-size: 10px;">
+                        {{rowCnt}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+
+            </tr>
+
+            <tr>
+              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                <label style="font-size: 10pt; text-align: left ;">Transaction</label>
+              </td>
+              <td class="form-group col-1" style="vertical-align: top;">
+
+                <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+
+                  <mat-select formControlName="cngfTranType" (selectionChange)="cngfTranTypeChange($event.value)" style="font-size: 10px;"
+                    [multiple]="false" >
+                    @for (cfgTran of transactionTypes; track cfgTran) {
+                      <mat-option [value]="cfgTran" style="font-size: 10px;">
+                        {{cfgTran}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+
+            </tr>
+
+            @if (showCngfMode) {
+              <tr>
+                <td  class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                  <label style="font-size: 10pt; text-align: left ;">Mode</label>
+                </td>
+                <td class="form-group col-1" style="vertical-align: top;">
+                  <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+                    <mat-select formControlName="cngfMode" style="font-size: 10px;"
+                      [multiple]="false" >
+                      @for (cfgMode of modes; track cfgMode) {
+                        <mat-option [value]="cfgMode" style="font-size: 10px;">
+                          {{cfgMode}}
+                        </mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                </td>
+              </tr>
+            }
+
+            <tr>
+              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                <label style="font-size: 10pt; text-align: left ;">Transmissions Search Timeframe</label>
+              </td>
+              <td class="form-group col-1" style="vertical-align: top;">
+
+                <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+
+                  <mat-select formControlName="cngfBthTime" style="font-size: 10px;"
+                    [multiple]="false" >
+                    @for (bthTm of searchTime; track bthTm) {
+                      <mat-option [value]="bthTm" style="font-size: 10px;">
+                        {{bthTm}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+
+            </tr>
+
+            <tr>
+              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                <label style="font-size: 10pt; text-align: left ;">Transactions Search Timeframe</label>
+              </td>
+              <td class="form-group col-1" style="vertical-align: top;">
+
+                <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+
+                  <mat-select formControlName="cngfTranTime" style="font-size: 10px;"
+                    [multiple]="false" >
+                    @for (tranTm of searchTime; track tranTm) {
+                      <mat-option [value]="tranTm" style="font-size: 10px;">
+                        {{tranTm}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+
+            </tr>
+
+            <tr>
+              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                <label style="font-size: 10pt; text-align: left ;">Workflow Search Timeframe</label>
+              </td>
+              <td class="form-group col-1" style="vertical-align: top;">
+
+                <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+
+                  <mat-select formControlName="cngfWfTime" style="font-size: 10px;"
+                    [multiple]="false" >
+                    @for (wfTm of searchTime; track wfTm) {
+                      <mat-option [value]="wfTm" style="font-size: 10px;">
+                        {{wfTm}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+
+            </tr>
+
+            <tr>
+              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                <label style="font-size: 10pt; text-align: left ;">Display Items per Page</label>
+              </td>
+              <td class="form-group col-1" style="vertical-align: top;">
+
+                <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+
+                  <mat-select formControlName="cngfDispCnt" style="font-size: 10px;"
+                    [multiple]="false" >
+                    @for (rowCnt of maxCount; track rowCnt) {
+                      <mat-option [value]="rowCnt" style="font-size: 10px;">
+                        {{rowCnt}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+
+            </tr>
+
+            <tr>
+              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
+                <label style="font-size: 10pt; text-align: left ;">Logout timeout (in mins)</label>
+              </td>
+              <td class="form-group col-1" style="vertical-align: top;">
+
+                <mat-form-field appearance="fill" style="font-size: 10px; width: fit-content;" >
+
+                  <mat-select formControlName="cngfLogoff" style="font-size: 10px;"
+                    [multiple]="false" >
+                    @for (lTm of logoutTime; track lTm) {
+                      <mat-option [value]="lTm" style="font-size: 10px;">
+                        {{lTm}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+
+            </tr>
+
+
+
+
+
+          </table>
+        </td>
+        <!-- Display Search -->
+        <td>
+          <table style="font-size: 5px; border-color: gray; border-style: groove;border-width: thin; background-color: azure;">
+            <tr style="vertical-align:top" >
+              <td class="form-group col-1" style="font-size: 14px; vertical-align:top ;  width:35%">
+                <label style="font-size: 16px;text-align: left ;">Drag and Drop the field names in the Search and Display Tables.</label>
+
+
+              </td>
+
+              <td> </td>
+
+
+            </tr>
+            <tr>
+              <td   class="form-group col-1" style="font-size: 10px; vertical-align:top;  width:35%"  >
+                <table style="width: 100%; background-color: azure; ">
+                  <tr style="align-items: center; align-content: center;vertical-align: middle;">
+
+                    <td>
+
+
+                      <mat-form-field appearance="fill" style="width: 80pt;" >
+
+                        <mat-select formControlName="dispTransType" (selectionChange)="transactionChange($event.value)" style="font-size: 10px;"
+                          [multiple]="false" >
+                          @for (transType of transactionTypes; track transType) {
+                            <mat-option [value]="transType" style="font-size: 10px;">
+                              {{transType}}
+                            </mat-option>
+                          }
+                        </mat-select>
+                      </mat-form-field>
+                    </td>
+
+                    <td style="align-items: center;align-content: center;vertical-align: middle;">
+
+                      @if (showMode) {
+                        <div style="font-size: 5px; border-color: gray; border-style: dashed; border-width: thin; width: 120px ">
+                          @for (mode of modes; track mode) {
+                            <mat-radio-group formControlName="dispMode" (change)="modeChange($event.value)" style="font-size: 10px;"
+                              [(ngModel)]="formFields.modeString">
+                              <mat-radio-button  style="font-size: 10px;" [value]="mode" style="font-size: 10px;">
+                                {{mode}}
+                              </mat-radio-button>
+                            </mat-radio-group>
+                          }
+                        </div>
+                      }
+                    </td>
+
+
+                  </tr>
+                </table>
+
+
+              </td>
+
+
+
+              <td  class="form-group col-1" style="vertical-align:top; width:35%">
+                <table style="width: 100%; background-color: azure; ">
+                  <tr style="align-items: center; align-content: center;vertical-align: middle;">
+                    <td style="align-items: center;align-content: center;vertical-align: middle; padding-right: 20pt;">
+                      <button class="icon" style=" height:40pt; background-color: navy;  font-size: 10pt;margin-right:16px"
+                        class="btn btn-primary" (click)="saveSettings('Default')">
+                        Save As Default
+                      </button>
+
+                      <button class="icon" style="height:40pt; background-color: navy;  font-size: 10pt;margin-right:16px"
+                        class="btn btn-primary" (click)="saveSettings('Session')">
+                        Save For Session
+                      </button>
+
+                      <button class="icon" style="height:40pt; font-size: 10pt; background-color: navy; margin-right:16px"
+                      class="btn btn-primary" (click)="openDialog()">Copy</button>
+
+                      <button class="icon" style="height:40pt; font-size: 10pt; background-color: navy; margin-right:16px"
+                        class="btn btn-primary" (click)="resetSettings()">
+
+                        Reset
+
+                      </button>
+
+                      <button class="icon" style="height:40pt; font-size: 10pt; background-color: navy; margin-right:16px"
+                        class="btn btn-primary" (click)="toTransactions()">
+
+                        Return
+
+                      </button>
+                    </td>
+                  </tr>
+                </table>
+              </td>
+
+
+            </tr>
+            <tr><td> <hr> </td> <td> <hr> </td></tr>
+
+            <!-- Titles / Buttons -->
+            <tr>
+              <td class="form-group col-2" style="font-size: small; " align="right; width:35%">
+                <label style="font-size: 14px; text-align: left ;  ">Search Fields for  {{dispTransType}} {{formFields.modeString}} :</label>
+              </td>
+              <td class="form-group col-2" style="font-size: small; " align="right; width:35%">
+                <label style="font-size: 14px; text-align: left ;  ">Display Fields for  {{dispTransType}} {{formFields.modeString}}: </label>
+              </td>
+
+            </tr>
+
+
+            <tr>
+
+
+              <td class="form-group col-1" style="vertical-align: top; margin-right: 10pt; ; width:35%">
+
+                <table class="table table-sm table-bordered table-striped text-center;">
+                  <tr>
+                    <td>
+                      <div cdkDropListGroup>
+
+                        <div class="transFld-container">
+
+                          <div class="transFld-container">
+                            <label style="font-size: 10pt;">Selected </label>
+
+                            <div
+                              cdkDropList
+                              [cdkDropListData]="usrSelectedSearchCols"
+                              class="transFld-list"
+                              (cdkDropListDropped)="drop($event)">
+                              @for (item of usrSelectedSearchCols; track item) {
+                                <div class="transFld-box" cdkDrag>{{item}}</div>
+                              }
+                            </div>
+                          </div>
+
+                          <label style="font-size: 10pt;">Available </label>
+
+                          <div
+                            cdkDropList
+                            [cdkDropListData]="allSearchFields"
+                            class="transFld-list"
+                            cdkDropListSortingDisabled
+                            (cdkDropListDropped)="drop($event)">
+                            @for (item of allSearchFields; track item) {
+                              <div class="transFld-box" cdkDrag>{{item}}</div>
+                            }
+                          </div>
+                        </div>
+
+
+                      </div>
+
+                    </td>
+                  </tr>
+
+                </table>
+
+              </td>
+
+
+              <td class="form-group col-1" style="vertical-align: top; width:35%">
+
+                <table class="table table-sm table-bordered table-striped text-center;">
+                  <tr>
+                    <td>
+                      <div cdkDropListGroup>
+
+                        <div class="transFld-container">
+
+                          <div class="transFld-container">
+                            <label style="font-size: 10pt;">Selected </label>
+
+                            <div
+                              cdkDropList
+                              [cdkDropListData]="usrSelectedDispCols"
+                              class="transFld-list"
+                              (cdkDropListDropped)="drop($event)">
+                              @for (item of usrSelectedDispCols; track item) {
+                                <div class="transFld-box" cdkDrag>{{item}}</div>
+                              }
+                            </div>
+                          </div>
+
+                          <label style="font-size: 10pt;">Available </label>
+
+                          <div
+                            cdkDropList
+                            [cdkDropListData]="allDispFields"
+                            class="transFld-list"
+                            cdkDropListSortingDisabled
+                            (cdkDropListDropped)="drop($event)">
+                            @for (item of allDispFields; track item) {
+                              <div class="transFld-box" cdkDrag>{{item}}</div>
+                            }
+                          </div>
+                        </div>
+
+
+                      </div>
+
+                    </td>
+                  </tr>
+
+                </table>
+
+
+
+
+              </td>
+
+
+            </tr>
+          </table>
+        </td>
+      </tr>
+
+
+    </table>
+
+
+
+  </div>
+
+</form>
+
+

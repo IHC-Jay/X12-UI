@@ -1,0 +1,110 @@
+.mat-select-content{
+  background-color: azure;
+  font-size: 12px !important;
+  width: auto;
+  font-family: Arial, Helvetica, sans-serif;
+  top: 5vh;
+  left: 0vw;
+  display: grid;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: baseline;
+  display: grid;
+  row-gap: 2;
+}
+
+
+table {
+  width: 100%;
+  background-color: rgb(245, 235, 223);
+  border-color: blue;
+ }
+
+ tr.trans-row {
+  height: 0;
+  border: 1pt;
+}
+
+.selected {
+  background-color: red!important;
+}
+
+.make-gold {
+  background-color: gold
+}
+
+
+.container {
+
+  background-color: white;
+  padding: 1px;
+  font-weight: 60;
+  width: 100%;
+
+  position: sticky;
+  position: -webkit-sticky;
+  top: 0;
+}
+.table-container {
+  height: 400px;
+  overflow: auto;
+}
+tr.trans-element-row:not(.tpLinks-expanded-row):hover {
+  background: rgb(233, 215, 193);
+}
+
+tr.trans-element-row:not(.tpLinks-expanded-row):active {
+  background: rgb(233, 215, 193);
+}
+
+.trans-element-row td {
+  border-bottom-width: 1pt;
+}
+
+.mat-header-cell {
+  text-align: center;
+  max-width: 300px;
+  font-weight: bolder;
+  font-size: larger;
+  color:navy ;
+}
+.selDiv {
+  font-family: "Calibri", Calibri, serif;
+  font-size: 12px;
+}
+
+.mat-icon {
+  background-repeat: no-repeat;
+  display: inline-block;
+  fill: currentColor;
+  height: 24px;
+  width: 24px;
+  vertical-align: middle;
+  }
+
+  ::ng-deep .mat-expansion-panel-header
+{
+    height: 30px !important;
+}
+
+.container .multiselect-dropdown .dropdown-btn {
+  display: inline-block!important;
+  width: 100%!important;
+  padding: 6px 12px!important;
+  margin-bottom: 0!important;
+  font-size: 12px !important;
+  font-weight: 400!important;
+  line-height: 1.1 !important;
+  border: 1px solid blue !important;
+  text-align: left!important;
+  vertical-align: middle!important;
+  cursor: pointer!important;
+  background-image: none!important;
+  border-radius: 4px!important;
+}
+.searchLbl {
+  font-family: "Calibri", Calibri, serif;
+  font-size: 12px;
+  color:navy ;
+}
+

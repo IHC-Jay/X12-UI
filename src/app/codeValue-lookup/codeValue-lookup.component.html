@@ -1,0 +1,24 @@
+<div class="hl3-lookup">
+  <div class="controls">
+    <label>Load CSV from local file: <input type="file" accept=".csv,text/csv" (change)="onFileSelected($event)" /></label>
+    <label style="margin-left:12px;">Prefix:
+      <input type="text" [(ngModel)]="prefix" style="width:80px; margin-left:6px;" />
+      <button mat-button (click)="loadByPrefix()" style="margin-left:6px;">Load</button>
+    </label>
+  </div>
+
+  <div *ngIf="hl3rows.length===0" style="margin-top:8px">No rows loaded. Place `HL3Values.csv` in `src/assets/` or upload a CSV above.</div>
+
+  <table *ngIf="hl3rows.length>0" class="hl3-table">
+    <thead>
+      <tr><th>#</th><th>HL3 Value 1</th><th>HL3 Value 2</th></tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let r of hl3rows; let i = index">
+        <td>{{ i+1 }}</td>
+        <td>{{ r.hl3lookupvalues[0] }}</td>
+        <td>{{ r.hl3lookupvalues[1] }}</td>
+      </tr>
+    </tbody>
+  </table>
+</div>

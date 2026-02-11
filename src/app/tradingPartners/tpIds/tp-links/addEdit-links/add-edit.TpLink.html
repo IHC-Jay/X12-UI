@@ -1,0 +1,336 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>TP Link Form</title>
+  </head>
+  <body style="padding: 50px;">
+
+    @if (canRender) {
+      <div>
+        @if (isAddMode) {
+          <h1>Add TP Link - {{parentTpId}}</h1>
+        }
+        @if (!isAddMode) {
+          <h1>Edit TP Link - {{parentTpId}}</h1>
+        }
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-group" >
+          <div class="form-row">
+            <div class="form-group col-9">
+              <label>TP Link Name</label>
+              <input type="text" formControlName="Link" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.Link.errors }" />
+              @if (submitted && f.Link.errors) {
+                <div class="invalid-feedback">
+                  @if (f.Link.errors.required) {
+                    <div>Link is required</div>
+                  }
+                </div>
+              }
+            </div>
+            <div class="form-group col-1" style="text-align: center;">
+              <label >Active</label>
+              <input type="checkbox" formControlName="Active" class="form-control">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group col-9">
+              <label  matTooltip="Select from the dropdown">Transaction Type</label>
+            </div>
+            <div class="form-group col-9">
+              <mat-select id="TransType" name="TransType" formControlName="TransType"  class="form-control"
+                (selectionChange)="setTransactionSetId($event)" [ngClass]="{ 'is-invalid': submitted && f.TransType.errors }">
+                @for (tt of transactionTypes; track tt) {
+                  <mat-option [value]="tt.NAME" style="font-size: 10px;">
+                          {{tt.NAME}}
+                        </mat-option>
+                }
+              </mat-select>
+              @if (submitted && f.TransType.errors) {
+                <div class="invalid-feedback">
+                  @if (f.TransType.errors.required) {
+                    <div>TransType is required</div>
+                  }
+                </div>
+              }
+            </div>
+            @if (showTpIds) {
+              <div class="form-group col-7" >
+                <input  matTooltip="Information on the transaction" readonly type="text"
+                  formControlName="TransactionSetId" class="form-control" />
+                </div>
+              }
+            </div>
+            <div class="form-row">
+              <div class="form-group col-2">
+                <label>Direction</label>
+                <mat-select formControlName="Direction" class="form-control"
+                  [ngClass]="{ 'is-invalid': submitted && f.Direction.errors }" (selectionChange)="setRtBatch($event)">
+                  @for (dir of direcTypes; track md) {
+                    <mat-option [value]="dir" style="font-size: 10px;">
+                          {{dir}}
+                      </mat-option>
+                  }
+                </mat-select>
+                @if (submitted && f.Direction.errors) {
+                  <div class="invalid-feedback">
+                    @if (f.Direction.errors.required) {
+                      <div>Direction is required</div>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="form-group col-2">
+                <label>Mode</label>
+                <mat-select formControlName="Mode" class="form-control"
+                  [ngClass]="{ 'is-invalid': submitted && f.Mode.errors }" (selectionChange)="setRtBatch($event)">
+                  @for (md of modeTypes; track md) {
+                    <mat-option [value]="md" style="font-size: 10px;">
+                          {{md}}
+                      </mat-option>
+                  }
+                </mat-select>
+                @if (submitted && f.Mode.errors) {
+                  <div class="invalid-feedback">
+                    @if (f.Mode.errors.required) {
+                      <div>Mode is required</div>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="form-group col-2">
+                @if (f.Direction.value == 'Out' ) {
+                  <div>
+                    <label>Routing</label></div>
+                  } @else {
+                    <label>Ack Routing</label>
+                  }
+                  <mat-select formControlName="Routing" class="form-control"
+                         [ngClass]="{ 'is-invalid': submitted && f.Routing.errors }">
+                    @for (routeVal of routingTypes; track routeVal) {
+                      <mat-option [value]="routeVal" style="font-size: 10px;">
+                          {{routeVal}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.Routing.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.Routing.errors.required) {
+                        <div>Routing is required</div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="form-row">
+                @if (showTpIds) {
+                  <div class="form-group col-6" >
+                    <label matTooltip="{{sendertpIdHelp}}">IsaSenderId</label>
+                    <mat-select id="IsaSenderId" formControlName="IsaSenderId"
+                    class="rounded-inputs20 select-select col-md-7"
+                     matTooltip="{{sendertpIdHelp}}">
+                      @for (tpId of sendingTpIds; track tpId) {
+                        <mat-option [value]="tpId" style="font-size: 10px;">
+                          {{tpId}}
+                      </mat-option>
+                      }
+                    </mat-select>
+                    @if (submitted && f.IsaSenderId.errors) {
+                      <div class="invalid-feedback">
+                        @if (f.IsaSenderId.errors.required) {
+                          <div>ISA SenderId is required</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+                @if (showTpIds) {
+                  <div class="form-group col-6" >
+                    <label  matTooltip="{{receivertpIdHelp}}">IsaReceiverId</label>
+                    <mat-select id="IsaReceiverId" formControlName="IsaReceiverId"  matTooltip="{{receivertpIdHelp}}"
+                      class="rounded-inputs20 select-select col-md-7">
+                      @for (tpId of receivingTpIds; track tpId) {
+                        <mat-option [value]="tpId" style="font-size: 10px;">
+                          {{tpId}}
+                        </mat-option>
+                      }
+                    </mat-select>
+                    @if (submitted && f.IsaReceiverId.errors) {
+                      <div class="invalid-feedback">
+                        @if (f.IsaReceiverId.errors.required) {
+                          <div>ISA ReceiverId is required</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+                </div>
+                <div class="form-row">
+                @if (showTpIds) {
+                  <div class="form-group col-6" >
+                    <label  matTooltip="{{sendertpIdHelp}}">GsSenderId</label>
+                    <mat-select id="GsSenderId" formControlName="GsSenderId"  matTooltip="{{sendertpIdHelp}}"
+                      class="rounded-inputs20 select-select col-md-7">
+                      @for (tpId of sendingTpIds; track tpId) {
+                        <mat-option [value]="tpId" style="font-size: 10px;">
+                          {{tpId}}
+                      </mat-option>
+                      }
+                    </mat-select>
+                    @if (submitted && f.GsSenderId.errors) {
+                      <div class="invalid-feedback">
+                        @if (f.GsSenderId.errors.required) {
+                          <div>Gs SenderId is required</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+                @if (showTpIds) {
+                  <div class="form-group col-6">
+                    <label  matTooltip="{{receivertpIdHelp}}">GsReceiverId</label>
+                    <mat-select id="GsReceiverId" formControlName="GsReceiverId"  matTooltip="{{receivertpIdHelp}}"
+                      class="rounded-inputs20 select-select col-md-7">
+                      @for (tpId of receivingTpIds; track tpId) {
+                        <mat-option [value]="tpId" style="font-size: 10px;">
+                          {{tpId}}
+                        </mat-option>
+                      }
+                    </mat-select>
+                    @if (submitted && f.GsReceiverId.errors) {
+                      <div class="invalid-feedback">
+                        @if (f.GsReceiverId.errors.required) {
+                          <div>Gs ReceiverId is required</div>
+                        }
+                      </div>
+                    }
+                  </div>
+                }
+              </div>
+              <div class="form-row">
+                <div class="form-group col-2">
+                  <label>Interchange Ack</label>
+                  <mat-select formControlName="ISAAck" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.Mode.errors }">
+                    @for (ack of ackTypes; track ack) {
+                      <mat-option [value]="ack" style="font-size: 10px;">
+                          {{ack}}
+                        </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.ISAAck.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.ISAAck.errors.required) {
+                        <div>ISA Ack is required</div>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="form-group col-2">
+                  <label>Group Ack</label>
+                  <mat-select formControlName="GSAck" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.Mode.errors }">
+                    @for (ack of ackTypes; track ack) {
+                      <mat-option [value]="ack" style="font-size: 10px;">
+                          {{ack}}
+                        </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.GSAck.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.GSAck.errors.required) {
+                        <div>GS Ack is required</div>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="form-group col-2">
+                  <label>Transaction Ack</label>
+                  <mat-select formControlName="STAck" class="form-control" [ngClass]="{ 'is-invalid': submitted && f.Mode.errors }">
+                    @for (ack of ackTypes; track ack) {
+                      <mat-option [value]="ack" style="font-size: 10px;">
+                          {{ack}}
+                        </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.STAck.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.STAck.errors.required) {
+                        <div>ST Ack is required</div>
+                      }
+                    </div>
+                  }
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col-2">
+                  <label>SNIP</label>
+                  <mat-select formControlName="SNIP" class="form-control"
+                   [ngClass]="{ 'is-invalid': submitted && f.Mode.errors }">
+                    @for (val of snipValues; track val) {
+                      <mat-option [value]="val" style="font-size: 10px;">
+                          {{val}}
+                        </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.SNIP.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.SNIP.errors.required) {
+                        <div>SNIP is required</div>
+                      }
+                    </div>
+                  }
+                </div>
+                <div class="form-group col-3">
+                  <label>Separators</label>
+                  <input type="text" formControlName="Separators" class="form-control" value="|*^:" defaultValue="|*^:" />
+                </div>
+                <div class="form-group col-3">
+                  <label>RuleFile</label>
+                  <input type="text" formControlName="ValidationRuleFile" class="form-control" />
+                </div>
+                <div class="form-group col-1" style="text-align: center;">
+                  <label >Unique Id</label>
+                </div>
+                <div class="form-group col-1" style="text-align: center;">
+                  <input type="checkbox" formControlName="UniqueId" class="form-control" value="1">
+                </div>
+                @if (transaction835) {
+                  <div class="form-group col-1" style="text-align: center;">
+                    <label >Merge transactions</label>
+                  </div>
+                }
+                @if (transaction835) {
+                  <div class="form-group col-1" style="text-align: center;">
+                    <input type="checkbox" formControlName="MergeFlg" class="form-control" value="1">
+                  </div>
+                }
+              </div>
+              <div class="form-row">
+                <label>Key Value Pairs</label>
+                @for (kv of customProp; track kv) {
+                  <app-single-note [singleNote]="kv" [(customProp)]="customProp"></app-single-note>
+                }
+                <app-create-note (newNoteSender)="createKV($event)"></app-create-note>
+                <HR>
+              </div>
+              <br>
+                <div class="form-row">
+                  <div class="form-group col-5" style="text-align: left;;">
+                    <button [disabled]="loading" class="btn btn-primary">
+                      @if (loading) {
+                        <span class="spinner-border spinner-border-sm mr-1"></span>
+                      }
+                      Save TP Link
+                    </button>
+                    </div>
+                    <a (click)="onCancel()" class="btn btn-primary">Cancel</a>
+
+                </div>
+              </form>
+            </div>
+          }
+
+          <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+          <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+          <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+        </body>
+      </html>
+

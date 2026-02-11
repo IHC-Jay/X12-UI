@@ -1,0 +1,154 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<h1 style="color: brown; align-content: center;">TP Links for {{tpId}}</h1>
+
+<!-- Master Toggle Button -->
+<div>
+  <table>
+    <TR>
+
+        <td>
+         <button class="btn-act" [routerLink]="['/TradingPartners/tpIds', tpName]" matTooltip="Back to TPID"
+          matTooltipPosition="right">
+          <mat-icon style="border-width: 5px;">arrow_back</mat-icon>
+          Back to TPID
+         </button>
+      </td>
+
+    <td>
+      <button class="btn-act" (click)="addRow()"> Add TP Link
+        <mat-icon style="border-width: 5px;">add</mat-icon>
+      </button>
+    </td>
+    @if (bulkInsert) {
+      <td>
+        @if (bulkInsert) {
+          <button (click)="bulkRow()"> Add Multiple TP Links</button>
+        }
+      </td>
+    }
+    <td>
+      <a mat-raised-button href="javascript:void(0)" (click)="toggleTableRows()" color="primary">View Details for all Links</a>
+    </td>
+  </TR>
+</table>
+</div>
+
+<table mat-table [dataSource]="tpIdLinksList" multiTemplateDataRows matSort>
+
+  <ng-container matColumnDef="Link">
+    <th class="mat-header-cell"  *matHeaderCellDef mat-sort-header> Link </th>
+    <td mat-cell  *matCellDef="let element" [ngStyle]="{'color': element.Active == '0'  ? 'red':''}"> {{element.Link}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="IsaSenderId" >
+    <th class="mat-header-cell"  *matHeaderCellDef mat-sort-header> ISA Sender ID </th>
+    <td mat-cell *matCellDef="let element"> {{element.IsaSenderId}} </td>
+  </ng-container>
+
+
+  <ng-container matColumnDef="IsaReceiverId">
+    <th class="mat-header-cell"  *matHeaderCellDef mat-sort-header> ISA Receiver ID </th>
+    <td mat-cell *matCellDef="let element"> {{element.IsaReceiverId}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="TransType">
+    <th class="mat-header-cell"  *matHeaderCellDef mat-sort-header>Transaction Set / Type</th>
+    <td mat-cell *matCellDef="let element">  {{element.TransactionSetId}} / {{element.TransType}}  </td>
+  </ng-container>
+
+  <ng-container matColumnDef="Mode">
+    <th class="mat-header-cell"  *matHeaderCellDef mat-sort-header> Mode </th>
+    <td mat-cell *matCellDef="let element"> {{element.Mode}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="Active">
+    <th class="mat-header-cell"  *matHeaderCellDef mat-sort-header> Active </th>
+    <td mat-cell *matCellDef="let element" [ngStyle]="{'color': element.Active == '0'  ? 'red':''}"> {{element.Active == '0' ? 'No' : 'Yes'}}</td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th class="mat-header-cell" *matHeaderCellDef> Actions </th>
+    <td mat-cell *matCellDef="let element">
+
+      <a   (click)="editRow(element)" class="btn-act" matTooltip="Edit" style="margin-right: 10px;"
+        class="btn-act" matTooltip="Edit" style="margin-right: 10px;" >
+        <mat-icon>edit</mat-icon>
+
+      </a>
+
+
+      <a  (click)="delete(element.Link)"  class="btn-act" matTooltip="Delete" style="margin-right: 10px;" >
+        <mat-icon>delete</mat-icon></a>
+
+        <a  (click)="SelecttpLinks(element.Link)"  class="btn-act" matTooltip="Details">
+          <mat-icon>list</mat-icon></a>
+
+
+        </td>
+      </ng-container>
+
+      <!-- Template for tpIds row -->
+
+      <ng-container matColumnDef="expandedTpLink">
+        <td mat-cell *matCellDef="let element" [attr.colspan]="displayedtpLinksColumnsList.length">
+
+          @if(element.isExpanded)
+          {
+
+
+              <div class="row tpLinks-element-tpId" >
+                <mat-list>
+                  <div mat-subheader><B>{{element.Link}}</B></div>
+
+                  <div mat-line>
+                    <i style="color: blue;"> TransactionSetId: </i> {{element.TransactionSetId}},
+                    <i style="color: blue;">  Mode:  </i> {{element.Mode}} ,
+                    <i style="color: blue;">  Transaction Type:  </i> {{element.TransType}},
+                    <i style="color: blue;">  Direction:  </i> {{element.Direction}}
+
+                  </div>
+
+                  <div mat-line> <i style="color: blue;"> ISA SenderId: </i>  {{element.IsaSenderId}},
+                  <i style="color: blue;">  ISA ReceiverId:  </i> {{element.IsaReceiverId}} </div>
+                  <div mat-line> <i style="color: blue;"> GS SenderId:  </i> {{element.GsSenderId}},
+                  <i style="color: blue;">  GS ReceiverId:  </i> {{element.GsReceiverId}}</div>
+                  <div mat-line>
+                    @if (element.Direction.value == 'Out' ) {
+                      <div>    <i style="color: blue;"> Routing: </i> </div>
+                    } @else {
+                      <i style="color: blue;"> Ack Routing: </i>
+                    }
+                    {{element.Routing}},
+                    <i style="color: blue;">  Ack:  </i> {{element.Ack}}, <i>  SNIP:  </i> {{element.SNIP}}
+                    <i style="color: blue;"> Separators: </i>  {{element.Separators}},
+                    <i style="color: blue;">  RuleFile:  </i> {{element.ValidationRuleFile}},
+                    <i style="color: blue;">  Active:  </i> {{element.Active}}
+                  </div>
+
+                </mat-list>
+              </div>
+          }
+
+        </td>
+      </ng-container>
+
+
+
+      <tr mat-header-row *matHeaderRowDef="displayedtpLinksColumnsList;sticky: true"></tr>
+      <tr mat-row *matRowDef="let element; columns: displayedtpLinksColumnsList;" class="tpLinks-element-row"
+      [class.tpLinks-expanded-row]="element.isExpanded"></tr>
+
+      <!-- Extra row to show tpId content column -->
+      <tr mat-row *matRowDef="let row; columns: ['expandedTpLink']" class="tpLinks-detail-row"></tr>
+
+    </table>
+
+
+    <mat-paginator #paginator
+      class="tpLink-paginator"
+      [length]="100"
+      [pageSize]="10"
+      [pageSizeOptions]="[10, 20, 30]"
+      aria-label="Select page">
+    </mat-paginator>
+

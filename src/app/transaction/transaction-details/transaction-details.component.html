@@ -1,0 +1,123 @@
+<div class="card" style="width: 30rem;">
+  <!-- <img src="..." class="card-img-top" alt="..."> -->
+  <div class="card-body">
+      <h5 class="card-title">{{transaction}}: {{dataSource.data[0]?.InterchangeSenderID}} -> {{dataSource.data[0]?.InterchangeReceiverID}}</h5>
+      <!-- <p class="card-text" *ngIf="!dataSource.data[0]?.BHTRefId && dataSource.data[0]?.BHTRefId.length > 1">Batch # {{dataSource.data[0]?.BHTRefId}}</p>
+      -->
+  </div>
+</div>
+
+
+<button *ngIf="prevWindow" class="btn btn-primary" (click)="toTransactions()">
+  Back to Transactions
+</button>
+
+
+  <div class="flex-container">
+    <div class="mt-2" *ngFor="let item of displayedColumns; let itemIndex = index " >
+      <div *ngIf="item.label !== 'X12 Data'">
+      <label for="x12Fields" class="col-form-label form-label" >{{itemIndex+1}}. {{item.label}}</label>
+      <BR>
+        <span class="custom-text-truncate">{{getSelectedValue(itemIndex, item.key)}}</span>
+      </div>
+    </div>
+</div>
+<div class="center" *ngIf="X12DataParentId !== ''">
+  <button mat-flat-button (click)="openX12Modal()" mat-raised-button color="primary" style="margin-right: 20px;">
+    Display Full X12</button>
+
+    <button mat-flat-button (click)="openRelatedTransactionModel()" mat-raised-button color="primary" style="margin-right: 20px;"
+    *ngIf="transaction === '999';
+    else elseBlock">
+       Display Related Transaction</button>
+    <ng-template #elseBlock>
+      <button mat-flat-button (click)="openRelatedTransactionModel()" mat-raised-button color="primary" style="margin-right: 20px;"  *ngIf="transaction === '270'"
+       > Display 999</button>
+    </ng-template>
+
+
+    <ng-container
+        *ngIf="transaction === '270'; then x270template; else x27xtemplate">
+      </ng-container>
+
+      <ng-template #x270template>
+        <button mat-flat-button (click)="openRelated27xModel()" mat-raised-button color="primary">
+          Display 271 Transaction
+        </button>
+      </ng-template>
+      <ng-template #x27xtemplate>
+        <ng-container
+         *ngIf="transaction === '271'; then x271template; else ClaimStatTemplate">
+        </ng-container>
+        <ng-template #x271template>
+          <button mat-flat-button (click)="openRelated27xModel()" mat-raised-button color="primary">
+          Display 270 Transaction
+          </button>
+        </ng-template>
+        <ng-template #ClaimStatTemplate>
+            <ng-container
+            *ngIf="transaction === '276'; then x276template; else x277template">
+          </ng-container>
+                <ng-template #x276template>
+                  <button mat-flat-button (click)="openRelated27xModel()" mat-raised-button color="primary">
+                    Display 277 Transaction
+                  </button>
+                </ng-template>
+                <ng-template #x277template>
+                  <ng-container *ngIf="transaction === '277'; then x277template; else ClaimTemplate">
+                  </ng-container>
+                  <ng-template #x277template>
+                  <button mat-flat-button (click)="openRelated27xModel()" mat-raised-button color="primary">
+                    Display 276 Transaction
+                  </button>
+                  </ng-template>
+
+                  <ng-template #ClaimTemplate>
+                    <ng-container
+                    *ngIf="transaction === '835'; then x835template; else x83xtemplate">
+                  </ng-container>
+                    <ng-template #x835template>
+                    <button mat-flat-button (click)="openRelated83xModel()" mat-raised-button color="primary">
+                      Display 837 Transaction
+                    </button>
+                  </ng-template>
+                  </ng-template>
+                  <ng-template #x83xtemplate>
+                    <ng-container
+                    *ngIf="transaction.indexOf('837') !== -1; then x837template">
+                  </ng-container>
+                    <ng-template #x837template>
+                    <button mat-flat-button (click)="openRelated83xModel()" mat-raised-button color="primary" color="primary" style="margin-right: 20px;">
+                      Display 835 Transaction
+                    </button>
+                    <button mat-flat-button (click)="openRelated277CAModel()" mat-raised-button color="primary">
+                      Display 277CA Transaction
+                    </button>
+                    </ng-template>
+
+                  </ng-template>
+
+              </ng-template>
+        </ng-template>
+    </ng-template>
+
+
+</div>
+<div>
+    <div *ngFor="let item of displayedColumns; let itemIndex = index ">
+      <div class="padding" *ngIf="item.label === 'X12 Data'">
+        <label class="col-form-label form-label" *ngIf="X12DataParentId !== ''; else elseBlock">Loop X12 Segment:</label>
+      <ng-template #elseBlock>
+        <B>Full X12:</B>
+      </ng-template>
+      <BR>
+
+        <span class="custom-text-truncate">{{getSelectedValue(99, item.key)}}</span>
+      </div>
+    </div>
+</div>
+
+
+
+
+

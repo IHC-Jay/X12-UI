@@ -1,0 +1,22 @@
+.pdf-reader { font-family: Arial, Helvetica, sans-serif; max-width: calc(100vw - 40px); margin: 12px auto; }
+.controls { margin: 8px 0; }
+.viewer { border: 1px solid #ddd; margin-bottom: 8px; max-height: calc(100vh - 240px); overflow: auto; }
+.viewer canvas { display: block; width: auto; height: auto; max-width: 100%; }
+.extracted { background: #f8f8ff; padding: 8px; white-space: pre-wrap; }
+
+/* Fallback button style for zoom controls (visible without Angular Material) */
+.zoom-btn {
+	border: 1px solid #cfcfcf;
+	background: #f5f5f5;
+	padding: 4px 8px;
+	cursor: pointer;
+	border-radius: 4px;
+}
+.zoom-btn:hover { background: #eee; }
+
+/* Loading overlay shown when operations take >2s */
+.loading-overlay { position: absolute; left: 0; right: 0; top: 0; bottom: 0; display:flex; flex-direction:column; align-items:center; justify-content:center; background: rgba(255,255,255,0.7); z-index: 30; }
+.loading-bar { width: 60%; height: 8px; background: #eee; border-radius: 4px; overflow: hidden; margin-bottom:8px; }
+.loading-indicator { width: 20%; height:100%; background: linear-gradient(90deg,#1976d2,#66a8ff); animation: loadingMove 1.2s linear infinite; }
+.loading-text { color: #1976d2; font-weight: 600; }
+@keyframes loadingMove { 0% { transform: translateX(-50%); } 100% { transform: translateX(400%); } }

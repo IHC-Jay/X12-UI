@@ -1,0 +1,82 @@
+"ID(String)","Name(String)"
+0001,"Shipment
+0002,"Shipment
+0003,"Shipment
+0004,"Shipment
+0005,"Financial Institution; Client or Party; Contract; Component; Account; Item; Coverage
+0006,"Financial Institution; Client or Party; Contract; Account; Coverage
+0007,"Information Source
+0010,"Information Source
+0011,"Information Receiver
+0012,"Information Source
+0013,"Provider of Service
+0014,"Provider of Service
+0015,"Information Receiver
+0016,"Provider of Service
+0017,"Subscriber
+0018,"Information Receiver
+0019,"Information Source
+0020,"Information Source
+0021,"Information Source
+0022,"Information Source
+0023,"Information Receiver
+0024,"Information Source
+0025,"Information Source
+0026,"Information Source
+0027,"Information Source
+0028,"Information Source
+0029,"Information Source
+0035,"Address
+0036,"Address
+0055,"Supergroup
+0056,"Supergroup
+0057,"Supergroup
+0058,"Group
+0059,"Group
+0060,"Hospital
+0061,"Health Industry Business Communications Council (HIBCC) Health Industry Number (HIN) database
+0062,"Franchisor
+0063,"Franchisee association
+0064,"Company
+0065,"Company
+0066,"Operating Unit
+0067,"Company
+0068,"Company
+0069,"Operating Unit
+0070,"Property
+0071,"Company
+0072,"Operating Unit
+0073,"Property
+0074,"Company
+0075,"Operating Unit
+0076,"Company
+0077,"Tradename
+0078,"Information Source
+0079,"Information Source
+0080,"Information Source
+0081,"Information Source
+0082,"Information Source
+0083,"Information Source
+0084,"Report
+0085,"Information Source
+0200,"Credential Action (AP)
+0201,"Credential Action (AP)
+0202,"Credential Action (AP)
+0203,"Credential Action (AP)
+0204,"Report (RP)
+0205,"Report (RP)
+0206,"Credential Action (AP)
+0207,"Credential Action (AP)
+0208,"Credential Action (AP)
+0209,"Credential Action (AP)
+0210,Credential Action (AP)
+0211,"Reporting Agency
+0212,"Reporting Agency
+0213,"Reporting Agency
+0214,"Information Source
+0400,"Credential Action (AP)
+0401,"Credential Action (AP)
+0402,"Credential Action (AP)
+0403,"Credential Action (AP)
+0407,"Credential Action (AP)
+ZZZZ,Mutually Defined

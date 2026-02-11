@@ -1,0 +1,124 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<div>
+    <h1 style="color: brown; align-content: center;">TPIDs for {{ tpId }}</h1>
+
+    <button class="btn-act" [routerLink]="['/TradingPartners']"
+     matTooltip="Back to Partners"
+        matTooltipPosition="right">
+        <mat-icon style="border-width: 5px;">arrow_back</mat-icon>
+    Back to Partners
+  </button>
+
+  <button class="btn-act" (click)="addRow()"
+  matTooltip="Add a new TPID"
+        matTooltipPosition="right">
+        <mat-icon style="border-width: 5px;">add</mat-icon>
+    Add TPID
+  </button>
+</div>
+
+<table mat-table [dataSource]="dataSource" multiTemplateDataRows>
+  <ng-container [matColumnDef]="col.key" *ngFor="let col of columnsSchema">
+    <th class="mat-header-cell" *matHeaderCellDef matTooltip= "{{col.help}}" >
+      {{ col.label }}
+    </th>
+    <td mat-cell *matCellDef="let element">
+      <div [ngSwitch]="col.type" *ngIf="!element.isEdit">
+        <ng-container *ngSwitchCase="'isSelected'">
+
+        </ng-container>
+
+      <td>
+          <div  *ngSwitchCase="'isEdit'">
+          <button class="btn-act" (click)="element.isEdit = !element.isEdit" matTooltip="Edit TPID" >
+            <mat-icon>edit</mat-icon>
+            Edit
+          </button>
+          </div>
+      </td>
+
+        <td>
+          <div  *ngSwitchCase="'isEdit'">
+          <button class="btn-act" (click)="removeRow(element);" matTooltip="Delete TPID" >
+            <mat-icon>delete</mat-icon>
+            Delete
+          </button>
+          </div>
+      </td>
+
+
+      <td>
+        <div  *ngSwitchCase="'isEdit'">
+        <button class="btn-act" [routerLink]="['../tp-links', element.TPID, tpId]"  matTooltip="List All Links" >
+          <mat-icon>list</mat-icon>
+          Links
+        </button>
+        </div>
+    </td>
+
+        <span *ngSwitchDefault>
+          {{ element[col.key] }}
+        </span>
+      </div>
+      <div [ngSwitch]="col.type" *ngIf="element.isEdit">
+
+        <div class="btn-edit" *ngSwitchCase="'isEdit'">
+          <button
+          class="btn-act"
+            (click)="editRow(element)"
+            [disabled]="disableSubmit(element.id)"
+          >
+          <mat-icon style="border-width: 5px;">save</mat-icon>
+            Save
+          </button>
+          <button
+          class="btn-act"
+            (click)="cancelRow(element)"
+            [disabled]="disableSubmit(element.id)"
+          >
+          <mat-icon style="border-width: 5px;">cancel</mat-icon>
+            Cancel
+          </button>
+        </div>
+
+        <mat-form-field *ngSwitchCase="'drop'" appearance="fill">
+
+          <mat-select [(ngModel)]="element[col.key]">
+            <mat-option value="ISA">ISA</mat-option>
+            <mat-option value="GS">GS</mat-option>
+            <mat-option value="BOTH">BOTH</mat-option>
+          </mat-select>
+
+        </mat-form-field>
+
+        <mat-form-field class="form-input" *ngSwitchDefault>
+          <input
+            matInput [(ngModel)]="element[col.key]"
+            [required]="col.required"
+            [pattern]="col.pattern"
+            [type]="col.type"
+            (change)="inputHandler($event, element.id, col.key)"
+          />
+        </mat-form-field>
+
+
+      </div>
+    </td>
+
+
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns;sticky: true"></tr>
+  <tr mat-row *matRowDef="let element; columns: displayedColumns;" class="tpId-element-row"
+    [class.tpId-expanded-row]="element.isExpanded"></tr>
+
+
+</table>
+
+<mat-paginator #paginator
+[length]="100"
+[pageSize]="5"
+[pageSizeOptions]="[5, 10, 20]"
+showFirstLastButtons>
+</mat-paginator>
+

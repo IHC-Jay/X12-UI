@@ -1,0 +1,19 @@
+<div mat-dialog-content>
+  <span class="custom-text-truncate" style="white-space: pre-wrap; font-family: courier, Helvetica, sans-serif;"  >{{title}}</span>
+  <br />
+</div>
+<div mat-dialog-content>
+  <app-x12-viewer [x12Text]="x12Data" [title]="title" [showControls]="false"></app-x12-viewer>
+</div>
+<div mat-dialog-actions>
+  @if (fileName !== '' && fileName !== 'NA' ) {
+    <label style=" margin-right:10px; margin-left:10px;">FileName:</label>
+  }
+  @if (fileName !== '' && fileName !== 'NA' ) {
+    <input type="text" style="font-size: small; width: 40%; border-spacing: 10pt; line-height: 20px; " [(ngModel)]="fileName" />
+  }
+  @if (fileName !== '' && fileName !== 'NA' ) {
+    <button mat-button cdkFocusInitial style=" margin-right:20px; margin-left:20px;" (click)="save()">Save</button>
+  }
+  <button mat-button [mat-dialog-close]="true">Close</button>
+</div>

@@ -1,0 +1,949 @@
+"ID(String)","Name(String)"
+0,Document Identification Code
+1,Free On Board Site Code
+3,Kind of Contract Code
+4,Type of Contract Code
+5,Criticality Designator Code
+7,Quality Assurance Site Code
+8,Acceptance Site Code
+A,American Society for Testing and Materials (ASTM)
+B,Bank Administration Institute (BAI)
+C,Canadian Inter*EDI
+D,Court Document Type Code
+E,Diagnostic Statistical Manual of Mental Disorders Code List (DSM)
+F,Financial Rating
+G,Risk Class
+H,Life/Annuity Status Codes
+I,Identifying Characteristics
+J,Trade Code
+K,Property Underwriting Condition Code
+L,Line Item Condition Code
+M,Policy Type Code
+N,Valuation Type Code
+O,Source of Loss Code
+P,Ceiling Type Code
+Q,Surface Descriptor Code
+R,Coverage Modifier
+S,Society for Worldwide Interbank Financial Telecommunications (SWIFT)
+T,Personal Property and Contents Code
+U,Residential and Commercial Room Code
+V,Violation Type Code List
+W,Court Issued Warrant Type Code
+X,Vehicle Class
+Y,Rental Charge
+Z,Cancellation Reason
+10,Transaction Status Indicator Code
+11,Contract Delivery Date Revision Agent Code
+12,Reason for Contract Delivery Date Revision Code
+13,Recommendations Regarding Delayed Deliveries Code
+14,Contract Shipment Advice Code
+15,Individual Insurance Financial Detail
+16,Cash Discount Stipulation Code
+17,Shipment Acceptance Discrepancy Explanation Code
+18,Insurance Plan Description Characteristics
+19,Contract Close-out Group Code
+20,Payment Type Code
+21,Contract Fund Reporting Transaction Code
+22,Contract Payment Deduction or Collection Code
+23,Obligation Variance Code
+24,Plus or Minus Indicator Code
+25,Reason for Delayed Closing of Contract File Code
+26,Contract Payment Line Item Status Code
+27,Special Reimbursable Provisions Code
+28,Kind of Modification Code
+29,Purchasing Contract Officer (PCO) Instructions Code
+30,Type of Delay Code
+31,Healthcare Provider Characteristics and Resources
+32,Container and Roll-on/Roll-off Number Code
+33,Air Commodity and Special Handling Code
+34,Water Commodity and Special Handling Code
+35,Air Dimension Code
+36,Air Terminal Identifier Code
+37,Water Terminal Identifier Code
+38,Consolidation and Containerization Point Code
+39,Transportation Mode or Method Code
+40,Type Pack Code
+41,Date Shipped or Received Code
+42,Estimated Time of Arrival Code
+43,Military and Civilian Grade Code
+44,Seavan Ownership Code
+45,Ocean Carrier Code
+46,Voyage Document Number Code
+47,Voyage Manifest Reference Code
+48,Vessel Status and Terms of Carriage Code
+49,Vessel Sustaining Code
+50,Subrogation Action Code
+52,Billing Advice Code
+53,Billing Status Code
+54,Type of Bill Code
+55,Recipient of Billing Status Code
+56,Sales Price Condition Code
+57,Delivery Source Code
+58,Transportation Bill Code
+59,Stock Fund or Non-stock Fund Code
+60,General Services Administration (GSA) Customer Supply Center Number Code
+61,Information Indicator Code
+62,Communications Routing Identifier Code
+63,Content Indicator Code
+65,Health Care Claim Status Code
+66,Suffix or Limit Code
+67,Type of Assistance Code
+68,Healthcare Provider Taxonomy
+69,Foreign Military Sales Country Code
+71,Service and Agency Code
+72,Disbursement Status Code
+73,Aid Type Code
+74,Demand Code
+75,Suffix Code
+78,Project Code
+79,Priority Designator Code
+80,Advice Code
+81,Status Code
+82,Shipment Hold Code
+83,Supply Condition Code
+84,Management Code
+85,Country and Activity Code
+87,Subsistence Type of Pack Code
+88,Disposal Authority Code
+89,Cooperative Logistics Program Support Code
+90,Precious Metals Indicator Code
+91,Automated Data Processing Equipment Identification Code
+92,Reason for Disposal Code
+93,Type of Storage Code
+94,Identification Code
+95,Offer and Release Option Code
+96,Shipment Release Code
+97,Ultimate Recipient Code
+98,Reason for Requisitioning Code
+99,Purpose Code
+A1,Ownership Code
+A2,Customer Within Country Code
+A3,Delivery Term Code
+A4,Case Designator Number
+A5,Subcase Number
+A6,Freight Forwarder Number
+A7,Record Control Number
+A8,Program Year Code
+A9,Supplemental Data
+AA,Country Code (Finance and Acquisition)
+AB,Defense Priorities and Allocations System Code
+AC,Account Characteristics Code
+AD,Acquisition Advice Code
+AE,Beneficiary Type
+AF,Class of Pitch
+AG,Grade of Difficulty
+AH,Acquisition Method Suffix Code
+AI,Acquisition Method Code
+AJ,Utilization Code
+AK,Distribution Code
+AL,Special Requirements Code
+AM,Locale of Activity
+AN,Nature of Event Code
+AO,Settlement/Payout Options
+AQ,Application Question Identifier
+AR,Arrest Reason
+AS,Form Type Code
+AT,Allegation Type Code
+AU,All Patient Refined Diagnosis Related Groups (APR-DRG)
+AV,Subrogation Payment Options
+AW,All Patient Diagnosis Related Groups (AP-DRG)
+AX,Ambulatory Patient Groups (APG)
+AY,Subrogation Response Codes
+AZ,Subrogation Request Codes
+BA,Vessel Stowage Location Code
+BB,Business Type
+BC,Transportation Holding Delay Code
+BD,Transportation Priority Code
+BE,Value
+BF,International Classification of Diseases Clinical Modification (ICD-9-CM) Diagnosis
+BG,Condition
+BH,Occurrence
+BI,Occurrence Span
+BJ,International Classification of Diseases Clinical Modification (ICD-9-CM) Admitting Diagnosis
+BK,International Classification of Diseases Clinical Modification (ICD-9-CM) Principal Diagnosis
+BL,Application Fee Status Codes
+BN,International Classification of Diseases Clinical Modification (ICD-9-CM) External Cause of Injury Code (E-codes)
+BO,Health Care Financing Administration Common Procedural Coding System
+BP,Health Care Financing Administration Common Procedural Coding System Principal Procedure
+BQ,International Classification of Diseases Clinical Modification (ICD-9-CM) Other Procedure Codes
+BR,International Classification of Diseases Clinical Modification (ICD-9-CM) Principal Procedure Codes
+BS,Current Procedural Terminology (CPT) Codes
+BT,Accident Description
+BU,Part of Body Affected
+BV,Education Institution Type Code
+BW,Educational Areas Code
+BX,Profession Type Code
+BY,Share Type Code
+BZ,Business Size Code
+C1,Eye Color Code
+C2,Hair Color Code
+C3,Skin Tone Code
+CA,Type of Inquiry Code
+CB,Billed Office Indicator Code
+CC,Treasury Symbol Code
+CD,Supplementary Accounting Classification Code
+CE,Reference and Station Code
+CF,Major Force Program Code
+CG,Aircraft Mission Design Series Code
+CH,Type of Issue Code
+CI,Criminal Charge
+CJ,Criminal Charge Grade
+CK,Coupon Adjustment Reason Code
+CL,County Designator Code
+CM,Financial Management Service Cash-Link Code
+CN,Cause of Injury Code
+CO,Customized Notice Type Code
+CP,Salvage Disposition Code
+CQ,Capacity Type Indicator
+CR,Federal Item Identification Guide Criticality (FIIG) Code
+CS,Clause Status Type
+CT,Compensation Type Codes
+CU,Cuisine Type Code
+CV,Coverage Code List
+CW,Controvert Code
+CZ,Conviction Offense Type
+D1,Driver's License Withdrawal Type
+D2,Driver's License Withdrawal Extent
+D3,Driver's License Withdrawal Basis
+D4,Driver's License Withdrawal Due Process Status
+D5,Driver's License Withdrawal Reason
+DA,Device Availability Code
+DB,Debtor Business Type Code
+DC,Report Distribution Code
+DD,International Classification of Diseases Clinical Modification (ICD-9-CM) Primary Diagnosis
+DE,Signal Code
+DF,Media and Status Code
+DG,Fund Code
+DH,Drug Detail Code
+DI,Single Use Label Code
+DJ,Remedial Action Code
+DK,Program Originator Code
+DL,Service Contract Act Operation Code
+DM,Agent Status Code
+DN,Nature of Debt Code
+DO,Device Operator Type Code
+DP,Producer Financial History Codes
+DQ,Device Status Code
+DR,Diagnosis Related Group (DRG)
+DS,Related Device Applicability Code
+DT,Debtor Type Code
+DU,Device Usage Code
+DW,Estimating Method Status Code
+DX,Contact Status Code
+DY,Type of Firm Code
+DZ,Reportable Event Status Code
+EA,Asset Status or Transaction Reporting Code
+EB,Asset Transfer Status Code
+EC,Certification Requirements Code
+ED,Coast Designation Code
+EE,Competitive Characteristics Code
+EF,Correction or Change for Storage Item Records Code
+EG,Excavation Information Code List
+EH,Type Due-In Indicator
+EI,Discrepancy Indicator Code
+EJ,Disposal Condition Code
+EK,Event or Exposure Code
+EL,Error Classification Code
+EM,Inventory Category Code
+EN,Local Source Code
+EO,Adverse Event Outcome Code
+EQ,Controlled Inventory Item Code
+ER,Department of Defense Identification Code
+ES,Extension Reason
+ET,Reject Advice Code
+EU,Request Code
+EV,Review Period Indicator Code
+EW,Small Arms Error Transaction Reject Code
+EX,Small Arms Transaction Code
+EY,Special Program Requirement Status Code
+EZ,Type Inspection Code
+FA,Type of Contractor Code
+FB,Type of Media Code
+FC,Type Physical Inventory or Transaction History Code
+FD,Demilitarization Code
+FE,Shelf Life Code
+FF,Essentiality Code
+FG,Source Maintenance and Recoverability Code
+FH,Type of Location Reconciliation Request
+FI,Applicant Type
+FJ,Antenna Structure Type
+FK,Station Classification
+FL,Radio Frequency Type
+FM,Station Classification Type
+FN,Class of Operation
+FO,Antenna Polarization
+FP,Fund Purpose
+FQ,Radio System Type
+FR,Frequency Band
+FS,Area of Operation
+FT,Application Type
+FU,Authorization Type
+FV,Radio Service Type
+FW,Applicant Classification Type
+FX,Frequency
+FZ,Edit Error Code
+G1,Uniform Residential Appraisal Attributes Code
+GA,Action Code
+GB,Medium of Transmission Code
+GC,Management Indicator Code (Petroleum)
+GD,Gain or Loss Indicator Code
+GE,Type Adjustment Code
+GF,Type Identity Change Code
+GG,Transportation Mode Reason Code
+GI,Notification Indicator Code
+GJ,Reject Indicator Code
+GK,Investigation Status Code
+GQ,Group Qualifier Code
+GR,National Council on Compensation Insurance (NCCI) Nature of Injury Code
+GS,Occupational Safety and Health Administration (OSHA) Nature of Injury Code
+GT,National Council on Compensation Insurance (NCCI) Part of Body Code
+GU,Occupational Safety and Health Administration (OSHA) Part of Body Code
+GV,National Council on Compensation Insurance (NCCI) Source of Injury Code
+GW,Occupational Safety and Health Administration (OSHA) Source of Injury Code
+GX,Glass Action Code
+GY,Cause of Loss Code
+GZ,Loss Description Code
+HA,Discrepancy Code
+HB,Discrepancy Advice Code
+HC,Institutional Sector or Level Classification Code
+HD,Discrepancy Status or Disposition Code
+HE,Claim Payment Remark Codes
+HF,Education Staff Type Code
+HG,Education Fee Type Code
+HI,Health Industry Number
+HJ,Institutional Fee Basis Code
+HK,National Center for Education Statistics Integrated Postsecondary Education Data System Institutional Characteristics Survey Code
+HL,"Accreditation
+HM,National Center for Education Statistics Accreditation or Licensing Type
+HO,Home Infusion EDI Coalition (HIEC) Product/Service Code
+HS,Service Contract Act Occupation Category Code
+IC,Collision Industry Electronic Commerce Association (CIECA) - Inspection
+ID,Identity Disclosure Code
+IF,Investment Fund Type
+IQ,IRS Qualification Code
+IT,Initial Treatment Code
+J0,Summons Type Code
+J1,Judicial Hearing Type Code
+J2,Judicial Order Type Code
+J3,Judicial Sentence Type Code
+J4,Court Disposition Code
+J5,Court Appearance Type Code
+J6,Court Pleading Type Code
+J7,Defendant Plea Type Code
+J8,Trial Type Code
+J9,Court Case Status Code
+JA,Physical Characteristics Code
+JB,Weight or Fragility Code
+JC,Preservation Material Code
+JD,Quantity per Unit Pack Code
+JE,Preservation Data Code
+JF,Packing Requirement Level A Code
+JG,Packing Requirement Level B Code
+JH,Packing Requirement Level C Code
+JI,Intermediate Container Code
+JK,Intermediate Container Quantity Code
+JL,Special Marking Code
+JM,Type and Cause Code
+JN,Mission Impact Statement Code
+JO,International Standard Designation System for Teeth and Areas of the Oral Cavity
+JP,Universal National Tooth Designation System
+KA,Deficiency Cause
+KB,Discrepancy
+KC,Preventive Measure
+KD,Contractor Alert List Reason
+KE,Quality Alert List Reason
+KF,Contractor Alert List Status
+KG,Nature of Buy
+KH,Type of Procurement
+KI,Representative Buy Indicator
+KJ,Assured Delivery Indicator
+KK,Award Source
+KL,Termination
+KM,Patient Event Problem Code
+KO,Method Evaluation Code
+KP,Result Evaluation Code
+KQ,Conclusion Evaluation Code
+KS,Device Event Problem Code
+KT,Dose Form Code
+KU,Route Code
+KW,Report Source Code
+KZ,Adverse Event Code
+LA,Contract
+LB,Contractor Review List Status
+LC,Laboratory Test Condition Code
+LD,Collision Industry Electronic Commerce Association (CIECA) - Loss Category
+LE,Life/Annuity Service Features
+LF,Life/Annuity Product Code
+LG,Location Code
+LH,Basis of Jurisdiction Code
+LJ,Principal Party Citizenship Code
+LK,Nature of Suit Code
+LM,Case Origin Code
+LN,Line of business code
+LO,Letter of Recommendation Rating Category
+LP,Deficiency Indicator
+LQ,Delinquency Indicator
+LR,Test Results Code
+LS,Loss Severity Code
+LT,Laboratory Results Identification Code
+LZ,War Reserve Material Requirement Code
+MA,Multi-Media Object
+MB,Service Contract Act Occupation Classification Code
+MC,Manual Class Code
+ME,Device Evaluation Code
+MI,Minority Indicator
+MJ,Drug Status Code
+MK,Drug Status Adverse Event Code
+ML,Lot Type Code
+MN,Post Market Study Status Code
+MS,Meter Status
+MT,Meter Type
+NA,Plant Clearance Office Code
+NB,Inventory Type Code
+NC,Property Record Status Code
+ND,Control Unit Design Code
+NE,Direct Numerical Control System Code
+NF,Type Numerical Control System Code
+NH,Property Source Code
+NI,Nature of Injury Code
+NJ,Uniform Freight Classification (UFC) Code
+NK,National Motor Freight Classification (NMFC) Code
+NP,Special Category Code
+NR,Excess Material Disposition Code
+NS,Hazardous Material Code
+NT,Type of Cargo Code
+O1,Office of Worker's Compensation Programs (OWCP) Source of Injury Code
+O2,Office of Worker's Compensation Programs (OWCP) Nature of Injury Code
+O3,Office of Worker's Compensation Programs (OWCP) Part of Body Code
+O4,Office of Worker's Compensation Programs (OWCP) Occupation Code
+OC,Occupation Code
+PA,Prior Damage Location Code
+PB,Part of Body Code
+PC,Collision Industry Electronic Commerce Association (CIECA) - Profile
+PD,Professional Designation
+PI,Collision Industry Electronic Commerce Association (CIECA) - Points of Impact
+PL,Priority Lookup
+PR,International Classification of Diseases Clinical Modification (ICD-9-CM) Patient's Reason for Visit
+PS,Professional Status Code
+PT,Price Tier
+QA,Response Status Code
+QB,Business Entity Filing Report Type Code
+QC,Business Entity Filing Detail Code
+QE,Domestic Line of Business Code
+QF,Foreign Line of Business Code
+QG,Business Entity Filing Status Code
+QH,Business Entity Filing Securities Information Code
+QI,Business Entity Financial Information Code
+QJ,Business Entity Status Code
+QK,Business Entity Filing Location Code
+QS,Query Status
+QT,Quantity Type Indicator
+R1,Upstream Rank (Priority)
+R2,Receipt Rank (Priority)
+R3,Delivery Rank (Priority)
+R4,Downstream Rank (Priority)
+RA,Religious Affiliation Code
+RC,Requirement Code
+RD,Property Ownership Type Code
+RE,Property Type Code
+RI,Residency Indicator
+RQ,Testing Service Question Code List
+RT,Request Type
+RX,National Council for Prescription Drug Programs Reject/Payment Codes
+SA,Student Activity Type Code
+SB,Student Award Code
+SC,Source
+SD,International Classification of Diseases Clinical Modification (ICD-9-CM) Secondary Diagnosis
+SE,Sound Code
+SF,Run Type
+SG,Source of Deposit Code
+SH,Source of Lead Code
+SI,SIC (Standard Industrial Classification)
+SJ,Source of Injury Code
+SL,Secondary Source of Injury
+SO,Solicitation Cancellation Reason
+SP,Standard Occupation Classification Code
+SR,Statistical Administrative Information Code
+SS,System Status
+ST,Special Marketing Type Code
+TB,Association for Financial Professionals Service Code and Bank Service Code
+TC,Treatment Codes
+TD,International Classification of Diseases Clinical Modification (ICD-9-CM) Tertiary Diagnosis
+TE,Association for Financial Professionals Service Code
+TF,Title Exception and Requirement Code List
+TG,Title Document Code List
+TL,Tap Location
+TP,Tap Type
+TQ,Systemized Nomenclature of Dentistry (SNODENT)
+TR,Report Code
+TT,Natural Gas Transaction Type
+TX,Follow-up Code
+TY,Reportable Event Code
+UR,Event Reappearance Code
+US,Event Abatement Code
+UT,Centers for Medicare and Medicaid Services (CMS) Durable Medical Equipment Regional Carrier (DMERC) Certificate of Medical Necessity (CMN) Forms
+UU,Unit Code
+VP,Collision Industry Electronic Commerce Association (CIECA) - Vehicle Line Item Category Code
+XD,Export Declaration
+ZZ,Mutually Defined
+100,Freddie Mac (Federal Home Loan Mortgage Corporation) Special Character Code
+101,Fannie Mae (Federal National Mortgage Association) Special Feature Code
+102,Mortgage Index Source Code
+103,Fannie Mae (Federal National Mortgage Association) Remittance Programs
+104,Freddie Mac (Federal Home Loan Mortgage Corporation) Remittance Programs
+105,Freddie Mac (Federal Home Loan Mortgage Corporation) Mortgage Insurance Code
+106,Fannie Mae (Federal National Mortgage Association) Pool Feature Code
+107,Fannie Mae (Federal National Mortgage Association) Mortgage Insurance Code
+108,Testing Statistical Category Code List
+109,Testing Demographic Category Code List
+AAA,"SNOMED
+AAD,Asset Type
+AAE,Current Asset Type
+AAF,Current Liability Type
+AAG,Dun and Bradstreet Canada's 8 digit Standard Industrial Classification Code
+AAH,Financial Item Allocation Code
+AAI,Financial Item Attributed Code
+AAJ,Financial Item Reclassification Code
+AAK,Functional Area
+AAL,Hobby Code
+AAM,Investment Type
+AAN,Liability Type
+AAO,Projection Type
+AAP,Trend Reason
+AAQ,NACHA (National Automated Clearing House Association)
+AAR,CPA (Canadian Payments Association)
+AAS,Proprietary
+AAT,Fannie Mae Adjustable Rate Mortgage Plan Codes
+AAU,International Classification of Diseases Clinical Modification (ICD-9-CM) Diagnosis Encountered During Examination and Investigation of Individuals and Populations Code
+AAV,"International Classification of Diseases Clinical Modification (ICD-9-CM) Vaccination
+AAW,Immunization Injection Code
+AAX,International Classification of Diseases Clinical Modification (ICD-9-CM) Code
+AAY,Current Dental Terminology (CDT) Code
+ABF,International Classification of Diseases Clinical Modification (ICD-10-CM) Diagnosis
+ABJ,International Classification of Diseases Clinical Modification (ICD-10-CM) Admitting Diagnosis
+ABK,International Classification of Diseases Clinical Modification (ICD-10-CM) Principal Diagnosis
+ABN,International Classification of Diseases Clinical Modification (ICD-10-CM) External Cause of Injury Code
+ABR,Assigned by Receiver
+ABS,Assigned by Sender
+ABU,International Classification of Diseases Clinical Modification (ICD-10-CM) Diagnosis Encountered During Examination and Investigation of Individuals and Populations Code
+ABV,"International Classification of Diseases Clinical Modification (ICD-10-CM) Vaccination
+ACR,Academic Rank
+ADD,International Classification of Diseases Clinical Modification (ICD-10-CM) Primary Diagnosis
+ADJ,Accounting Adjustment Method
+AJT,Adjustment Type
+ALM,Allocation Method
+ALP,Alteration Lookup
+APE,Activite Principale Exercee (APE) Code
+APR,International Classification of Diseases Clinical Modification (ICD-10-CM) Patient's Reason for Visit
+ARI,Allocation Rank Indicator
+ASD,International Classification of Diseases Clinical Modification (ICD-10-CM) Secondary Diagnosis
+ATD,International Classification of Diseases Clinical Modification (ICD-10-CM) Tertiary Diagnosis
+ATT,Allocation Transaction Type Code
+BBQ,International Classification of Diseases Clinical Modification (ICD-10-PCS) Other Procedure Codes
+BBR,International Classification of Diseases Clinical Modification (ICD-10-PCS) Principal Procedure Codes
+BCC,Business Change Code
+BCR,Business Credit Rating
+BPL,Board of Inspection and Survey Part Lookup
+BRL,Board of Inspection and Survey Responsibility Lookup
+BSL,Board of Inspection and Survey Ship Lookup
+BSP,Business Period
+BTC,Balance Type Code
+BUI,Bid Up Indicator
+CAH,Advanced Billing Concepts (ABC) Codes
+CFI,Contractual Flow Indicator
+CHG,Charge Indicator
+CIE,Collision Industry Electronic Commerce Association (CIECA) - Assignment Type
+CLP,Cause Lookup
+CML,Customer Maintenance Level Lookup
+CNC,Change Notice Code
+COG,Cognizance Symbol
+CPS,Court Party Status
+CRC,Complaint Request Code
+CSD,Customer Service Designator
+CSF,Corporate Statement Filing Code
+DAC,Document Availability Code
+DBS,"DUN's Standard Industrial Classification (SIC) 2+2
+DGO,Dynamic Generator Set Code
+DLO,Dynamic Locomotive Tag Code
+DLP,Deferral Lookup
+DOF,Direction of Flow
+DPE,Association of American Railroads Deprescription Exception List
+DPL,Association of American Railroads Deprescription Distribution List
+DRL,Collision Industry Electronic Commerce Association (CIECA) - Detail Repair Lines Code List
+DSR,Data Sets Requested
+DSS,Delivery Scheduling Status
+EAA,Alabama Campaign Disclosure Report Codes
+EAB,Alaska Campaign Disclosure Report Codes
+EAC,American Samoa Campaign Disclosure Report Codes
+EAD,Arizona Campaign Disclosure Report Codes
+EAE,Arkansas Campaign Disclosure Report Codes
+EAF,California Campaign Disclosure Report Codes
+EAG,Colorado Campaign Disclosure Report Codes
+EAH,Connecticut Campaign Disclosure Report Codes
+EAI,Delaware Campaign Disclosure Report Codes
+EAJ,District of Columbia Campaign Disclosure Report Codes
+EAK,Florida Campaign Disclosure Report Codes
+EAL,Georgia Campaign Disclosure Report Codes
+EAM,Guam Campaign Disclosure Report Codes
+EAN,Hawaii Campaign Disclosure Report Codes
+EAO,Idaho Campaign Disclosure Report Codes
+EAP,Illinois Campaign Disclosure Report Codes
+EAQ,Indiana Campaign Disclosure Report Codes
+EAR,Iowa Campaign Disclosure Report Codes
+EAS,Kansas Campaign Disclosure Report Codes
+EAT,Kentucky Campaign Disclosure Report Codes
+EAU,Louisiana Campaign Disclosure Report Codes
+EAV,Maine Campaign Disclosure Report Codes
+EAW,Maryland Campaign Disclosure Report Codes
+EAX,Massachusetts Campaign Disclosure Report Codes
+EAY,Michigan Campaign Disclosure Report Codes
+EAZ,Minnesota Campaign Disclosure Report Codes
+EBA,Mississippi Campaign Disclosure Report Codes
+EBB,Missouri Campaign Disclosure Report Codes
+EBC,Montana Campaign Disclosure Report Codes
+EBD,Nebraska Campaign Disclosure Report Codes
+EBE,Nevada Campaign Disclosure Report Codes
+EBF,New Hampshire Campaign Disclosure Report Codes
+EBG,New Jersey Campaign Disclosure Report Codes
+EBH,New Mexico Campaign Disclosure Report Codes
+EBI,New York Campaign Disclosure Report Codes
+EBJ,North Carolina Campaign Disclosure Report Codes
+EBK,North Dakota Campaign Disclosure Report Codes
+EBL,Ohio Campaign Disclosure Report Codes
+EBM,Oklahoma Campaign Disclosure Report Codes
+EBN,Oregon Campaign Disclosure Report Codes
+EBO,Pennsylvania Campaign Disclosure Report Codes
+EBP,Puerto Rico Campaign Disclosure Report Codes
+EBQ,Rhode Island Campaign Disclosure Report Codes
+EBR,South Carolina Campaign Disclosure Report Codes
+EBS,South Dakota Campaign Disclosure Report Codes
+EBT,Tennessee Campaign Disclosure Report Codes
+EBU,Texas Campaign Disclosure Report Codes
+EBV,Utah Campaign Disclosure Report Codes
+EBW,Vermont Campaign Disclosure Report Codes
+EBX,Virginia Campaign Disclosure Report Codes
+EBY,Virgin Islands Campaign Disclosure Report Codes
+EBZ,Washington Campaign Disclosure Report Codes
+ECA,West Virginia Campaign Disclosure Report Codes
+ECB,Wisconsin Campaign Disclosure Report Codes
+ECC,Wyoming Campaign Disclosure Report Codes
+ECD,Alberta Campaign Disclosure Report Codes
+ECE,British Columbia Campaign Disclosure Report Codes
+ECF,Manitoba Campaign Disclosure Report Codes
+ECG,New Brunswick Campaign Disclosure Report Codes
+ECH,Newfoundland Campaign Disclosure Report Codes
+ECI,Northwest Territories Campaign Disclosure Report Codes
+ECJ,Nova Scotia Campaign Disclosure Report Codes
+ECK,Ontario Campaign Disclosure Report Codes
+ECL,Prince Edward Island Campaign Disclosure Report Codes
+ECM,Quebec Campaign Disclosure Report Codes
+ECN,Saskatchewan Campaign Disclosure Report Codes
+ECO,Yukon Territory Campaign Disclosure Report Codes
+ECP,Federal Campaign Disclosure Report Codes
+ECQ,Alabama Lobbyist Report Codes
+ECR,Alaska Lobbyist Report Codes
+ECS,Arizona Lobbyist Report Codes
+ECT,Arkansas Lobbyist Report Codes
+ECU,California Lobbyist Report Codes
+ECV,Colorado Lobbyist Report Codes
+ECW,Connecticut Lobbyist Report Codes
+ECX,Delaware Lobbyist Report Codes
+ECY,District of Columbia Lobbyist Report Codes
+ECZ,Florida Lobbyist Report Codes
+EDA,Georgia Lobbyist Report Codes
+EDB,Hawaii Lobbyist Report Codes
+EDC,Idaho Lobbyist Report Codes
+EDD,Illinois Lobbyist Report Codes
+EDE,Indiana Lobbyist Report Codes
+EDF,Iowa Lobbyist Report Codes
+EDG,Kansas Lobbyist Report Codes
+EDH,Kentucky Lobbyist Report Codes
+EDI,Louisiana Lobbyist Report Codes
+EDJ,Maine Lobbyist Report Codes
+EDK,Maryland Lobbyist Report Codes
+EDL,Massachusetts Lobbyist Report Codes
+EDM,Michigan Lobbyist Report Codes
+EDN,Minnesota Lobbyist Report Codes
+EDO,Mississippi Lobbyist Report Codes
+EDP,Missouri Lobbyist Report Codes
+EDQ,Montana Lobbyist Report Codes
+EDR,Nebraska Lobbyist Report Codes
+EDS,Nevada Lobbyist Report Codes
+EDT,New Hampshire Lobbyist Report Codes
+EDU,New Jersey Lobbyist Report Codes
+EDV,New Mexico Lobbyist Report Codes
+EDW,New York Lobbyist Report Codes
+EDX,North Carolina Lobbyist Report Codes
+EDY,North Dakota Lobbyist Report Codes
+EDZ,Ohio Lobbyist Report Codes
+EEA,Oklahoma Lobbyist Report Codes
+EEB,Oregon Lobbyist Report Codes
+EEC,Pennsylvania Lobbyist Report Codes
+EED,Puerto Rico Lobbyist Report Codes
+EEE,Rhode Island Lobbyist Report Codes
+EEF,South Carolina Lobbyist Report Codes
+EEG,South Dakota Lobbyist Report Codes
+EEH,Tennessee Lobbyist Report Codes
+EEI,Texas Lobbyist Report Codes
+EEJ,Utah Lobbyist Report Codes
+EEK,Vermont Lobbyist Report Codes
+EEL,Virginia Lobbyist Report Codes
+EEM,Washington Lobbyist Report Codes
+EEN,West Virginia Lobbyist Report Codes
+EEO,Wisconsin Lobbyist Report Codes
+EEP,Wyoming Lobbyist Report Codes
+EEQ,New York City Campaign Disclosure Report Codes
+EER,Seattle Campaign Disclosure Report Codes
+EES,New York City Lobbyist Report Codes
+EMC,Automotive Aftermarket Industry Association (AAIA) Emission Code
+EQR,Equipment Request Codes
+ESC,Electrostatic Discharge Code
+ESL,Equipment Status Lookup
+ETL,Estimate Type Lookup
+EWC,Evaluate Work Candidate Lookup
+EWR,Evaluate Work Candidate Reason Lookup
+EXD,Export Declaration
+FAP,Fannie Mae Refinance Plan Code
+FC1,"Federal Communication
+FF1,Federal Finance Code List 1
+FH1,Federal Health Care Code List 1
+FIR,Financial Inventory Report Code
+FL1,Federal Logistics Code List 1
+FMO,Former Major Organizational Entity Rule Number
+FMS,Foreign Military Sales and Military Assistance Program Grant Aid Type of Assistance/Financing Code
+FP1,Federal Procurement Code List 1
+FRP,Freddie Mac Refinance Plan Code
+FT1,Federal Transportation Code List 1
+HRC,Hazardous Response Codes
+HZR,Association of American Railroads Standard Transportation Commodity Code Description Qualifier
+IBP,Insurance Business Process Application Error Code
+IMC,Item Management Code
+IMP,Impact Recorder Code
+IND,Intra-Navy Disposal Release Order Reject Advice Code
+IPA,Impact Axis or Analog Port Code
+IRR,"Issue
+IRT,Imbalance Reporting Type
+JCL,Job Characteristics Lookup
+JOL,Job Originator Lookup
+KYL,Key Event Lookup
+LIN,Line of Authority
+LOC,Location Indicator
+LOI,Logical Observation Identifier Names and Codes (LOINC) Codes
+LSC,Legal Structure Code
+MAC,Material Management Aggregation Code
+MCC,Material Control Code
+MCD,Generator Set Mounting Code
+MEC,Method of Completion Code
+MOC,Mechanization of Contract Administration Services (MOCAS) System Error Code
+MOE,Major Organizational Entity Rule Number
+MRI,Maximum Rate Indicator
+NAC,Nomenclature Activity Classification Economy (NACE) Code
+NAF,Norme Activite Francaise (NAF) Code
+NAN,Non-Approved Item Name
+NAS,Nature of Suit
+NDC,National Drug Code (NDC)
+NIR,Non-Induction Reason Code
+NPC,Automotive Aftermarket Industry Association (AAIA) National Popularity Code
+NUB,National Uniform Billing Committee (NUBC) Revenue Codes
+PCR,Pseudo Closure Reason Code
+PDA,Pre-determined Allocation (PDA) Transaction Type Code
+PGS,Petroleum United States Geological Survey (USGS) Formation Code
+PHC,Phrase Code
+PIT,Petroleum Bill Type
+PLC,Petroleum Land Category
+PLS,Petroleum Lease Status
+POB,Part of Body and Nature of Injury
+PPD,Petroleum Product Disposition
+PPP,Petroleum Product Point-of-Sale
+PPS,Petroleum Product Selling Arrangement
+PPV,Petroleum Product Value Adjustment
+PQA,Petroleum Quantity Allocations Code
+PRA,Petroleum Royalty Adjustment
+PRC,Petroleum Royalty Calculation Method
+PRI,Processing Rights Indicator
+PRR,Petroleum Regulatory Report
+PRT,Petroleum Royalty Transaction
+PWA,Petroleum Well Action
+PWI,Petroleum Well Information
+PWR,Petroleum Well Shut-In Reason
+PWS,Petroleum Well Classification Status
+PWT,Petroleum Well Test Information
+QDR,Product Quality Deficiency Report Summary Code
+RAS,Receipt Acceptance Site Code
+RCA,Registered Contractor Activity Code
+REC,Race or Ethnicity Collection Code
+RED,Reduction Reason Code
+REN,Association of American Railroads Rate EDI Network Error Code
+RET,Classification of Race or Ethnicity
+RFC,Reference Number Format Code
+RJC,Reference Number Justification Code
+RSS,Receipt Scheduling Status
+RTC,Registration Type Code
+RUM,Refrigeration Unit Operating Mode Code
+RVC,Reference Number Variation Code
+SAT,Stock Action/Technical Information Code
+SBA,Statistic Bundes Amt (SBA) Code
+SCI,Subsequent Cycle Indicator
+SEC,Stock Exchange Code
+SET,Settlement Type
+SHL,Safety Hazard Lookup
+SHM,Accident Resulting Change Code
+SHN,Active Mitigation Consideration Code
+SHO,Activity Methods Code
+SHP,Analytical Method Code
+SHQ,Atmospheric Stability Class Code
+SHR,Basis of Estimate Code
+SHS,Certification Code
+SHT,Contributing Factor Code
+SHU,Control Device Type Code
+SHV,Design/Standard Code
+SHW,Device Classification Code
+SHX,Discharge Indicator Code
+SHY,Discharge Quantity Range Code
+SHZ,Non-Reportable Discharge Indicator Code
+SIA,Emergency Response Regulation/Statute Code
+SIB,Emission Factor Type Code
+SIC,Emission Release Point Type Code
+SID,Emission Source Type Code
+SIE,Emission Type Code
+SIF,Emission Unit Type Code
+SIG,Endpoint Code
+SIH,Environment Code
+SII,Environmental Program Type Code
+SIJ,Environmental Receptor Code
+SIK,Facility Category Code
+SIL,Facility Status Code
+SIM,Factor Calculation Method Code
+SIN,Frequency of Analysis Code
+SIO,Generator Status Code
+SIP,Geometric Type Code
+SIQ,Hazardous Waste Form Code
+SIR,Horizontal Datum Code
+SIS,Information System Code
+SIT,Initiating Event Code
+SIU,Inventory Quantity Range Code
+SIV,Latitude/Longitude Source Code
+SIW,Latitude/Longitude Verification Code
+SIX,Location Description Code
+SIY,Major Hazard Code
+SIZ,Manufacturing Code
+SJA,Material Classification Code
+SJB,Material Code
+SJC,Maximum Achievable Control Technology Code
+SJD,Method of Collection Code
+SJE,Mitigation System Code
+SJF,Model Used Code
+SJG,Monitoring/Detection System Code
+SJH,Monitoring Location Code
+SJI,Non-Generating Waste Code
+SJJ,Off-Site Availability Code
+SJK,Off-Site Impact Code
+SJL,On-Site Impact Code
+SJM,On-Site Process System Type Code
+SJN,Origin Code
+SJO,Parameter Code
+SJP,Passive Mitigation Consideration Code
+SJQ,Permit Compliance Status Code
+SJR,Physical State Code
+SJS,Point of Measurement Code
+SJT,Preservative Code
+SJU,Process Code
+SJV,Process Control Code
+SJW,Process Hazard Analysis Update Resulting Change Code
+SJX,Process Hazards Analysis Technique Code
+SJY,Public Receptor Code
+SJZ,Range of Concentration Code
+SKA,Recovery Method Code
+SKB,Recycling Method Code
+SKC,Release Event Code
+SKD,Release Source Code
+SKE,Reliability Indicator Code
+SKF,Rule Effectiveness Method Code
+SKG,Sample Type Code
+SKH,Scenario Code
+SKI,Site Location Code
+SKJ,Source Category Code
+SKK,Source of Waste Generation Code
+SKL,Source Reduction Activity Code
+SKM,System Type Code
+SKN,Time Period Code
+SKO,Topography Code
+SKP,Transfer Quantity Range Code
+SKQ,Type of Competency Testing Code
+SKR,Type of Training Code
+SKS,Type of Waste Management Code
+SKT,Use Code
+SKU,Waste Emanation Code
+SKV,Waste Management Status Code
+SKW,Waste Stream Code
+SKX,Waste Treatment Method Code
+SKY,Wind Direction Code
+SKZ,Unit of Measure Code
+SLA,Shelf-Life Action Code
+SLS,Scheduling Status
+SMB,Statement Basis
+SMC,Special Material Content Code
+SMD,Sample Device
+SMI,Special Material Identification Code
+SMT,Sample Type
+SPE,Special Dating
+SRL,Special Requirement Lookup
+SRR,Supplemental Reduction Reason
+SRT,Storage Report Type
+SSC,Supply Status Code
+STC,Association of American Railroads Standard Transportation Commodity Code Master Description Information
+STF,Forward and Store Application Error Edit Codes
+SUI,Solicited/Unsolicited Indicator
+SVC,Service Code
+SWR,Association of American Railroads Switch Release Codes
+T00,Commercial Vehicle Operations Safety Code
+T01,Data Categories
+T02,Event Codes
+T03,Operation Type
+T04,Accident Parameters
+T05,Inspection Parameters
+T06,Driver Parameters
+T07,View Parameters
+T08,Vehicle Parameters
+T09,Fleet Parameters
+T10,Query Options
+T11,Jurisdiction Type
+T12,Single State Registration System and Operating Authority Credential
+T13,Commercial Vehicle Operations Insurance
+T14,Commercial Vehicle Registration
+T15,Hazardous Materials Credential
+T16,Oversize/Overweight Credential
+T17,Commercial Vehicle Tax
+T18,Commercial Vehicle Title
+T19,Commercial Driver's License
+T20,Commercial Vehicle Type
+T21,Commercial Vehicle Operations Status Code
+T22,Safety and Fitness Electronic Record Systems Subscription Option
+T23,Commercial Vehicle Operations Commodity Code
+T24,Commercial Vehicle Operations Hazardous Material Code
+T25,Safety and Fitness Electronic Record Systems Error Code
+T26,Commercial Vehicle Operations Jurisdiction Identifier Code
+T27,Compliance Review Code
+T28,Incident Condition Code
+T29,Incident Related Action Code
+T30,Incident Location Code
+T31,Incident Consequence Code
+T32,Road Characteristic Code
+T33,Vehicle Occupant Code
+T34,Package Failure Code
+T35,Pedestrian Code
+TCD,Collision Industry Electronic Commerce Association (CIECA) - Totals Code List
+TCL,Template Characteristic Lookup
+TFR,Tax or Fee Exemption Reason Code
+TOL,Template Owner Lookup
+TTL,Template Type Lookup
+UER,Unique Item Tracking Error Reject Code
+UJC,Urgency Justification Code
+UNP,(UN/SPSC) United Nations Products and Services Classification Code
+UPC,"Unclaimed Property Additions
+UPT,Unclaimed Property Type Code
+UTC,Unique Item Tracking Transaction Code
+VAL,Validation Code
+WDL,When Discovered Lookup
+WRC,Automotive Aftermarket Industry Association (AAIA) Warranty Code
+WSD,Weapon System Designator Code

@@ -1,0 +1,97 @@
+
+table {
+  width: 100%;
+  background-color: rgb(245, 235, 223);
+  border-color: blue;
+ }
+
+tr.tpLinks-detail-row {
+  height: 0;
+}
+
+tr.tpLinks-element-row:not(.tpLinks-expanded-row):hover {
+  background: rgb(233, 215, 193);
+}
+
+tr.tpLinks-element-row:not(.tpLinks-expanded-row):active {
+  background: rgb(233, 215, 193);
+}
+
+.tpLinks-element-row td {
+  border-bottom-width: 0;
+}
+
+.tpLinks-element-detail {
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #e1e1e1;
+  box-shadow: inset 2px 3px 8px #c1c1c1;
+  border-radius: 8px;
+  border: 1px;
+  color: yellow;
+}
+
+.tpLinks-element-diagram {
+  min-width: 50px;
+  border: 2px solid black;
+  padding: 8px;
+  font-weight: lighter;
+  margin: 8px 0;
+  height: 80px;
+}
+
+.tpLinks-element-symbol {
+  font-weight: bold;
+  font-size: 30px;
+  line-height: normal;
+}
+
+.tpLinks-element-description {
+  padding: 16px;
+}
+
+.tpLinks-element-description-attribution {
+  opacity: 0.5;
+}
+
+::ng-deep .mat-paginator-page-size-select {
+  width: 27px!important;
+}
+
+.tpLink-paginator {
+  width: 600px;
+  background-color: azure;
+}
+
+button {
+  margin-left :10px;
+  width: 100pt;
+  border-radius: 4px;
+margin-bottom: 10px;
+border-color: black;
+border-style: groove;
+}
+
+.btn-act {
+  flex: none;
+  width: 50px;
+  font-size: xx-small;
+}
+
+.mat-header-cell {
+  text-align: center;
+  max-width: 300px;
+  font-weight: bolder;
+  font-size: larger;
+  color:navy ;
+}
+.mat-icon {
+  background-repeat: no-repeat;
+  display: inline-block;
+  fill: currentColor;
+  height: 24px;
+  width: 24px;
+  vertical-align: middle;
+  }

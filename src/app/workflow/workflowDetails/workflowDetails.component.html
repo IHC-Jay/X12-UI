@@ -1,0 +1,193 @@
+
+<form [formGroup]="form"  class="form-group" >
+
+  <div class="scr-container" style="width: 100%; height: 100%; background: white;">
+
+
+
+        <table id="inpTab" style="width: 100%; background: azure; vertical-align: top; border-style: groove;border-width:
+         thin; max-width: fit-content; ">
+
+
+      <tr style="background: azure; vertical-align: top; ">
+        <td style="width: 10%; ">
+          <button style="font-size: 12px; margin-right: 10px;" class="btn btn-primary"
+            (click)="toWorkFlow()">
+            Back to Workflow
+          </button>
+          @if(tpCreate)
+          {
+          <button style="font-size: 12px; margin-right: 10px; margin-top: 5px;" class="btn btn-primary"
+            (click)="toTpCreate()">
+            Trading Partner Setup
+          </button>
+         }
+        </td>
+        <td style="width: 70%;">
+          <textarea readonly="true" style="height: 50px; width: 100%; font-size: 10px;">{{errorStr}}</textarea>
+        </td>
+
+        <td class="form-group col-1">
+          <mat-form-field style="font-size: 10px; " >
+            <mat-label style="font-size: 10px; ">Status</mat-label>
+            <mat-select formControlName="statusType" (selectionChange)="statusTypeChange($event.value)"
+              style="font-size: 10px;">
+              @for (statusType of statusTypes; track statusType) {
+                <mat-option [value]="statusType" style="font-size: 10px;">
+                  {{statusType}}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+          @if (submitted && f.statusType.errors) {
+            <div class="invalid-feedback">
+              @if (f.statusType.errors.required) {
+                <div>Status Type is required</div>
+              }
+            </div>
+          }
+
+        </td>
+
+
+
+        <td class="form-group col-2">
+          <table><tr><td>
+
+          <button style="font-size: 12px;" class="btn btn-primary"
+            (click)="updateWF()">
+            Update Status
+          </button>
+
+          </td></tr>
+          <tr><td>
+
+          <button style="font-size: 12px;" class="btn btn-primary"
+                    (click)="exportX12()">
+                    Export X12
+                  </button>
+
+                  </td></tr></table>
+
+        </td>
+
+      </tr>
+    </table>
+
+
+
+
+    <table style="border-style: groove;border-width: thin; width: 100%; font-size: small; background-color: azure;">
+      <tr>
+        <td style="vertical-align: top; width: 30%;">
+
+          <!-- ERRORS -->
+          @if (canRenderDetails && errorDataSource.data.length > 0) {
+            <table mat-table [dataSource]="errorDataSource"  id="errorTable"  multiTemplateDataRows matSort
+               style="font-size: small; font-family:sans-serif; border-style: groove;border-width: thin; font-size:
+			           small; background-color: azure;"
+              >
+              @for (column of errDataTableKey; track column; let i = $index) {
+                <ng-container [matColumnDef]="column">
+                  <th style="font-size: smaller;" class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                  {{errDataTableLabel[i]}} </th>
+                  <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+                </ng-container>
+              }
+              <tr mat-header-row *matHeaderRowDef="errDataTableKey;sticky: true" >
+              </tr>
+              <tr style="font-size: smaller; font-family:'Courier New', Courier, monospace;height: 10pt; "
+                mat-row [ngClass]="{'selected': row.Num === errSelectedRow}"
+                class="trans-element-row" *matRowDef="let row; let idx = index; columns: errDataTableKey;" (click)="OnErrorRowClick(row)"
+                >
+              </tr>
+            </table>
+          }
+
+          <mat-paginator #errorPaginator
+            [pageSize]="errPageSize"
+            [pageIndex]="errPageIndex"
+            [length]="totalErrRecords"
+            [pageSizeOptions]="[5, 10, 20]"
+            (page)="onErrPaginateChange($event)"
+            showFirstLastButtons>
+          </mat-paginator>
+
+
+
+        </td>
+        <td style="vertical-align: top;">
+
+          <!-- DATA -->
+
+
+          @if (canRenderDetails && dataSource.data.length > 0) {
+            <table  mat-table [dataSource]="dataSource" id="dataTable" multiTemplateDataRows matSort
+              style="font-size: small; font-family:sans-serif; border-style: groove;border-width: thin; font-size: small; background-color: azure;"
+              >
+              @for (column of dataTableKey; track column; let i = $index) {
+                <ng-container [matColumnDef]="column">
+                  <th style="font-size: smaller;" class="mat-header-cell" *matHeaderCellDef mat-sort-header>
+                  {{dataTableLabel[i]}} </th>
+                  <td mat-cell *matCellDef="let element"> {{element[column]}} </td>
+                </ng-container>
+              }
+              <tr mat-header-row *matHeaderRowDef="dataTableKey;sticky: true" >
+              </tr>
+              <tr style="font-size: smaller; font-family:'Courier New', Courier, monospace;height: 10pt; "
+                mat-row [ngClass]="{'make-gold': row.error !== '', 'selected': !checked && row.lnNum === selectedRow}"
+                class="trans-element-row" *matRowDef="let row; columns: dataTableKey;" (click)="OnRowClick(row)"
+                >
+              </tr>
+
+            </table>
+          }
+          @if (dataSource.data.length <= 0) {
+            <div>No WF items found
+            </div>
+          }
+
+          <mat-paginator  #dataPaginator
+            [pageIndex]="pageIndex"
+            [pageSize]="pageSize"
+            [length]="pageLength"
+            [pageSizeOptions]="[25, 50, 100]"
+            (page)="onPaginateChange($event)"
+            showFirstLastButtons>
+
+          </mat-paginator>
+
+        </td>
+      </tr>
+      <tr>
+        <td>
+
+
+          @if (dataError)
+          {
+            <div #backdrop class="backdrop">
+              <div class="highlights" [innerHTML]="errorSegmentText"></div>
+            </div>
+          }
+
+
+
+
+        </td>
+        <td>
+          @if (dataError)
+          {
+            <div> # of X12 Segments  {{dataSource.data.length}}</div>
+          }
+
+          @if (canRenderDetails && dataSource.data.length === 0) {
+            <div>No records found for {{f.transType.value}} </div>
+          }
+
+        </td>
+      </tr>
+    </table>
+
+  </div>
+</form>

@@ -1,0 +1,92 @@
+<h4>Trading Partner, TPID, Links for a TPID</h4>
+<br>
+  <p>Type a TPID </p>
+
+
+  <form [formGroup]="form" class="form-group" >
+    <div class="form-group">
+
+      <div>
+        <input  hidden="true" class="form-control" >
+      </div>
+
+      <table>
+        <tr>
+          <td>
+
+            <input #searchTpId type="text"  formControlName="searchTpId" class="form-control" />
+          </td> <td>
+          <button [disabled]="loading" class="btn btn-primary" (click)="onTpIdChange()">
+            Search TPID
+          </button>
+        </td>
+      </tr>
+
+
+    </table>
+
+  </div>
+  @if (canRenderDetails) {
+    <div >
+      <h3 matLine> TP information </h3>
+      <table border="1px" class="w-95">
+        <tr>
+          <th [width]="200">
+            Trading Partner
+          </th>
+          <th [width]="200">
+            TPID
+          </th>
+          <th >
+            <span > TP Links</span>
+          </th>
+        </tr>
+        <tr>
+          <td>
+            <p>{{selectedTp}}</p>
+          </td>
+          <!-- TPIDs -->
+          <td>
+            @for (dat of dataSource; track dat) {
+              <p [value]="dat.TPID">{{dat.TPID}}</p>
+            }
+          </td>
+          <!-- TP links -->
+          <td>
+            <section class="collapsible" [@collapse]="collapsed">
+              <p>
+                @for (element of loadedPosts; track element) {
+                  <mat-option [value]="element.TransType">
+                    <mat-list>
+                      <div mat-subheader><B>{{element.Link}}</B></div>
+                      <div mat-line>TransactionSetId: {{element.TransactionSetId}}, Mode: {{element.Mode}}, TransType: {{element.TransType}} </div>
+                      <div mat-line>ISA SenderId: {{element.IsaSenderId}}, ISA ReceiverId: {{element.IsaReceiverId}} </div>
+                      <div mat-line>GS SenderId: {{element.GsSenderId}}, GS ReceiverId: {{element.GsReceiverId}}</div>
+                      <div mat-line>Routing: {{element.Routing}}, Ack: {{element.Ack}}, SNIP: {{element.SNIP}}</div>
+                      <div mat-line>Separators: {{element.Separators}}, Active: {{element.Active}} </div>
+                    </mat-list>
+                  </mat-option>
+                }
+              </p>
+            </section>
+            @if (selectedTp !== 'Not Found') {
+              <div>
+                @if (collapsed) {
+                  <button (click)="expand()">TP Links</button>
+                }
+                @if (!collapsed) {
+                  <button (click)="collapse()">Collapse</button>
+                }
+              </div>
+            }
+          </td>
+        </tr>
+      </table>
+    </div>
+  }
+
+
+</form>
+
+
+

@@ -1,0 +1,30 @@
+<mat-dialog-content>
+
+  <div mat-dialog-actions align="center">
+    <h1 mat-dialog-title>Transaction: {{transType}}, Select the User you want to Copy from</h1>
+  </div>
+
+</mat-dialog-content>
+<div mat-dialog-actions align="center">
+
+
+  <mat-label> User Names: </mat-label>
+  <mat-form-field  appearance="fill" style="font-size: 10px; width: 50%; " >
+
+    <mat-select style="font-size: 10px;" (selectionChange)="transactionChange($event.value)"
+      [(value)]="UserName"  [multiple]="false" >
+
+      @for (usr of userNames; track usr) {
+        <mat-option [value]="usr" style="font-size: 10px;" >
+          {{usr}}
+        </mat-option>
+      }
+    </mat-select>
+  </mat-form-field>
+</div>
+
+
+<div mat-dialog-actions align="center">
+  <button mat-button (click)="closeCancel()" >Cancel</button>
+  <button mat-button (click)="doSave()">Save</button>
+</div>

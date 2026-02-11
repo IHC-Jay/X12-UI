@@ -1,0 +1,7 @@
+.note-box {
+  padding: 5px;
+  margin: 5px 0px;
+  background-color: rgb(241, 241, 241);
+  width: 40%;
+  align-items: center;
+}

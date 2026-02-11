@@ -1,0 +1,64 @@
+table {
+    width: 100%;
+    background-color: azure;
+    border-color: blue;
+   }
+
+container{
+    width: 100%;
+}
+
+  tr.classFile-detail-row {
+    height: 0;
+  }
+
+  tr.classFile-element-row:not(.classFile-expanded-row):hover {
+    background: whitesmoke;
+  }
+
+  tr.classFile-element-row:not(.classFile-expanded-row):active {
+    background: #efefef;
+  }
+
+  .classFile-element-row td {
+    border-bottom-width: 0;
+  }
+
+  .classFile-element-detail {
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #e1e1e1;
+    box-shadow: inset 2px 3px 8px #c1c1c1;
+    border-radius: 8px;
+  }
+
+  .classFile-element-diagram {
+    min-width: 80px;
+    border: 2px solid black;
+    padding: 8px;
+    font-weight: lighter;
+    margin: 8px 0;
+    height: 104px;
+  }
+
+  .classFile-element-symbol {
+    font-weight: bold;
+    font-size: 40px;
+    line-height: normal;
+  }
+
+  .classFile-element-description {
+    padding: 16px;
+  }
+
+  .classFile-element-description-attribution {
+    opacity: 0.5;
+  }
+  .w-95{
+    width: 98%;
+    align-items: center;
+    align-self: center;
+    margin-left: 1pc;
+}

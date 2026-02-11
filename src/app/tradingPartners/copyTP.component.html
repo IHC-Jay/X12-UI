@@ -1,0 +1,86 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<form [formGroup]="form"  class="form-group" (ngSubmit)="onSubmit()">
+
+  <div style="width: 100%; height: 800px; background: white;">
+
+
+
+    <table style="font-size: 5px; border-color: blue; border-style: groove;border-width: thin; align-items: center;">
+
+
+      <tr style="font-size: 10px; vertical-align:top" >
+
+        <td class="form-group col-6" style="font-size: 10px; ">
+
+
+          <label style="font-size: 11px; text-align: left ;font-family: Arial">Copy from: </label>
+        </td>
+      </tr>
+      <tr>
+        <td>
+
+          <mat-form-field class="form-group col-6" appearance="fill" style="font-size: 8px; " >
+            <mat-select formControlName="tpName" (selectionChange)="tpChange($event.value)"
+              style="font-size: 10px;"
+              [multiple]="false" >
+              @for (tpNm of tpNames; track tpNm) {
+                <mat-option [value]="tpNm" style="font-size: 10px;">
+                  {{tpNm}}
+                </mat-option>
+              }
+            </mat-select>
+          </mat-form-field>
+
+        </td>
+      </tr>
+
+      <tr> <td>
+        <div class="form-group col-6">
+          <label style="font-size: 11px; text-align: left ;font-family: Arial">TP Name</label>
+
+          <input type="text" formControlName="Name" class="form-control" />
+          @if (form.get('Name')?.errors?.['required']) {
+            <div style="color: red; font-size: small; font-style: italic;">TP Name is required</div>
+          }
+
+        </div>
+      </td>
+    </tr>
+    <tr>
+
+      <td>
+        <div class="form-group col-6">
+          <label style="font-size: 11px; text-align: left ;font-family: Arial">TPID:</label>
+          <input type="text" formControlName="TpId" class="form-control" />
+          @if (form.get('TpId')?.errors?.['required']) {
+            <div style="color: red; font-size: small; font-style: italic;">TPID is required</div>
+          }
+        </div>
+      </td>
+    </tr>
+    <tr>
+      <td>
+
+        @if (created) {
+          <input [ngStyle]="{'color': statColor}" class="form-group col-10" formControlName="status" type="text" style="font-size: small; " />
+        }
+
+      </td>
+    </tr>
+
+    <tr>
+      <div class="form-row">
+        <button [disabled]="form.invalid" class="btn btn-primary" >
+          Copy TP
+        </button>
+        <a (click)="onCancel()" class="btn btn-link">Cancel</a>
+
+
+      </div>
+    </tr>
+
+  </table>
+
+
+</div>
+</form>

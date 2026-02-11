@@ -1,0 +1,122 @@
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<html>
+  <head>
+    <title>TP Login</title>
+  </head>
+
+  <body style="padding: 1px;">
+  <nav class="navbar navbar-default">
+
+          <ng-template [ngIf]="isLogin" [ngIfElse]="loggedOut">
+          <button style="border-spacing: 0pc; padding: 0pc;" on-click="onHome()" >
+            <img width="100%" src="{{logo}}" >
+          </button>
+
+          <div style="align-items: start;">
+
+            <h4 id="searchInfo" *ngIf="searchStr!=='' ">{{searchStr}}</h4>
+          </div>
+
+
+      <div style="align-items: start;">
+        <mat-tab-group #tabGrp [selectedIndex]="selectedLnkIndex.value" *ngIf=isLogin mat-stretch-tabs="false" mat-align-tabs="start"
+         (selectedTabChange)="onTabChanged($event)">
+
+        <ng-container *ngFor="let lnk of links;  let i = index">
+
+          <mat-tab *ngIf="i < links.length - 1 " style="font-weight: bolder; font-size: large;" label={{lnk.name}}>
+
+          </mat-tab>
+
+        </ng-container>
+
+        <mat-tab label="WF">
+          <ng-template mat-tab-label>
+          <div *ngIf="NumAssignedItems > 0 ;else noBadge" matBadge={{NumAssignedItems}} matBadgeOverlap="false"
+            class="demo-section">Work Flow</div>
+          <ng-template #noBadge>
+            <div class="demo-section">Work Flow</div>
+          </ng-template>
+        </ng-template>
+        </mat-tab>
+
+
+      </mat-tab-group>
+      </div>
+
+
+          <div id="logout" *ngIf=isLogin style="align-items:start;">
+                <button style="background-color: red; font-size: 9pt; width: 100pt;" (click)="logout()">{{currentUser.username}} &#64; {{currentUser.environment}} Logout</button>
+          </div>
+        </ng-template>
+        <ng-template #loggedOut>
+          <img [border]="1" width="100" alt="My image name" src="{{logo}}">
+          <div style="font-size: 18px; align-self: center;"> Trading Partner Management</div>
+        </ng-template>
+
+  </nav>
+
+  <div class="col-md-6 offset-md-3 mt-5" *ngIf=!isLogin>
+    <div class="alert alert-info">
+      {{displayHelp}}
+    </div>
+    <div class="card">
+        <h4 class="card-header">Login</h4>
+        <div class="card-body">
+            <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+                <div class="form-group">
+                    <label for="username">Username</label>
+                    <input type="text" formControlName="username" class="form-control" />
+                     <div *ngIf="loginForm.get('username')?.errors?.['required']" style="color: red; font-size: small; font-style: italic;">Username is required</div>
+
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" formControlName="password" class="form-control"
+                    [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+                    <div *ngIf="loginForm.get('password')?.errors?.['required']" style="color: red; font-size: small; font-style: italic;">Password is required</div>
+                </div>
+                <div class="form-group" style="color: azure; align-items: center;">
+                  <table style="font-size: 5px;
+                  border-color: black; border-style: dashed;border-width: thin; background-color: azure; align-items: center;">
+                  <tr style="align-items: center;">
+                    <td style="align-items: center;">
+
+                <mat-form-field style="background-color: azure;">
+                  <mat-label>Environment</mat-label>
+                  <mat-select formControlName="env" class="form-control">
+                   @for (env of allowedEnvironments; track env) {
+                          <mat-option [value]="env" style="font-size: 10px;">
+                            {{env}}
+                          </mat-option>
+                        }
+                  </mat-select>
+                </mat-form-field>
+
+              </td>
+              <td style="align-items: center;">
+
+                <mat-form-field>
+                  <mat-label>Auto Logout (in min)</mat-label>
+                  <mat-select formControlName="logoutTime" class="form-control">
+                    <mat-option value="15">15</mat-option>
+                    <mat-option value="30">30</mat-option>
+                    <mat-option value="60">60</mat-option>
+                    <mat-option value="120">120</mat-option>
+                  </mat-select>
+                </mat-form-field>
+
+              </td></tr></table>
+              </div>
+                <button class="btn btn-primary"
+                        style="align-content: center; font-family: Arial; background-color: navy;">
+                        Login
+                </button>
+                <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
+            </form>
+        </div>
+    </div>
+  </div>
+</body>
+</html>
+

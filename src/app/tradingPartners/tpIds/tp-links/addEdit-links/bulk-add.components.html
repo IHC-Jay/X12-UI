@@ -1,0 +1,222 @@
+<html>
+  <head>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+
+    <title>TP Link Form</title>
+  </head>
+  <body style="padding: 50px;">
+    <h1>Add Multiple TP Links - {{parentTpId}}</h1>
+
+    @if (canRender) {
+      <div>
+        <form [formGroup]="form" (ngSubmit)="onSubmit()" class="form-group" >
+          <div class="form-row">
+            <div class="form-group col-9">
+              <label>TP Link Name Tag</label>
+              <input type="text" formControlName="Link" class="form-control"
+                />
+                @if (submitted && f.Link.errors) {
+                  <div class="invalid-feedback">
+                    @if (f.Link.errors.required) {
+                      <div>Link is required</div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-5">
+                <label>{{tpType}} ID: {{parentTpId}}</label>
+              </div>
+
+              <div class="form-group col-6" >
+                <label>{{orgType}} Id</label>
+                <mat-select id="PayerId" formControlName="PayerId"
+                  class="rounded-inputs20 select-select col-md-7">
+                  @for (tpId of ownerTpIds; track tpId) {
+                    <mat-option [value]="tpId" style="font-size: 10px;">
+                          {{tpId}}
+                      </mat-option>
+
+                  }
+
+                </mat-select>
+                @if (submitted && f.PayerId.errors) {
+                  <div class="invalid-feedback">
+                    @if (f.PayerId.errors.required) {
+                      <div>ISA SenderId is required</div>
+                    }
+                  </div>
+                }
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group col-3">
+                <label>Separators</label>
+                <input type="text" formControlName="Separators" class="form-control" value="|*^:" defaultValue="|*^:" />
+              </div>
+            </div>
+            <table border="1">
+              <tr>
+                <th>Option</th>
+                <th>Real Time</th>
+                <th>Batch</th>
+              </tr>
+              <tr>
+                <td><label>Type</label></td>
+                <td>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Transactions</mat-label>
+                    <mat-select formControlName="RtTransType" [multiple]="true">
+                      @for (tt of RtTransactionTypes; track tt) {
+                        <mat-option [value]="tt">{{tt}}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  @if (submitted && f.RtTransType.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.RtTransType.errors.required) {
+                        <div>RT TransType is required</div>
+                      }
+                    </div>
+                  }
+                </td>
+                <td>
+                  <mat-form-field appearance="fill">
+                    <mat-label>Transactions</mat-label>
+                    <mat-select formControlName="BatchTransType" [multiple]="true">
+                      @for (tt of BatchTransactionTypes; track tt) {
+                        <mat-option  [value]="tt">{{tt}}</mat-option>
+                      }
+                    </mat-select>
+                  </mat-form-field>
+                  @if (submitted && f.BatchTransType.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.BatchTransType.errors.required) {
+                        <div>Batch TransType is required</div>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+              <tr>
+                <td><label>Ack</label></td>
+                <td>
+                  <mat-select formControlName="RtAck" class="form-control">
+                    @for (ack of RTackTypes; track ack) {
+                      <mat-option [value]="ack" style="font-size: 10px;">
+                          {{ack}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.RtAck.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.RtAck.errors.required) {
+                        <div>Ack is required</div>
+                      }
+                    </div>
+                  }
+                </td>
+                <td>
+                  <mat-select formControlName="BatchAck" class="form-control">
+                    @for (ack of BatchackTypes; track ack) {
+                      <mat-option [value]="ack" style="font-size: 10px;">
+                          {{ack}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.BatchAck.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.BatchAck.errors.required) {
+                        <div>Ack is required</div>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+              <tr>
+                <td><label>Routing</label></td>
+                <td>
+                  <div class="form-group col-5">
+                    <label >RT</label>
+                  </div>
+                </td>
+                <td>
+                  <mat-select formControlName="BatchRouting" class="form-control"
+                    >
+                    @for (route of routingTypes; track route) {
+                      <mat-option [value]="route" style="font-size: 10px;">
+                          {{route}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.BatchRouting.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.BatchRouting.errors.required) {
+                        <div>Routing is required</div>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+              <tr>
+                <td><label>SNIP</label></td>
+                <td>
+                  <mat-select formControlName="RtSNIP" class="form-control"
+                    >
+                   @for (val of snipValues; track val) {
+                      <mat-option [value]="val" style="font-size: 10px;">
+                          {{val}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.RtSNIP.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.RtSNIP.errors.required) {
+                        <div>SNIP is required</div>
+                      }
+                    </div>
+                  }
+                </td>
+                <td>
+                  <mat-select formControlName="BatchSNIP" class="form-control"
+                    >
+                    @for (val of snipValues; track val) {
+                      <mat-option [value]="val" style="font-size: 10px;">
+                          {{val}}
+                      </mat-option>
+                    }
+                  </mat-select>
+                  @if (submitted && f.BatchSNIP.errors) {
+                    <div class="invalid-feedback">
+                      @if (f.BatchSNIP.errors.required) {
+                        <div>SNIP is required</div>
+                      }
+                    </div>
+                  }
+                </td>
+              </tr>
+            </table>
+            <!-- Save and Cancel -->
+            <BR/>
+            <div class="form-row">
+              <div class="form-group col-7">
+                <button [disabled]="loading" class="btn btn-primary">
+                  @if (loading) {
+                    <span class="spinner-border spinner-border-sm mr-1"></span>
+                  }
+                  Create
+                </button>
+                <a (click)="onCancel()" class="btn btn-link">Cancel</a>
+              </div>
+            </div>
+          </form>
+        </div>
+      }
+
+      <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js" integrity="sha384-DfXdz2htPH0lsSSs5nCTpuj/zy4C+OGpamoFVy38MVBnE+IbbVYUew+OrCXaRkfj" crossorigin="anonymous"></script>
+      <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+      <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.min.js" integrity="sha384-OgVRvuATP1z7JjHLkuOU7Xw704+h835Lr+6QL9UvYjZE3Ipu6Tp75j7Bh/kR0JKI" crossorigin="anonymous"></script>
+    </body>
+  </html>
+

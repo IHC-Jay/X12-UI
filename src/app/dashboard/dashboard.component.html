@@ -1,0 +1,69 @@
+
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<form [formGroup]="form"  class="form-group" >
+
+  @if (canRenderDetails) {
+    <div style="width: 90%; height: 400px; background:rgb(246, 247, 248) ">
+      <canvas baseChart
+        [datasets]="barChartData"
+        [labels]="mbarChartLabels"
+        [options]="barChartOptions"
+        [legend]="barChartLegend"
+        [chartType]="barChartType"
+        [plugins]="barChartPlugins"
+        (chartHover)="chartHovered($event)"
+        (chartClick)="chartClicked($event)">
+      </canvas>
+    </div>
+  }
+  <div>
+
+
+
+    @if (dataSource.data.length > 0) {
+      <table style="font-size: small; background-color: azure; border-color: blue;"
+        mat-table [dataSource]="dataSource" multiTemplateDataRows matSort
+        style="font-size: small; background-color: azure;">
+        @for (column of dataTableKey; track column; let i = $index) {
+          <ng-container [matColumnDef]="column">
+            <th style="font-size: smaller;" class="mat-header-cell" *matHeaderCellDef mat-sort-header> {{dataTableLabel[i]}} </th>
+            <td mat-cell *matCellDef="let element" (contextmenu)="onContextMenu($event, element, i)"  > {{element[column]}} </td>
+          </ng-container>
+        }
+        <tr class="trans-row" mat-header-row *matHeaderRowDef="dataTableKey;sticky: true" >
+        </tr>
+        <tr style="font-size: smaller;" mat-row class="trans-element-row" *matRowDef="let row; columns: dataTableKey;"
+          >
+        </tr>
+        <tr class="mat-row" *matNoDataRow>
+          <td class="mat-cell" colspan="4">No data matching the filter "{{input.value}}"</td>
+        </tr>
+      </table>
+    }
+    <div style="visibility: hidden; position: fixed"
+      [style.left]="contextMenuPosition.x"
+      [style.top]="contextMenuPosition.y"
+      [matMenuTriggerFor]="contextMenu">
+    </div>
+
+    <mat-menu #contextMenu="matMenu" #contextMenu2="matMenu">
+      <ng-template matMenuContent let-item="item">
+        <button mat-menu-item (click)="onContextMenuNew(item)"> {{currentTransType}} Transactions in New Tab </button>
+        <button mat-menu-item (click)="onContextMenuSame(item)"> {{currentTransType}} Transactions in Same Window</button>
+      </ng-template>
+    </mat-menu>
+
+
+    @if (canRenderDetails && dataSource.data.length === 0) {
+      <div>Information not found for {{currentMode}} - {{currentTransType}}
+      </div>
+    }
+
+  </div>
+
+
+
+
+</form>
+
+

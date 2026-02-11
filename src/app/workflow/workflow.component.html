@@ -1,0 +1,416 @@
+<form [formGroup]="form"  class="form-group" (ngSubmit)="onSubmit()">
+
+  <div style="width: 100%; height: 800px; background: white;">
+
+
+    <!-- USER INPUT -->
+    <table style="font-size: 5px; border-color: blue; border-style: groove;border-width: thin; align-items: center; font-size: small; background-color: azure;">
+
+
+      @if (!rowSelected) {
+        <tr style="font-size: 10px; vertical-align:top" >
+
+             <td>
+                    <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">WF ID:</label>
+
+                    <input type="text" style="width: 100pt; font-size: 10px; text-align: left ;font-family: Arial" formControlName="wfID"
+                      (input)="inputID()">
+             </td>
+
+
+              <!-- Date Time -->
+              @if (!rowSelected && !searchID) {
+                  <td class="form-group col-2" style="font-size: 10px; ">
+                   <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Event Start Date & Time:</label>
+                   <div  style="border-color: black;">
+
+                  <input matInput  name="startDate" type="date" style="font-size: 10px;"
+                    value="{{startDate}}"
+                    placeholder="mm-dd-yyyy" required (change)="onStDateChange($event)"/>
+
+
+                    <input type="time" style="font-size: 10px;" matInput name="startTm"
+                      value="{{startTm}}" (change)="onStTimeChange($event)"
+                      />
+
+                   </div>
+                  </td>
+                }
+                @if (!rowSelected && !searchID) {
+                <td class="form-group col-2" style="font-size: 10px;  ">
+                  <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Event End Date & Time:</label>
+                  <div style="border-color: black; ">
+
+                      <input type="date" style="font-size: 10px;" matInput name="endDate"
+                        value="{{endDate}}" (change)="onEndDateChange($event)"/>
+
+                        <input type="time" style="font-size: 10px; " matInput name="endTm"
+                          value="{{endTm}}" (change)="onEndTimeChange($event)"/>
+
+                      </div>
+                    </td>
+                  }
+                  @if (!rowSelected && !searchID) {
+                    <td class="form-group col-2" style="font-size: 10px; ">
+                      <table style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                        <tr>
+                          <td class="form-group col-1">
+                            <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Status:</label>
+                          </td>
+
+                          <td>
+
+                              <mat-select style="font-size: 10px;" formControlName="statusType" (selectionChange)="statusTypeChange($event.value)"
+                                [multiple]="false">
+                                @for (statusType of statusTypes; track statusType) {
+                                  <mat-option [value]="statusType" style="font-size: 10px;">
+                                    {{statusType}}
+                                  </mat-option>
+                                }
+                              </mat-select>
+
+                          </td>
+                        </tr>
+
+                        @if (!showUsers) {
+                          <tr>
+                            <td class="form-group col-1">
+                              <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Transaction:</label>
+                            </td>
+
+                            <td>
+
+                                <mat-select formControlName="transType" style="font-size: 10px;"
+                                  [multiple]="false" (selectionChange)="transTypeChange($event.value)" >
+                                  @for (transType of transactionTypes; track transType) {
+                                    <mat-option [value]="transType" style="font-size: 10px;">
+                                      {{transType}}
+                                    </mat-option>
+                                  }
+                                </mat-select>
+
+                            </td>
+
+                          </tr>
+
+                        } @else {
+                          <tr>
+                            <td class="form-group col-1">
+                              <label style="font-size: 10px; text-align: left ;font-family: Arial">User:</label>
+                            </td>
+
+                            <td class="form-group col-2">
+
+                                <mat-select formControlName="assignedUser" (selectionChange)="updUserChange($event.value)"
+                                  style="font-size: 10px;"
+                                  [multiple]="false" >
+                                  @for (assignee of irisUsers; track assignee) {
+                                    <mat-option [value]="assignee.FullName" style="font-size: 10px;">
+                                      {{assignee.FullName}}
+                                    </mat-option>
+                                  }
+                                </mat-select>
+
+                            </td>
+                          </tr>
+                        }
+                        @if (showMode) {
+                          <tr>
+                            <td colspan="2">
+
+                               <mat-radio-group class="custom-radio-group"  formControlName="mode" (change)="transactionChange($event.value)">
+                                <mat-radio-button class="custom-radio-button" value="RealTime">
+                                  <span style="font-size: 10px; text-align: left ;">RealTime</span>
+                                </mat-radio-button>
+                                <mat-radio-button class="custom-radio-button" value="Batch">
+                                  <span style="font-size: 10px; text-align: left ;">Batch</span>
+                                </mat-radio-button>
+                              </mat-radio-group>
+
+                            </td>
+                          </tr>
+                         }
+
+                      </table>
+                    </td>
+                  }
+                  @if (!rowSelected && !searchID) {
+                    <td class="form-group col-2" style="font-size: 10px;; ">
+                      <table style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                         <tr style="vertical-align: top;">
+
+                            <td  class="form-group col-1" style="font-size: 10px; align-self:safe;">
+
+                              <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Sender ID:</label>
+                            </td>
+
+                           <td>
+                              <input type="text" style="width: 100pt; font-size: 10px; text-align: left ;font-family: Arial" formControlName="senderID"
+                                >
+                            </td>
+
+                          </tr>
+                        <tr style="vertical-align: top;">
+
+                            <td  class="form-group col-1" style="font-size: 10px; align-self:safe;">
+
+                              <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Receiver ID:</label>
+                            </td>
+
+                           <td>
+                              <input type="text" style="width: 100pt; font-size: 10px; text-align: left ;font-family: Arial" formControlName="receiverID"
+                                >
+                            </td>
+
+                          </tr>
+
+                      </table>
+                    </td>
+                  }
+                   @if (!rowSelected && !searchID) {
+                    <td class="form-group col-2" style="font-size: 10px;; ">
+                      <table style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                        <tr>
+                          <td class="form-group col-1" style="font-size: 10px; align-self:safe;">
+                            <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Error Type:</label>
+                          </td>
+
+                          <td class="form-group col-2">
+
+                              <mat-select formControlName="errorType" style="font-size: 10px;"
+                                [multiple]="false" (selectionChange)="errorTypeChange($event.value)" >
+                                @for (errorType of errorTypes; track errorType) {
+                                  <mat-option [value]="errorType"
+                                    style="font-size: 10px;">
+                                    {{errorType}}
+                                  </mat-option>
+                                }
+                              </mat-select>
+
+                          </td>
+                        </tr>
+                      </table>
+                    </td>
+                  }
+
+
+
+                  @if (!rowSelected) {
+
+
+                        <td class="form-group col-2" style="font-size: 10px; align-self:safe;">
+                                <button class="btn btn-primary"
+                                  style="align-content: center; font-family: Arial; background-color: navy;">
+                                  Search
+                                </button>
+                        </td>
+
+                    }
+            </tr>
+        }
+
+
+        @if (rowSelected) {
+                  <tr>
+                    <td  class="form-group col-1">
+                      @if (rowSelected && noAssignee == true) {
+                        <button  class="btn btn-primary"
+                          style="font-family: Arial, Helvetica, sans-serif; background-color: green; font-size: 10px; padding: 5px;"
+                          (click)="assignWF()">
+                          Assign to Me
+                        </button>
+                      }
+                    </td>
+                    @if (rowSelected) {
+                      <td class="form-group col-2" style="font-size: 10px;">
+                        <table style="vertical-align: top; width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                          <tr>
+                            <td>
+                              <label style="font-size: 10px; text-align: left ;font-family: Arial">Update Status</label>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <mat-form-field appearance="fill" style="font-size: 8px; width: fit-content;" >
+                                <mat-select formControlName="updStatusType" (selectionChange)="updStatusTypeChange($event.value)"
+                                  style="font-size: 10px;"
+                                  [multiple]="false" >
+                                  @for (updStatusType of updStatusTypes; track updStatusType) {
+                                    <mat-option [value]="updStatusType" style="font-size: 10px;">
+                                      {{updStatusType}}
+                                    </mat-option>
+                                  }
+                                </mat-select>
+                              </mat-form-field>
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    }
+                    @if (updStatus==='Assigned') {
+                      <td class="form-group col-1">
+                        <table style="vertical-align: top; width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                          <tr>
+                            <td>
+                              <label style="font-size: 10px; text-align: left ;font-family: Arial">User:</label>
+                            </td>
+
+                            <td>
+
+                                <mat-select formControlName="assignee" (selectionChange)="updUserChange($event.value)"
+                                  style="font-size: 10px;"
+                                  [multiple]="false" >
+                                  @for (assignee of irisUsers; track assignee) {
+                                    <mat-option [value]="assignee.FullName" style="font-size: 10px;">
+                                      {{assignee.FullName}}
+                                    </mat-option>
+                                  }
+                                </mat-select>
+
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    }
+                    @if (rowSelected) {
+                      <td class="form-group col-2" style="font-size: 10px;">
+                        <table style="vertical-align: top; width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                          <tr>
+                            <td>
+                              <label style="font-size: 11px; text-align: left ;font-family: Arial">Notes</label>
+                            </td>
+                          </tr>
+                          <tr>
+                            <td>
+                              <input type="text" style="font-size: 11px; width: 300pt;" formControlName="notes">
+                            </td>
+                          </tr>
+                        </table>
+                      </td>
+                    }
+                    <td class="form-group col-1">
+                      @if (rowSelected) {
+                        <button  class="btn btn-primary"
+                          style="font-family: Arial, Helvetica, sans-serif; background-color: blue; font-size: 10px; padding: 5px;"
+                          (click)="updateWF()">
+                          Update
+                        </button>
+                      }
+                    </td>
+
+                  </tr>
+       }
+      </table>
+
+
+            <!-- DATA -->
+            <div>
+              @if (canRenderDetails) {
+                  <table mat-table [dataSource]="dataSource"
+                    style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                    <!-- Checkbox Column -->
+                    <ng-container matColumnDef="Select">
+                      <th mat-header-cell *matHeaderCellDef>
+                        <mat-checkbox (change)="$event ? masterToggle() : null"
+                          [checked]="selection.hasValue() && isAllSelected()"
+                          [indeterminate]="selection.hasValue() && !isAllSelected()">
+                        </mat-checkbox>
+                      </th>
+                      <td mat-cell *matCellDef="let row">
+                        <mat-checkbox (click)="$event.stopPropagation()"
+                          (change)="$event ? singleToggle(row) : null"
+                          [checked]="selection.isSelected(row)">
+                        </mat-checkbox>
+                      </td>
+                    </ng-container>
+                    <!-- ID Column -->
+                    <ng-container matColumnDef="ID">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ID </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.ID}} </mat-cell>
+                    </ng-container>
+                    <!-- InterchangeSenderID Column -->
+                    <ng-container matColumnDef="InterchangeSenderID">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange SenderID </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.InterchangeSenderID}} </mat-cell>
+                    </ng-container>
+                    <!-- InterchangeReceiverID Column -->
+                    <ng-container matColumnDef="InterchangeReceiverID">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange ReceiverID </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.InterchangeReceiverID}} </mat-cell>
+                    </ng-container>
+                    <!-- TransactionType Column -->
+                    <ng-container matColumnDef="TransactionType">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Transaction </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.TransactionType}} </mat-cell>
+                    </ng-container>
+                    <!-- CreateDtTm Column -->
+                    <ng-container matColumnDef="CreateDtTm">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Create DtTm </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.CreateDtTm}} </mat-cell>
+                    </ng-container>
+                    <!-- ErrorType Column -->
+                    <ng-container matColumnDef="ErrorType">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ErrorType </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.ErrorType}} </mat-cell>
+                    </ng-container>
+                    <ng-container matColumnDef="Resent">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Resent </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.Resent == 1?'Yes':'No'}} </mat-cell>
+                    </ng-container>
+                    <!-- Error Column -->
+                    <ng-container matColumnDef="Error">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Error  </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.Error}} </mat-cell>
+                    </ng-container>
+                    <!-- WorkStatus Column -->
+                    <ng-container matColumnDef="WorkStatus">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> WorkStatus </mat-header-cell>
+                      <mat-cell *matCellDef="let element"> {{element.WorkStatus}} </mat-cell>
+                    </ng-container>
+                    <!-- AssignedUser Column -->
+                    <ng-container matColumnDef="AssignedUser">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Assigned to </mat-header-cell>
+                      <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.AssignedUser}} </mat-cell>
+                    </ng-container>
+                    <!-- LastmodDtTM Column -->
+                    <ng-container matColumnDef="LastmodDtTM">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Last update </mat-header-cell>
+                      <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.LastmodDtTM}} </mat-cell>
+                    </ng-container>
+                    <!-- AssignedUser Column -->
+                    <ng-container matColumnDef="LastmodID">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Modified By </mat-header-cell>
+                      <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.LastmodID}} </mat-cell>
+                    </ng-container>
+                    <!-- Details Column -->
+                    <ng-container matColumnDef="Details">
+                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Details </mat-header-cell>
+                      <mat-cell style="font-size: smaller;" *matCellDef="let element">
+                        <button style="height: 2pc; width: auto;" (click)="onDetailsClicked(element)"> Show  </button></mat-cell>
+                      </ng-container>
+                      <ng-container matColumnDef="History">
+                        <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> History </mat-header-cell>
+                        <mat-cell style="font-size: smaller;" *matCellDef="let element">
+                          <button style="height: 2pc; width: auto;" (click)="onHistoryClicked(element)"> History  </button></mat-cell>
+                        </ng-container>
+                        <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
+                        <mat-row style="font-size: smaller; font-family: 'Courier New', Courier, monospace;" *matRowDef="let row; columns: displayedColumns;">
+                        </mat-row>
+               </table>
+            }
+
+
+                     <mat-paginator  #dataPaginator
+                        [pageIndex]="pageIndex"
+                        [pageSize]="pageSize"
+                        [length]="pageLength"
+                        [pageSizeOptions]="[10, 25, 50, 100, 200]"
+                        (page)="onPaginateChange($event)"
+                        showFirstLastButtons>
+
+                      </mat-paginator>
+
+        </div>
+    </div>
+
+ </form>
