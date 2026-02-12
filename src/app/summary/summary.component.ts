@@ -28,6 +28,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { DialogRef } from '@angular/cdk/dialog';
 import { environment } from '../../environments/environment';
 import { MatIconModule } from '@angular/material/icon';
+import { parseDays } from '../utils/parseDays';
 
 @Component({
     selector: 'app-summary',
@@ -157,14 +158,14 @@ export class SummaryComponent implements OnInit, AfterViewInit {
     })
   }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initSessionTab();
     this.initTransactionTypes();
     this.initFormGroup();
     this.initFormFieldsFromSessionOrQuery();
     this.setFormControlsFromFields();
     this.clearSearch();
-    this.initSummaryFieldsAndColumns();
+    await this.initSummaryFieldsAndColumnsAsync();
     if (!this.dataSource.sort) {
       console.debug('Set sort in ngInit');
       this.dataSource.sort = this.sort;
@@ -200,32 +201,34 @@ export class SummaryComponent implements OnInit, AfterViewInit {
     this.formFields.currentTransType = '';
     this.sub = this.route.queryParams.subscribe(params => {
       if (params && params['sumConfig']) {
+        console.info('Init from query params sumConfig: ' + params['sumConfig']);
         this.formFields = JSON.parse(params['sumConfig']);
         this.setEndTimeToNow();
       }
     });
     if (this.formFields.currentTransType === '' && this.storage.getItem('sumConfig')) {
+      console.info('Init from session storage sumConfig');
       this.formFields = this.storage.getItem<any>('sumConfig');
       this.setEndTimeToNow();
     }
     if (this.formFields.currentTransType === '') {
       this.formFields.currentTransType = this.transactionTypes[0];
       this.formFields.disposition = this.dispositions[0];
-      const parsedObject = this.storage.getItem<any>('UserConfig');
+      const parsedObject = JSON.parse(this.storage.getItem<any>('UserConfig') || '{}' ) ;
       if (parsedObject) {
+        console.info("Init from session UserConfig: " + parsedObject.TranType + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
         this.formFields.currentTransType = parsedObject.TranType;
         this.formFields.rowCnt = parsedObject.DispCnt;
         this.formFields.mode = parsedObject.Mode;
         this.pageSize = parsedObject.DispCnt;
-        let stDtStr = parsedObject.BthTime;
-        if (stDtStr.toString().indexOf('7') > 1) stDt = 7;
-        else if (stDtStr.toString().indexOf('30') > 1) stDt = 30;
-        else if (stDtStr.toString().indexOf('90') > 1) stDt = 90;
-        else if (stDtStr.toString().indexOf('365') > 1) stDt = 365;
+
+        stDt = parseDays(parsedObject.BthTime);
+
       }
       this.setStartAndEndDateTimes(stDt);
     }
   }
+
 
   private setEndTimeToNow() {
     let nowDt = new Date();
@@ -235,6 +238,7 @@ export class SummaryComponent implements OnInit, AfterViewInit {
   }
 
   private setStartAndEndDateTimes(stDt: number) {
+    console.log("Set Start and End DateTimes with stDt: " + stDt);
     this.nowDt = new Date(new Date().getTime() - stDt * 24 * 60 * 60 * 1000);
     let mm = this.nowDt.getMonth() < 9 ? '0' + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
     let dt = this.nowDt.getDate() < 10 ? '0' + this.nowDt.getDate() : this.nowDt.getDate();
@@ -242,11 +246,13 @@ export class SummaryComponent implements OnInit, AfterViewInit {
     let tmVal = (this.nowDt.getHours() < 10 ? '0' + this.nowDt.getHours() : '' + this.nowDt.getHours()) + ':';
     tmVal += this.nowDt.getMinutes() < 10 ? '0' + this.nowDt.getMinutes() : '' + this.nowDt.getMinutes();
     this.formFields.startTm = tmVal;
+    console.log("Start Time: " + this.formFields.startDate + ", " + this.formFields.startTm);
+
     this.nowDt = new Date();
     mm = this.nowDt.getMonth() < 9 ? '0' + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
     dt = this.nowDt.getDate() < 10 ? '0' + this.nowDt.getDate() : this.nowDt.getDate();
     this.formFields.endDate = this.nowDt.getFullYear() + '-' + mm + '-' + dt;
-    this.formFields.endTm = tmVal;
+    this.setEndTimeToNow();
   }
 
   private setFormControlsFromFields() {
@@ -256,24 +262,31 @@ export class SummaryComponent implements OnInit, AfterViewInit {
     this.form.controls.rowCnt.setValue(this.formFields.rowCnt);
   }
 
-  private initSummaryFieldsAndColumns() {
-    this.SummaryService.fetchTransactionFields().subscribe((res: any) => {
-      this.summarysFields = [];
-      for (var item of res) {
-        this.summarysFields.push({ key: item.Key, type: item.Type, label: item.TransmissionLabel, summaryCode: item.TransactionCode });
-      }
-      this.SummaryService.fetchDisplayColumns('Default', 'Summary').subscribe((res: any) => {
-        this.usrDisplayColumns.splice(0, this.usrDisplayColumns.length);
-        this.usrDisplayColumns.push(...res);
-        this.SummaryService.fetchSearchColumns('Default', 'Summary').subscribe((res: any) => {
-          this.usrSearchColumns.splice(0, this.usrSearchColumns.length);
-          this.usrSearchColumns.push(...res);
-          if (this.formFields.currentTransType !== '') {
-            this.transactionChange(this.formFields.currentTransType);
-            this.onSearchSummary();
-          } else {
-            this.transactionChange(this.transactionTypes[0]);
-          }
+  private initSummaryFieldsAndColumnsAsync(): Promise<void> {
+    return new Promise((resolve) => {
+
+      console.info('Fetching SummaryFields and Display/Search Columns');
+
+      this.SummaryService.fetchTransactionFields().subscribe((res: any) => {
+        this.summarysFields = [];
+        for (var item of res) {
+          this.summarysFields.push({ key: item.Key, type: item.Type, label: item.TransmissionLabel, summaryCode: item.TransactionCode });
+        }
+        this.SummaryService.fetchDisplayColumns('Default', 'Summary').subscribe((res: any) => {
+          this.usrDisplayColumns.splice(0, this.usrDisplayColumns.length);
+          this.usrDisplayColumns.push(...res);
+          this.SummaryService.fetchSearchColumns('Default', 'Summary').subscribe((res: any) => {
+            this.usrSearchColumns.splice(0, this.usrSearchColumns.length);
+            this.usrSearchColumns.push(...res);
+            if (this.formFields.currentTransType !== '') {
+              this.transactionChange(this.formFields.currentTransType);
+              this.onSearchSummary();
+            } else {
+              this.transactionChange(this.transactionTypes[0]);
+            }
+            console.info('Fetched SummaryFields and Display/Search Columns');
+            resolve();
+          });
         });
       });
     });

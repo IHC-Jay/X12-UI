@@ -13,6 +13,7 @@ import { MatSort, MatSortHeader } from '@angular/material/sort';
 
 
 import { environment } from '../../environments/environment';
+import { parseDays } from '../utils/parseDays';
 import { StorageService } from '../services/storage.service';
 
 
@@ -118,13 +119,14 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
   }
   get f() { return this.form.controls; }
 
-  ngOnInit() {
+  async ngOnInit() {
     this.initTransactionTypes();
     this.initSessionTab();
     this.initForm();
     this.canRenderDetails = false;
     this.irisUsers = [];
-    this.getUsers();
+    await this.getUsersAsync();
+
     let wfItems = 0;
     let stDt = 30;
     let mode = 'RealTime';
@@ -136,6 +138,19 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
       this.initFromUserConfig();
     }
     this.onSubmit();
+  }
+  getUsersAsync(): Promise<void> {
+    return new Promise((resolve) => {
+      if (this.irisUsers.length <= 0) {
+        this.WfService.fetchIrisUsers().subscribe((res: any) => {
+          this.irisUsers = res;
+          console.info("Users array: " + this.irisUsers.length);
+          resolve();
+        });
+      } else {
+        resolve();
+      }
+    });
   }
 
   private initTransactionTypes() {
@@ -149,6 +164,12 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
   private initSessionTab() {
     this.storageService.removeItem("currentTab");
     this.storageService.setItem("currentTab", "Work Flow");
+
+    // Set endTm to current time when tab is selected
+    const now = new Date();
+    const hours = now.getHours().toString().padStart(2, '0');
+    const minutes = now.getMinutes().toString().padStart(2, '0');
+    this.endTm = `${hours}:${minutes}`;
   }
 
   private initForm() {
@@ -197,7 +218,7 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
     this.startDate = this.extractSessionDate(searchParams, "wfStartDtTm::");
     this.startTm = this.extractSessionTime(searchParams, "wfStartDtTm::");
     this.endDate = this.extractSessionDate(searchParams, "wfEndDtTm::");
-    this.endTm = this.extractSessionTime(searchParams, "wfEndDtTm::");
+    this.setEndTimeToNow();
     return 1;
   }
 
@@ -227,7 +248,7 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
     if (!userConfig) return;
     const parsedObject = JSON.parse(userConfig);
     console.info("Init from session UserConfig: " + parsedObject.WfTime + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
-    let stDt = this.parseDays(parsedObject.WfTime);
+    let stDt = parseDays(parsedObject.WfTime);
     let mode = parsedObject.Mode;
     this.nowDt = new Date((new Date().getTime() - (stDt * 24 * 60 * 60 * 1000)));
     let mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
@@ -236,12 +257,9 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
     let tmVal = ((this.nowDt.getHours() < 10) ? "0" + this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":";
     tmVal += (this.nowDt.getMinutes() < 10) ? "0" + this.nowDt.getMinutes() : "" + this.nowDt.getMinutes();
     this.startTm = tmVal;
-    this.endTm = tmVal;
-    console.info("Time: " + tmVal + ", Status: " + this.statusTypeString);
-    this.nowDt = new Date(new Date().getTime());
-    mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
-    dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
-    this.endDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
+
+    this.setEndTimeToNow();
+
     this.form.controls.statusType.setValue(this.statusTypes[0]);
     this.form.controls.transType.setValue(mode === 'Batch' ? this.transactionTypes[0] : this.transactionTypes[1]);
     this.transTypeStr = this.form.controls.transType.value;
@@ -251,13 +269,13 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
     this.errorTypeStr = this.errorTypes[0];
   }
 
-  private parseDays(str: string): number {
-    if (str.toString().indexOf('1') > 1) return 1;
-    if (str.toString().indexOf('7') > 1) return 7;
-    if (str.toString().indexOf('30') > 1) return 30;
-    if (str.toString().indexOf('90') > 1) return 90;
-    if (str.toString().indexOf('365') > 1) return 365;
-    return 30;
+
+  private setEndTimeToNow() {
+    let nowDt = new Date();
+    let tmVal = (nowDt.getHours() < 10 ? '0' + nowDt.getHours() : '' + nowDt.getHours()) + ':';
+    tmVal += (nowDt.getMinutes() < 10 ? '0' + nowDt.getMinutes() : '' + nowDt.getMinutes());
+    this.endTm = tmVal;
+    console.info('setEndTimeToNow: Set end time to now: ' + this.endTm);
   }
 
   ngAfterViewInit() {
