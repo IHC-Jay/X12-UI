@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, NgForm } from '@angular/forms';
 
@@ -20,7 +20,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MatFormField } from '@angular/material/form-field';
-import { catchError } from 'rxjs';
+import { catchError, Subscription } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { Modalx12Component } from './transaction-details/modal/modal-x12.component';
 import { parseDays } from '../utils/parseDays';
@@ -41,7 +41,7 @@ import { StorageService } from '../services/storage.service';
 
 
 
-export class TransactionComponent implements OnInit, AfterViewInit {
+export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   contextMenuPosition = { x: '0px', y: '0px' };
 
@@ -118,7 +118,7 @@ export class TransactionComponent implements OnInit, AfterViewInit {
 
   searchColumns= this.transactionsFields.slice();
 
-  sub:any;
+  sub: Subscription | undefined;
 
   selDropdownList = [];
 
@@ -218,7 +218,6 @@ export class TransactionComponent implements OnInit, AfterViewInit {
   private handleQueryParamsSessionStorage() {
 
     console.info("Handle query params and session storage for Transactions");
-
       this.sub = this.route.queryParams.subscribe(params => {
         if(params !== undefined) {
           if(params['transConfig'] !== undefined ) {
@@ -373,6 +372,13 @@ export class TransactionComponent implements OnInit, AfterViewInit {
     // =====================
 
   }
+
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
+  }
+
   get f() { return this.form.controls; }
 
   onSearchTransactions() {

@@ -40,6 +40,7 @@ import * as _ from 'lodash';
  * Component for displaying and managing Trading Partner Links
  */
 export class tpLinksComponent implements OnInit, OnDestroy {
+    private subscriptions: Subscription[] = [];
   // --- Table and Pagination ---
   public size = 5;
   public pageNumber = 0;
@@ -95,6 +96,11 @@ export class tpLinksComponent implements OnInit, OnDestroy {
     if (this.errorSub) {
       this.errorSub.unsubscribe();
     }
+    this.subscriptions.forEach(sub => {
+      if (sub && typeof sub.unsubscribe === 'function') {
+        sub.unsubscribe();
+      }
+    });
   }
 
   // --- Initialization Helpers ---
@@ -126,7 +132,7 @@ export class tpLinksComponent implements OnInit, OnDestroy {
    */
   refreshLinks() {
     this.isFetching = true;
-    this.tpLinksService.fetchTpLinks(this.tpId).subscribe(
+    const sub = this.tpLinksService.fetchTpLinks(this.tpId).subscribe(
       tpLinksData => {
         this.isFetching = false;
         this.loadedPosts = tpLinksData;
@@ -139,6 +145,7 @@ export class tpLinksComponent implements OnInit, OnDestroy {
         this.error = error.message;
       }
     );
+    this.subscriptions.push(sub);
     console.debug("Got TPLink records");
   }
 
@@ -198,11 +205,11 @@ export class tpLinksComponent implements OnInit, OnDestroy {
    */
   delete(tpLink: string) {
     try {
-      this.dialog.open(ConfirmDialogComponent)
+      const dialogSub = this.dialog.open(ConfirmDialogComponent)
         .afterClosed()
         .subscribe((confirm) => {
           if (confirm) {
-            this.tpLinksService.deleteTpLink(tpLink).subscribe({
+            const delSub = this.tpLinksService.deleteTpLink(tpLink).subscribe({
               next: (res) => {
                 if (res["Status"] !== undefined) {
                   this.refreshLinks();
@@ -217,8 +224,10 @@ export class tpLinksComponent implements OnInit, OnDestroy {
                 return;
               }
             });
+            this.subscriptions.push(delSub);
           }
         });
+      this.subscriptions.push(dialogSub);
     } catch (e) {
       console.error('Exception: ' + e);
     }

@@ -18,6 +18,7 @@ import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 })
 
 export class TpIdComponent implements OnInit {
+    private subscriptions: any[] = [];
   tpId: string;
 
   public size = 5;
@@ -38,7 +39,9 @@ export class TpIdComponent implements OnInit {
     // Get the TP ID from the route and load initial data
     const routeParams = this.route.snapshot.paramMap;
     this.tpId = routeParams.get('tpId');
-    this.refreshRows();
+    this.subscriptions.push(this.tpIdService.getTpIds(this.tpId).subscribe((res: TpId[]) => {
+      this.dataSource.data = res;
+    }));
   }
 
   ngAfterViewInit() {
@@ -85,12 +88,12 @@ export class TpIdComponent implements OnInit {
   private handleAddRow(row: TpId) {
     if (row.TPID !== '') {
       row.Name = this.tpId;
-      this.tpIdService.addTPID(row).subscribe((res) => {
+      this.subscriptions.push(this.tpIdService.addTPID(row).subscribe((res) => {
         row.isEdit = false;
         row.id = res.id;
         console.info('Added TP: ' + row.TPID + ', ID: ' + res.id + ', ' + res.Status);
         this.openSnackBar('TPID ' + row.TPID, 'Save ' + res.Status);
-      });
+      }));
     } else {
       this.removeInvalidRow(row);
       this.openSnackBar('Required fields missing', 'Error');
@@ -102,11 +105,11 @@ export class TpIdComponent implements OnInit {
    */
   private handleUpdateRow(row: TpId) {
     row.Name = this.tpId;
-    this.tpIdService.updateTPID(row).subscribe((res) => {
+    this.subscriptions.push(this.tpIdService.updateTPID(row).subscribe((res) => {
       row.isEdit = false;
       console.info('Update TP: ' + row.TPID + ', ID: ' + res.id + ', ' + res.Status);
       this.openSnackBar('Update TPID ' + row.TPID, 'Save ' + res.Status);
-    });
+    }));
   }
 
   /**
@@ -135,25 +138,29 @@ export class TpIdComponent implements OnInit {
     const tpid = row.TPID;
     console.log('removeRow: ' + tpid);
     try {
-      this.dialog.open(ConfirmDialogComponent)
-        .afterClosed()
-        .subscribe((confirm) => {
-          if (confirm) {
-            this.tpIdService.deleteTPID(tpid).subscribe({
-              next: (res) => {
-                if (res["Status"] !== undefined) {
-                  this.refreshRows();
-                } else if (res["Error"] !== undefined) {
-                  this.openSnackBar(res["Error"], 'Error');
-                }
-                console.info('deleteTPID: Json: ' + JSON.stringify(res));
-              },
-              error: (e) => {
-                this.openSnackBar('deleteTPID catchError: ' + e, 'Error');
-              }
-            });
-          }
-        });
+      this.subscriptions.push(
+        this.dialog.open(ConfirmDialogComponent)
+          .afterClosed()
+          .subscribe((confirm) => {
+            if (confirm) {
+              this.subscriptions.push(
+                this.tpIdService.deleteTPID(tpid).subscribe({
+                  next: (res) => {
+                    if (res["Status"] !== undefined) {
+                      this.refreshRows();
+                    } else if (res["Error"] !== undefined) {
+                      this.openSnackBar(res["Error"], 'Error');
+                    }
+                    console.info('deleteTPID: Json: ' + JSON.stringify(res));
+                  },
+                  error: (e) => {
+                    this.openSnackBar('deleteTPID catchError: ' + e, 'Error');
+                  }
+                })
+              );
+            }
+          })
+      );
     } catch (e) {
       console.error('Exception: ' + e);
     }
@@ -164,9 +171,9 @@ export class TpIdComponent implements OnInit {
    */
   private refreshRows() {
     console.info('RefreshRows');
-    this.tpIdService.getTpIds(this.tpId).subscribe((res: TpId[]) => {
+    this.subscriptions.push(this.tpIdService.getTpIds(this.tpId).subscribe((res: TpId[]) => {
       this.dataSource.data = res;
-    });
+    }));
   }
 
   /**
@@ -190,4 +197,11 @@ export class TpIdComponent implements OnInit {
     return false;
   }
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => {
+      if (sub && typeof sub.unsubscribe === 'function') {
+        sub.unsubscribe();
+      }
+    });
+  }
 }

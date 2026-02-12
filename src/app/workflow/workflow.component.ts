@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild } from '@angular/core';
 import { SelectionModel } from "@angular/cdk/collections";
 import { MatTableDataSource } from "@angular/material/table";
 
@@ -13,6 +13,7 @@ import { MatSort, MatSortHeader } from '@angular/material/sort';
 
 
 import { environment } from '../../environments/environment';
+import { Subscription } from 'rxjs';
 import { parseDays } from '../utils/parseDays';
 import { StorageService } from '../services/storage.service';
 
@@ -24,7 +25,7 @@ import { StorageService } from '../services/storage.service';
     standalone: false
 })
 
-export class WorkflowComponent implements OnInit, AfterViewInit {
+export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
   @ViewChild(MatPaginator) paginator: MatPaginator;
 
   pageLength= 25;
@@ -95,7 +96,12 @@ export class WorkflowComponent implements OnInit, AfterViewInit {
 
   canRenderDetails = false;
   rowSelected : number = 0;
-  sub:any;
+  sub: Subscription | undefined;
+    ngOnDestroy(): void {
+      if (this.sub) {
+        this.sub.unsubscribe();
+      }
+    }
   updStatus: string = this.updStatusTypes[0];
 
   irisUsers: IrisUsers[] = [];

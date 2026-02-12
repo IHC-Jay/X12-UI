@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, NgForm } from '@angular/forms';
 
@@ -22,7 +22,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MatFormField } from '@angular/material/form-field';
-import { from, catchError, concatMap, forkJoin, toArray } from 'rxjs';
+import { from, catchError, concatMap, forkJoin, toArray, Subscription } from 'rxjs';
 
 import { MatDialog } from '@angular/material/dialog';
 import { DialogRef } from '@angular/cdk/dialog';
@@ -39,7 +39,7 @@ import { parseDays } from '../utils/parseDays';
 
 
 
-export class SummaryComponent implements OnInit, AfterViewInit {
+export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
   // --- Code Organization & Readability Improvements ---
   // 1. Large logic in ngOnInit split into private helpers
   // 2. Constructor simplified
@@ -126,7 +126,12 @@ export class SummaryComponent implements OnInit, AfterViewInit {
   };
 
   sumUserFlds = "";
-  sub:any;
+  sub: Subscription | undefined;
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
+  }
 
   selDropdownList = [];
 

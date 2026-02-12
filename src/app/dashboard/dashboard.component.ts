@@ -32,6 +32,7 @@ import { Chart, registerables, ChartOptions, ChartType, ChartDataset, LabelItem 
 
 
 export class DashBoardComponent implements OnInit {
+  private subscriptions: any[] = [];
 
   barChartOptions: ChartOptions = {
     responsive: true,
@@ -143,6 +144,7 @@ export class DashBoardComponent implements OnInit {
 
     });
     this.onSearchDashBoard();
+    this.subscriptions.push(this.sub);
 
   }
 
@@ -190,7 +192,7 @@ export class DashBoardComponent implements OnInit {
 
       this.storageService.setItem("searchTypeString", this.searchTypeString)
 
-          this.DashBoardService.fetchDashboardentries(this.paramsList).subscribe((res: any) => {
+          const dashSub = this.DashBoardService.fetchDashboardentries(this.paramsList).subscribe((res: any) => {
 
             console.info("Data rows array: " + res.length);
             this.dataTableLabel = [];
@@ -282,20 +284,19 @@ export class DashBoardComponent implements OnInit {
               console.info("dataTableKey length: " + this.dataTableKey.length);
 
 
-            }),
-
-            catchError(errorRes => {
-
-              alert('Error in fetching EligibilityBenefit Requests: ' + errorRes);
-              this.dataSource.data = [];
-              return errorRes;
-            })
-
-
+            });
+      this.subscriptions.push(dashSub);
     }
 
 
 
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => {
+      if (sub && typeof sub.unsubscribe === 'function') {
+        sub.unsubscribe();
+      }
+    });
+  }
 // Handle right click
 
 onContextMenu(event: MouseEvent, row:any, ind: number) {

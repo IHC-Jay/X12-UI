@@ -23,6 +23,11 @@ import { environment } from '../../environments/environment';
 
 
 export class AddEditTP implements OnInit {
+      ngOnDestroy(): void {
+        if (this.sub) {
+          this.sub.unsubscribe();
+        }
+      }
     form!: FormGroup;
     tpNm!: string;
 
