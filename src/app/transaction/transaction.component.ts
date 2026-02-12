@@ -25,6 +25,7 @@ import { environment } from '../../environments/environment';
 import { Modalx12Component } from './transaction-details/modal/modal-x12.component';
 import { parseDays } from '../utils/parseDays';
 import { MatDialog } from '@angular/material/dialog';
+import { DateTimeUtils } from '../utils/date-time.utils';
 
     // =====================
     // Table & Paginator Events
@@ -256,16 +257,9 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   private setEndTimeToNow() {
     if(this.formFields)
     {
-      this.nowDt = new Date(new Date().getTime());
-      let mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
-      let dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
-      this.formFields.endDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
-
-
-      let nowDt = new Date();
-      let tmVal = (nowDt.getHours() < 10 ? '0' + nowDt.getHours() : '' + nowDt.getHours()) + ':';
-      tmVal += (nowDt.getMinutes() < 10 ? '0' + nowDt.getMinutes() : '' + nowDt.getMinutes());
-      this.formFields.endTm = tmVal;
+      const { currentDt: endDt, currentTm: currentTm } = DateTimeUtils.GetCurrentDtTm();
+      this.formFields.endDate = endDt;
+      this.formFields.endTm = currentTm;
 
       console.info("End Time: " + this.formFields.endDate + ", " + this.formFields.endTm);
     }
@@ -292,17 +286,13 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         console.info("Init from UserConfig: " + this.formFields.currentTransType + ", Search from " + stDt + " days. " + stDtStr);
       }
 
-      this.nowDt = new Date((new Date().getTime() - (stDt * 24 * 60 * 60 * 1000)));
-      console.info('Set start date time from: ' + this.nowDt);
-      let mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
-      let dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
-      this.formFields.startDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
-      let tmVal = ((this.nowDt.getHours() < 10) ? "0" + this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":";
-      tmVal += (this.nowDt.getMinutes() < 10) ? "0" + this.nowDt.getMinutes() : "" + this.nowDt.getMinutes();
-      this.formFields.startTm = tmVal;
-      console.info("Start Time: " + this.formFields.startDate + ", " + this.formFields.startTm);
+      const dtObj = DateTimeUtils.GetStartEndDtTm(stDt);
+                this.formFields.startDate = dtObj.startDt;
+                this.formFields.startTm = dtObj.startTm;
+                this.formFields.endDate = dtObj.endDt;
+                this.formFields.endTm = dtObj.endTm;
 
-      this.setEndTimeToNow();
+      console.info("Start Time: " + this.formFields.startDate + ", " + this.formFields.startTm);
     }
   }
 

@@ -16,7 +16,7 @@ import { environment } from '../../environments/environment';
 import { Subscription } from 'rxjs';
 import { parseDays } from '../utils/parseDays';
 import { StorageService } from '../services/storage.service';
-
+import { DateTimeUtils } from '../utils/date-time.utils';
 
 @Component({
     selector: 'app-workflow',
@@ -256,15 +256,13 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
     console.info("Init from session UserConfig: " + parsedObject.WfTime + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
     let stDt = parseDays(parsedObject.WfTime);
     let mode = parsedObject.Mode;
-    this.nowDt = new Date((new Date().getTime() - (stDt * 24 * 60 * 60 * 1000)));
-    let mm = (this.nowDt.getMonth() < 9) ? "0" + (this.nowDt.getMonth() + 1) : this.nowDt.getMonth() + 1;
-    let dt = (this.nowDt.getDate() < 10) ? "0" + this.nowDt.getDate() : this.nowDt.getDate();
-    this.startDate = this.nowDt.getFullYear() + "-" + mm + "-" + dt;
-    let tmVal = ((this.nowDt.getHours() < 10) ? "0" + this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":";
-    tmVal += (this.nowDt.getMinutes() < 10) ? "0" + this.nowDt.getMinutes() : "" + this.nowDt.getMinutes();
-    this.startTm = tmVal;
 
-    this.setEndTimeToNow();
+    const dtObj = DateTimeUtils.GetStartEndDtTm(stDt);
+                this.startDate = dtObj.startDt;
+                this.startTm = dtObj.startTm;
+                this.endDate = dtObj.endDt;
+                this.endTm = dtObj.endTm;
+
 
     this.form.controls.statusType.setValue(this.statusTypes[0]);
     this.form.controls.transType.setValue(mode === 'Batch' ? this.transactionTypes[0] : this.transactionTypes[1]);
@@ -277,14 +275,11 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
   private setEndTimeToNow() {
-    let nowDt = new Date();
-    let mm = (nowDt.getMonth() < 9) ? "0" + (nowDt.getMonth() + 1) : nowDt.getMonth() + 1;
-    let dt = (nowDt.getDate() < 10) ? "0" + nowDt.getDate() : nowDt.getDate();
-    this.endDate = nowDt.getFullYear() + "-" + mm + "-" + dt;
 
-    let tmVal = (nowDt.getHours() < 10 ? '0' + nowDt.getHours() : '' + nowDt.getHours()) + ':';
-    tmVal += (nowDt.getMinutes() < 10 ? '0' + nowDt.getMinutes() : '' + nowDt.getMinutes());
-    this.endTm = tmVal;
+    const { currentDt: endDt, currentTm: currentTm } = DateTimeUtils.GetCurrentDtTm();
+
+    this.endDate = endDt;
+    this.endTm = currentTm;
     console.info('setEndTimeToNow: Set end time to now: ' + this.endTm);
   }
 

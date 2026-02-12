@@ -1,3 +1,4 @@
+import { DateTimeUtils } from '../utils/date-time.utils';
 import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, NgForm } from '@angular/forms';
@@ -123,24 +124,15 @@ export class DashBoardComponent implements OnInit {
 
         }
 
-          if (this.searchTypeString === null || this.searchTypeString.length == 0)
-            {
-              console.info('no query params')
-              this.nowDt = new Date((new Date().getTime() - (24 * 60 * 60 * 1000)));
-              let mm= (this.nowDt.getMonth() < 9)? "0"+(this.nowDt.getMonth() + 1): this.nowDt.getMonth() + 1;
-              let dt= (this.nowDt.getDate() < 10)? "0"+this.nowDt.getDate(): this.nowDt.getDate();
-              this.startDate = this.nowDt.getFullYear() +"-" + mm +"-" + dt; //  "2023-01-12"; // new Date();
-              let tmVal = ((this.nowDt.getHours()< 10)? "0"+ this.nowDt.getHours() : "" + this.nowDt.getHours()) + ":" ;
-
-              tmVal += (this.nowDt.getMinutes() < 10)? "0"+ this.nowDt.getMinutes(): "" + this.nowDt.getMinutes(); // "13:30";
-              this.startTm = tmVal
-              this.endTm= tmVal
-              console.info("Time: " + tmVal)
-              this.nowDt = new Date(new Date().getTime());
-              mm= (this.nowDt.getMonth() < 9)? "0"+(this.nowDt.getMonth() + 1): this.nowDt.getMonth() + 1;
-              dt= (this.nowDt.getDate() < 10)? "0" + this.nowDt.getDate(): this.nowDt.getDate();
-              this.endDate =this.nowDt.getFullYear() +"-" + mm +"-" + dt;
-            }
+          if (this.searchTypeString === null || this.searchTypeString.length == 0) {
+            console.info('no query params')
+            const dtObj = DateTimeUtils.GetStartEndDtTm(1);
+            this.startDate = dtObj.startDt;
+            this.startTm = dtObj.startTm;
+            this.endDate = dtObj.endDt;
+            this.endTm = dtObj.endTm;
+            console.info("Time: " + this.startTm);
+          }
 
     });
     this.onSearchDashBoard();
