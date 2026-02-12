@@ -278,6 +278,10 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private setEndTimeToNow() {
     let nowDt = new Date();
+    let mm = (nowDt.getMonth() < 9) ? "0" + (nowDt.getMonth() + 1) : nowDt.getMonth() + 1;
+    let dt = (nowDt.getDate() < 10) ? "0" + nowDt.getDate() : nowDt.getDate();
+    this.endDate = nowDt.getFullYear() + "-" + mm + "-" + dt;
+
     let tmVal = (nowDt.getHours() < 10 ? '0' + nowDt.getHours() : '' + nowDt.getHours()) + ':';
     tmVal += (nowDt.getMinutes() < 10 ? '0' + nowDt.getMinutes() : '' + nowDt.getMinutes());
     this.endTm = tmVal;

@@ -31,6 +31,38 @@ const STORE_KEY =  'lastAction';
 
 export class HeaderComponent implements AfterViewInit, OnInit   {
 
+  /**
+   *
+   * Utility to build JSON string from config array and store in session storage
+   */
+  buildAndStoreUserConfig(res: any[]): string {
+    let jsonString = "";
+    for (let ind = 0; ind < res.length; ind++) {
+      if (res[ind].Key !== undefined) {
+        if (jsonString.length === 0) {
+          jsonString = '{"' + res[ind].Key + '":"' + res[ind].Value + '"';
+        } else {
+          jsonString += ',"' + res[ind].Key + '":"' + res[ind].Value + '"';
+        }
+        // this.storage.setItem(res[ind].Key, res[ind].Value);
+        console.log('Store in sessionStorage ' + res[ind].Key + ", " + res[ind].Value);
+      }
+      if (res[ind].Key === 'Page') {
+        for (let tabInd = 0; tabInd < this.links.length; tabInd++) {
+          if (this.links[tabInd].name === res[ind].Value) {
+            this.firstPage = this.links[tabInd].link;
+            this.selectedLnkIndex.setValue(tabInd);
+            console.log('Use Config, page: ' + this.firstPage + ' # ' + this.selectedLnkIndex.value);
+          }
+        }
+      }
+    }
+    jsonString += "}";
+    console.log('JSON string:' + jsonString);
+    this.storage.setItem('UserConfig', jsonString);
+    return jsonString;
+  }
+
   loginForm: FormGroup;
   val: any;
 
@@ -256,55 +288,16 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
               this.TransactionService.fetchConfiguration().subscribe((res: any) => {
                 console.info("Configuration array : " + res.length);
-                if (res.length == 1)
-                {
-                    console.log('Open Setting')
-                    this.router.navigate([this.links[0].link]);
-                    this.selectedLnkIndex.setValue(0);
-                }
-                else
-                {
-                  let jsonString= ""
-
-                  for(let ind = 0; ind < res.length; ind++)
-                    {
-                      if (res[ind].Key !== undefined)
-                      {
-                        if (jsonString.length === 0)
-                        {
-                          jsonString = '{"' + res[ind].Key + '":"' + res[ind].Value +'"'
-                        }
-                        else {
-                          jsonString += ',"' + res[ind].Key + '":"' + res[ind].Value +'"'
-
-                        }
-                        this.storage.setItem(res[ind].Key, res[ind].Value);
-                        console.log('Store in sessionStorage ' + res[ind].Key +", " + res[ind].Value);
-                      }
-
-
-                      if(res[ind].Key === 'Page')
-                        {
-                          for(let tabInd = 0; tabInd < this.links.length; tabInd++)
-                            {
-                              if(this.links[tabInd].name === res[ind].Value)
-                              {
-                                this.firstPage = this.links[tabInd].link;
-                                this.selectedLnkIndex.setValue(tabInd);
-                                console.log('Use Config, page: ' + this.firstPage + ' # ' +  this.selectedLnkIndex.value)
-                              }
-                            }
-                        }
-
-                    }
-                    jsonString += "}"
-                      console.log('JSON string:' + jsonString)
-
-                      this.storage.setItem('UserConfig', jsonString)
-                    const logoffValue = this.storage.getItem<string>('Logoff');
-                    if (logoffValue !== undefined && logoffValue !== null) {
-                        this.loginForm.controls.logoutTime.setValue(logoffValue);
-                    }
+                if (res.length == 1) {
+                  console.log('Open Setting')
+                  this.router.navigate([this.links[0].link]);
+                  this.selectedLnkIndex.setValue(0);
+                } else {
+                  this.buildAndStoreUserConfig(res);
+                  const logoffValue = this.storage.getItem<string>('Logoff');
+                  if (logoffValue !== undefined && logoffValue !== null) {
+                    this.loginForm.controls.logoutTime.setValue(logoffValue);
+                  }
 
 
 

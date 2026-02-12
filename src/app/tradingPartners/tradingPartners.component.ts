@@ -43,8 +43,7 @@ export class TradingPartnersComponent implements OnInit, AfterViewInit, OnDestro
   // ...existing code...
   // Refactor large methods into private helpers for clarity and maintainability
 
-  public size = 5;
-  public pageNumber = 0;
+
   searchText:string;
   ifSelect:boolean = false;
   ifAdd:boolean = false;

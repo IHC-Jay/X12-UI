@@ -12,8 +12,10 @@ import { tpLinks } from '../tradingPartners/tpIds/tp-links/tp-links';
 import { TransactionData } from '../transaction/TransactionData';
 import { DisplayColumns, DisplayColumnsArray } from '../transaction/DisplayColumns';
 import { SearchColumns, SearchColumnsArray } from '../transaction/SearchColumns';
-import { ConfirationArray } from '../transaction/Configuration';
+import { ConfirationArray, ConfigColumns } from '../transaction/Configuration';
 import { WorkFlowEntry } from '../workflow/WorkFlowEntry';
+
+
 import { formatDate } from '@angular/common';
 @Injectable({ providedIn: 'root' })
 export class TransRestServiceComponent {
@@ -1016,7 +1018,7 @@ fetchConfiguration() {
   let url = this.batchTransUrl + 'GetConfiguration?userNm=' + this.currentUser;
 
   return this.http
-    .get<{ [key: string]: WorkFlowEntry }>(
+    .get<{ [key: string]: ConfigColumns }>(
       url
     )
 
@@ -1024,14 +1026,14 @@ fetchConfiguration() {
       map(responseData => {
         console.info(responseData);
 
-        const WorkFlowEntriesArray: WorkFlowEntry[] = [];
+        const ConfigColumnsArray: ConfigColumns[] = [];
         for (const key in responseData) {
           if (responseData.hasOwnProperty(key)) {
-            WorkFlowEntriesArray.push({ ...responseData[key], ID: responseData[key].ID });
+            ConfigColumnsArray.push({ ...responseData[key] });
           }
         }
-        console.info('return WF array: ' + WorkFlowEntriesArray.length );
-        return WorkFlowEntriesArray;
+        console.info('return WF array: ' + ConfigColumnsArray.length );
+        return ConfigColumnsArray;
 
 
       }),

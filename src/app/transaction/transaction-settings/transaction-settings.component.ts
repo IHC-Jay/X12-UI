@@ -56,6 +56,7 @@ import {
 
 
 export class TransactionSettingsComponent implements OnInit, AfterViewInit {
+  private subscriptions: any[] = [];
 
   allDispFields = [];
   allSearchFields = [];
@@ -191,7 +192,7 @@ searchTypeString:string = "";
   }
 
   private loadConfigurationAndFields() {
-    this.TransactionService.fetchConfiguration().subscribe((res: any) => {
+    const configSub = this.TransactionService.fetchConfiguration().subscribe((res: any) => {
       console.info("Configuration array : " + res.length + ", DispTransType: " + this.dispTransType);
       if (res.length !== 1) {
         for (let ind = 0; ind < res.length; ind++) {
@@ -223,7 +224,7 @@ searchTypeString:string = "";
           }
         }
       }
-      this.TransactionService.fetchTransactionFields().subscribe((res: any) => {
+      const fieldsSub = this.TransactionService.fetchTransactionFields().subscribe((res: any) => {
         this.allTransactionsFields = [];
         for (var item of res) {
           this.allTransactionsFields.push({
@@ -237,25 +238,30 @@ searchTypeString:string = "";
         }
         console.info("All TransactionsFields: " + this.allTransactionsFields.length);
         console.info("Fetch Display, Search Columns. ");
-        this.TransactionService.fetchDisplayColumns("Default", "Transactions").subscribe((res: any) => {
+        const dispSub = this.TransactionService.fetchDisplayColumns("Default", "Transactions").subscribe((res: any) => {
           this.usrDisplayColumns.splice(0, this.usrDisplayColumns.length);
           this.usrDisplayColumns.push(...res);
           console.info("User display columns from fetchDisplayColumns: " + this.usrDisplayColumns.length);
-          this.TransactionService.fetchSearchColumns("Default", "Transactions").subscribe((res: any) => {
+          const searchSub = this.TransactionService.fetchSearchColumns("Default", "Transactions").subscribe((res: any) => {
             this.usrSearchColumns.splice(0, this.usrSearchColumns.length);
             this.usrSearchColumns.push(...res);
             console.info("User search columns from fetchSearchColumns: " + this.usrSearchColumns.length);
             if (this.dispTransType !== '') {
               this.transactionChange(this.dispTransType);
             }
+            this.subscriptions.push(searchSub);
           });
+          this.subscriptions.push(dispSub);
         });
+        this.subscriptions.push(fieldsSub);
       });
     });
+    this.subscriptions.push(configSub);
   }
 
   private handleQueryParams() {
     this.sub = this.route.queryParams.subscribe(params => {
+        this.subscriptions.push(this.sub);
       if (params !== undefined && params.transaction !== undefined) {
         this.dispTransType = params['transaction'] || '';
         this.formFields.modeString = params['mode'];
@@ -539,13 +545,28 @@ saveConfig()
         }
 
       }
+      let jsonString = "";
       paramsList.configColumns.forEach(element => {
-        sessionStorage.removeItem(element.key)
-        sessionStorage.setItem(element.key, element.value);
-      });
 
-      sessionStorage.removeItem("currentTab");
-      sessionStorage.setItem("currentTab", tabLinks[ind].name)
+        if (jsonString.length === 0) {
+          jsonString = '{"' + element.key + '":"' + element.value + '"';
+        } else {
+          jsonString += ',"' + element.key + '":"' + element.value + '"';
+        }
+        console.info("Session storage set: " + element.key + ", " + element.value);
+      });
+      jsonString += "}";
+
+      this.storageService.removeItem("UserConfig");
+      this.storageService.setItem('UserConfig', jsonString);
+
+      this.storageService.removeItem("currentTab");
+      this.storageService.setItem("currentTab", tabLinks[ind].name);
+
+      // Force the Tabs to use UserConfig to decide on navigation after settings save, remove other related session storage items to force refetch of config and fields
+      this.storageService.removeItem("sumConfig");
+      this.storageService.removeItem("transConfig");
+      this.storageService.removeItem("wfConfig");
 
       this.openSnackBar('Configuration', 'Saved' );
 
@@ -593,75 +614,51 @@ toTransactions()
 
   openDialog(): void {
 
-        try
-        {
+        try {
           let data = [];
           data.push(this.dispTransType)
-
-          this.TransactionService.fetchUsersWithSettings().subscribe((res: any) => {
+          const usersSub = this.TransactionService.fetchUsersWithSettings().subscribe((res: any) => {
             console.info("Users array : " + res.length);
-            if (res.length <= 0 )
-            {
+            if (res.length <= 0 ) {
                 console.log('No Users')
+            } else {
+              for(let ind = 0; ind < res.length; ind++) {
+                console.log(res[ind].UserName)
+                data.push(res[ind].UserName);
+              }
+              const dialogSub = this.dialog
+                .open(ListConfirmDialogComponent , {
+                  width: '600px',
+                  height: '300px',
+                  data:data
+                })
+                .afterClosed()
+                .subscribe((confirm) => {
+                  if (confirm) {
+                    if (confirm.event === 'Save') {
+                      const saveSub = this.TransactionService.saveUserSettings(confirm.data, this.dispTransType, '').subscribe((res: any) => {
+                        this.openSnackBar( res.Transaction + ' Settings from ' + res.From + " To " + res.To, "Display # "+ res.DisplayCount + ", Search # " + res.SearchCount + " " + confirm.event +"d. ");
+                      });
+                      this.subscriptions.push(saveSub);
+                    }
+                    return;
+                  }
+                });
+              this.subscriptions.push(dialogSub);
             }
-            else
-            {
-              for(let ind = 0; ind < res.length; ind++)
-                {
-                  console.log(res[ind].UserName)
-                  data.push(res[ind].UserName);
-                }
-
-
-                  this.dialog
-                  .open(ListConfirmDialogComponent , {
-                    width: '600px',
-                    height: '300px',
-                    data:data
-                  })
-                  .afterClosed()
-                  .subscribe((confirm) => {
-                    if (confirm) {
-
-                            //alert(confirm.event + ': ' + confirm.data);
-                            if (confirm.event === 'Save')
-                            {
-
-                              this.TransactionService.saveUserSettings(confirm.data, this.dispTransType, '').subscribe((res: any) => {
-
-                                this.openSnackBar( res.Transaction + ' Settings from ' + res.From + " To " + res.To, "Display # "+ res.DisplayCount + ", Search # " + res.SearchCount + " " + confirm.event +"d. ");
-
-                              });
-
-
-                            }
-
-                            return;
-
-
-                }});
-
-
-
-
-            }
+            this.subscriptions.push(usersSub);
           });
-
-
-
-
-
-
-        }
-        catch(e)
-        {
+        } catch(e) {
           console.error('Exception: ' + e)
         }
+  }
 
-
-
-
-
+  ngOnDestroy(): void {
+    this.subscriptions.forEach(sub => {
+      if (sub && typeof sub.unsubscribe === 'function') {
+        sub.unsubscribe();
+      }
+    });
   }
 
   }
