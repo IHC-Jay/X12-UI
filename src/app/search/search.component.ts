@@ -38,12 +38,15 @@ export class SearchComponent implements OnInit {
   loading:boolean = false;
   selectedTpId ='';
   form!: FormGroup;
+  lnkArrSize: number = 0;
+  lmaxRows:number = 20;
+  rowNum:number = 0;
 
   canRenderDetails = false;
   selectedTp:string = '';
 
   dataSource: TpId[] = [];
-  loadedPosts: tpLinks[] = [];
+  rowLinks: tpLinks[][] = [];
 
   @ViewChild("searchTpId") focusField: ElementRef;
 
@@ -82,43 +85,37 @@ export class SearchComponent implements OnInit {
 
      console.info('searchTpIdVal: ' + searchTpIdVal);
 
-    this.loadedPosts = [];
     this.dataSource = [];
     this.collapse();
     this.loading = true;
     this.selectedTp = '';
+    this.rowNum = 0;
 
-    this.TradingPartnerService.fetchTPforTpId(searchTpIdVal).subscribe((res: any) => {
-      if ( res.Name !==  undefined && res.Name !== '')
-      {
-        console.info('onTpIdChange: ' + res.Name);
-        this.selectedTp = res.Name;
-        var tp:TpId  = {id:'0', Name:'1', TPID: res.TPID, Type:'BOTH', isEdit:false, isSelected:false, User:''};
 
-        this.dataSource.push( tp);
 
-        this.TradingPartnerService.fetchTpLinks(res.TPID).subscribe(
-          tpLinksData => {
-            this.loadedPosts = tpLinksData;
-            this.canRenderDetails = true;
-            this.loading = false;
-          },
-          error => {
-            console.error( error.message);
-            this.loading = false;
-          }
-        );
-      }
-      else
-      {
-        console.info('fetchTPforTpId returned no row ');
-        this.selectedTp = 'Not Found'
-        var tp:TpId  = {id:'0', Name:'Not Found', TPID: searchTpIdVal, Type:'BOTH', isEdit:false, isSelected:false, User:''};
-        this.dataSource.push( tp);
-        this.canRenderDetails = true;
-        this.loading = false;
-      }
 
+    this.TradingPartnerService.fetchTPforTpId(searchTpIdVal).subscribe((lnkArr: any) => {
+      this.lnkArrSize = Array.isArray(lnkArr) ? lnkArr.length : 0;
+      lnkArr.forEach(res => {
+        if (this.rowNum >= this.lmaxRows) {
+          console.info('Max rows of ' + this.lmaxRows + ' reached. Not processing further results.');
+          return;
+        }
+        if (res.Name !== undefined && res.Name !== '') {
+          console.info(this.rowNum + '. onTpIdChange: ' + res.Name);
+          this.rowNum++;
+          this.selectedTp = res.Name;
+          var tp: TpId = { id: '0', Name: res.Name, TPID: res.TPID, Type: 'BOTH', isEdit: false, isSelected: false, User: '' };
+          this.dataSource.push(tp);
+        } else {
+          console.info('fetchTPforTpId returned no row ');
+          this.selectedTp = 'Not Found';
+          var tp: TpId = { id: '0', Name: 'Not Found', TPID: searchTpIdVal, Type: 'BOTH', isEdit: false, isSelected: false, User: '' };
+          this.dataSource.push(tp);
+        }
+      });
+      this.canRenderDetails = true;
+      this.loading = false;
     });
 
 
@@ -128,18 +125,29 @@ export class SearchComponent implements OnInit {
       this.canRenderDetails = false;
     }
 
-    collapsed = true;
+    expandedRow: number | null = null;
 
-    toggle() {
-      this.collapsed = !this.collapsed;
-    }
-
-    expand() {
-      this.collapsed = false;
+    expand(rowIdx: number) {
+      this.expandedRow = rowIdx;
+      const tpId = this.dataSource[rowIdx]?.TPID;
+      if (tpId) {
+        this.loading = true;
+        this.TradingPartnerService.fetchTpLinks(tpId).subscribe(
+          tpLinksData => {
+            this.rowLinks[rowIdx] = tpLinksData;
+            this.canRenderDetails = true;
+            this.loading = false;
+          },
+          error => {
+            console.error(error.message);
+            this.loading = false;
+          }
+        );
+      }
     }
 
     collapse() {
-      this.collapsed = true;
+      this.expandedRow = null;
       window.scrollTo(0, 0);
     }
 

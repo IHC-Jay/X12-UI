@@ -1,5 +1,30 @@
+.small-btn {
+  font-size: 10px;
+  padding: 2px 8px;
+  min-width: 40px;
+  height: 22px;
+  line-height: 1;
+}
+.collapsible mat-list, .collapsible mat-list * {
+  font-size: 10px !important;
+}
+.collapsible p {
+  font-size: 8px;
+}
+
+/* Reduce vertical space for table rows */
+/* Ensure collapsible section hides content when collapsed and animates smoothly */
+.collapsible {
+  overflow: hidden;
+  transition: height 0.3s;
+  padding: 0;
+  margin: 0;
+}
 .mat-select-content{
   background-color: azure;
+}
+
+p {
   font-size: 12px !important;
   width: auto;
   font-family: Arial, Helvetica, sans-serif;

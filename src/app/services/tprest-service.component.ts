@@ -184,12 +184,12 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
         )
         .pipe(
           map(responseData => {
-           console.info("Response")
+           console.info("fetchTPforTpId Response: " + responseData.Length);
            return responseData;
           }),
           catchError(errorRes => {
             // Send to analytics server
-            console.error('In fetchTPIDs catchError');
+            console.error('In fetchTPforTpId catchError');
             return throwError(errorRes);
           })
         );
@@ -310,7 +310,7 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
             const TpLinksArray: tpLinks[] = [];
             for (const key in responseData) {
               if (responseData.hasOwnProperty(key)) {
-                console.info("Key: " + responseData[key].Link);
+                console.info( tpid + ": TPlinks # " + Object.keys(responseData).length);
                 if(responseData[key].Link !== undefined)
                 {
                   TpLinksArray.push({ ...responseData[key], id: key });

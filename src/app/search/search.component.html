@@ -26,36 +26,38 @@
     </table>
 
   </div>
-  @if (canRenderDetails) {
+
+  <ng-container *ngIf="canRenderDetails">
     <div >
-      <h3 matLine> TP information </h3>
+
       <table border="1px" class="w-95">
         <tr>
-          <th [width]="200">
-            Trading Partner
-          </th>
-          <th [width]="200">
+          <th [width]="300">
+              Trading Partner
+            </th>
+
+            <th [width]="200">
             TPID
           </th>
           <th >
             <span > TP Links</span>
           </th>
         </tr>
-        <tr>
-          <td>
-            <p>{{selectedTp}}</p>
+        <tr *ngFor="let dat of dataSource; let idx = index">
+            <td style="vertical-align: top; min-width: 300px; max-width: 400px; word-break: break-word;">
+              <p>{{dat.Name}}</p>
+            </td>
+          <td style="vertical-align: top;">
+            <p [value]="dat.TPID">{{dat.TPID}}</p>
           </td>
-          <!-- TPIDs -->
           <td>
-            @for (dat of dataSource; track dat) {
-              <p [value]="dat.TPID">{{dat.TPID}}</p>
-            }
-          </td>
-          <!-- TP links -->
-          <td>
-            <section class="collapsible" [@collapse]="collapsed">
-              <p>
-                @for (element of loadedPosts; track element) {
+            <div>
+              <button class="small-btn" *ngIf="expandedRow === idx" (click)="collapse()">Collapse</button>
+              <button class="small-btn" *ngIf="expandedRow !== idx" (click)="expand(idx)">Links</button>
+            </div>
+            <section class="collapsible" [@collapse]="expandedRow === idx ? 'false' : 'true'">
+              <p *ngIf="expandedRow === idx">
+                <ng-container *ngFor="let element of rowLinks[idx]">
                   <mat-option [value]="element.TransType">
                     <mat-list>
                       <div mat-subheader><B>{{element.Link}}</B></div>
@@ -66,24 +68,20 @@
                       <div mat-line>Separators: {{element.Separators}}, Active: {{element.Active}} </div>
                     </mat-list>
                   </mat-option>
-                }
+                </ng-container>
               </p>
             </section>
-            @if (selectedTp !== 'Not Found') {
-              <div>
-                @if (collapsed) {
-                  <button (click)="expand()">TP Links</button>
-                }
-                @if (!collapsed) {
-                  <button (click)="collapse()">Collapse</button>
-                }
-              </div>
-            }
+            <div>
+              <button class="small-btn" *ngIf="expandedRow === idx" (click)="collapse()">Collapse</button>
+            </div>
           </td>
         </tr>
       </table>
+      <div *ngIf="lnkArrSize > 0" style="margin-top: 10px;">
+        <label>Results found: {{lnkArrSize}}, displaying {{rowNum}}</label>
+      </div>
     </div>
-  }
+  </ng-container>
 
 
 </form>
