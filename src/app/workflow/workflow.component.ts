@@ -144,7 +144,12 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
       this.initFromUserConfig();
     }
     this.onSubmit();
+  // Sorting accessor is set in ngAfterViewInit only
   }
+
+
+// ...existing code...
+
   getUsersAsync(): Promise<void> {
     return new Promise((resolve) => {
       if (this.irisUsers.length <= 0) {
@@ -286,7 +291,19 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
   ngAfterViewInit() {
 
     this.dataSource.sort = this.sort;
-
+    this.dataSource.sortingDataAccessor = (item: any, property: string) => {
+      const value = item[property];
+      if (typeof value === 'string') {
+        return value.toLowerCase();
+      }
+      if (typeof value === 'number') {
+        return value;
+      }
+      if (value instanceof Date) {
+        return value.getTime();
+      }
+      return value || '';
+    };
   }
 
 onSubmit()
@@ -375,16 +392,43 @@ onSubmit()
       this.WfService.fetchWorkFlowItems(mode, paramsList).subscribe(
         (res: WorkFlowEntry[]) => {
             this.dataSource.data = res;
+            setTimeout(() => {
+              this.dataSource.sort = this.sort;
+              this.dataSource.sortingDataAccessor = (item: any, property: string) => {
+                const value = item[property];
+                if (typeof value === 'string') return value.toLowerCase();
+                if (typeof value === 'number') return value;
+                if (value instanceof Date) return value.getTime();
+                return value || '';
+              };
+            });
             this.canRenderDetails = true;
+            this.pageLength = this.dataSource.data.length;
+            this.pageIndex = 0;
+            this.pageSize = Math.min(this.pageLength, 25);
+            if (this.dataPaginator) {
+              this.dataPaginator.pageIndex = this.pageIndex;
+              this.dataPaginator.pageSize = this.pageSize;
+              this.dataPaginator.length = this.pageLength;
+            }
             console.info("WorkFlowItems array: " + this.dataSource.data.length  );
-
           },
-                  (error) => {
-                    console.error("fetchWorkFlowItems call failed");
-                    this.dataSource.data = [];
-                    this.canRenderDetails = true;
-                  },
-                  () => console.log('fetchWorkFlowItems Rest request completed.')
+          (error) => {
+            console.error("fetchWorkFlowItems call failed");
+            this.dataSource.data = [];
+            setTimeout(() => {
+              this.dataSource.sort = this.sort;
+              this.dataSource.sortingDataAccessor = (item: any, property: string) => {
+                const value = item[property];
+                if (typeof value === 'string') return value.toLowerCase();
+                if (typeof value === 'number') return value;
+                if (value instanceof Date) return value.getTime();
+                return value || '';
+              };
+            });
+            this.canRenderDetails = true;
+          },
+          () => console.log('fetchWorkFlowItems Rest request completed.')
       );
 
     }

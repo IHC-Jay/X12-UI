@@ -306,8 +306,8 @@
             <!-- DATA -->
             <div>
               @if (canRenderDetails) {
-                  <table mat-table [dataSource]="dataSource"
-                    style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                    <table mat-table [dataSource]="dataSource" matSort
+                      style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
                     <!-- Checkbox Column -->
                     <ng-container matColumnDef="Select">
                       <th mat-header-cell *matHeaderCellDef>
@@ -325,61 +325,61 @@
                     </ng-container>
                     <!-- ID Column -->
                     <ng-container matColumnDef="ID">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ID </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ID </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.ID}} </mat-cell>
                     </ng-container>
                     <!-- InterchangeSenderID Column -->
                     <ng-container matColumnDef="InterchangeSenderID">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange SenderID </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange SenderID </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.InterchangeSenderID}} </mat-cell>
                     </ng-container>
                     <!-- InterchangeReceiverID Column -->
                     <ng-container matColumnDef="InterchangeReceiverID">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange ReceiverID </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange ReceiverID </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.InterchangeReceiverID}} </mat-cell>
                     </ng-container>
                     <!-- TransactionType Column -->
                     <ng-container matColumnDef="TransactionType">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Transaction </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Transaction </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.TransactionType}} </mat-cell>
                     </ng-container>
                     <!-- CreateDtTm Column -->
                     <ng-container matColumnDef="CreateDtTm">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Create DtTm </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Create DtTm </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.CreateDtTm}} </mat-cell>
                     </ng-container>
                     <!-- ErrorType Column -->
                     <ng-container matColumnDef="ErrorType">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ErrorType </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ErrorType </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.ErrorType}} </mat-cell>
                     </ng-container>
                     <ng-container matColumnDef="Resent">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Resent </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Resent </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.Resent == 1?'Yes':'No'}} </mat-cell>
                     </ng-container>
                     <!-- Error Column -->
                     <ng-container matColumnDef="Error">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Error  </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Error  </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.Error}} </mat-cell>
                     </ng-container>
                     <!-- WorkStatus Column -->
                     <ng-container matColumnDef="WorkStatus">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> WorkStatus </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> WorkStatus </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.WorkStatus}} </mat-cell>
                     </ng-container>
                     <!-- AssignedUser Column -->
                     <ng-container matColumnDef="AssignedUser">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Assigned to </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Assigned to </mat-header-cell>
                       <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.AssignedUser}} </mat-cell>
                     </ng-container>
                     <!-- LastmodDtTM Column -->
                     <ng-container matColumnDef="LastmodDtTM">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Last update </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Last update </mat-header-cell>
                       <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.LastmodDtTM}} </mat-cell>
                     </ng-container>
                     <!-- AssignedUser Column -->
                     <ng-container matColumnDef="LastmodID">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Modified By </mat-header-cell>
+                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Modified By </mat-header-cell>
                       <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.LastmodID}} </mat-cell>
                     </ng-container>
                     <!-- Details Column -->
