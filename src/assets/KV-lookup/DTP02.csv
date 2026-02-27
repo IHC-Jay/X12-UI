@@ -1,0 +1,4 @@
+Key,Value
+D8,Date (CCYYMMDD)
+RD8,Date Range (CCYYMMDD-CCYYMMDD)
+DT,Date/Time (CCYYMMDDHHMM)

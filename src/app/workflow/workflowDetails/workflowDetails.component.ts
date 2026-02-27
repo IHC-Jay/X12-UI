@@ -18,6 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import {x12err} from './WfDetails';
 import { Console } from 'node:console';
+import { downloadTextFile } from '../../utils/file-download.util';
 
 @Component({
     selector: 'app-workflowDetails',
@@ -303,7 +304,16 @@ private removeCurrentStatusFromTypes() {
 }
 
   exportX12() {
-    let exportData = "";
+    let exportData = '';
+    if (this.x12Array !== null && this.x12Array.length > 0) {
+      this.x12Array.forEach((element: any) => {
+        exportData += (element.data || '') + '~';
+      });
+    }
+
+    if (exportData !== '') {
+      downloadTextFile(exportData, `WF${this.ID || 'X12'}-X12.txt`);
+    }
   }
 
   updateWF() {

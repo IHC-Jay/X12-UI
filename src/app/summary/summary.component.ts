@@ -915,6 +915,23 @@ handleContextMenu(item: Item, menu: string)  {
    }
 }
 
+private openInX12Viewer(x12Text: string, fileName: string): void {
+  this.storage.removeItem('x12ViewerSeed');
+  this.storage.setItem('x12ViewerSeed', {
+    text: x12Text,
+    fileName
+  });
+  localStorage.setItem('x12ViewerSeed', JSON.stringify({ text: x12Text, fileName }));
+  this.storage.removeItem('currentTab');
+  this.storage.setItem('currentTab', 'Utility');
+  const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+  const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
+  const newTab = window.open(`${normalizedBase}/x12-viewer`, '_blank');
+  if (newTab) {
+    newTab.opener = null;
+  }
+}
+
 
 onContextMenuNew(item: Item) {
   console.log("Click on Action id: " + item.rowId);
@@ -1028,15 +1045,7 @@ onContextMenuSame(item: Item) {
                   console.log('All sequential calls completed.' );
                     if(val !== "")
                     {
-                      let param: string[] = [ val, item.FileName, this.formFields.currentTransType + " X12 Data, ID(" + item.rowId + "), Size:" + val.length  ];
-                      const dialogRef = this.dialog.open(Modalx12Component, {
-                        width: '1700px',
-                        data: param
-                      });
-
-                      dialogRef.afterClosed().subscribe(result => {
-                        console.log('The dialog closed');
-                      });
+                      this.openInX12Viewer(val, item.FileName);
 
                     }
 
@@ -1064,15 +1073,7 @@ onContextMenuSame(item: Item) {
 
       if(val !== "")
       {
-        let param: string[] = [ val, item.FileName, this.formFields.currentTransType + " X12 Data, ID(" + item.rowId + "), Size:" + val.length  ];
-        const dialogRef = this.dialog.open(Modalx12Component, {
-          width: '1700px',
-          data: param
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-          console.log('The dialog closed');
-        });
+        this.openInX12Viewer(val, item.FileName);
 
       }
     });

@@ -1,0 +1,185 @@
+<div class="container">
+  <h4>X12 Comparison <span class="muted" style="font-size: 14px; font-weight: 400;">— Compare one pair of files or match and compare multiple files across folders.</span></h4>
+
+  <div class="panel" style="margin:16px 0;">
+    <div class="row" style="gap:16px;">
+      <div class="muted">Mode</div>
+      <select class="search" style="width:180px" [(ngModel)]="compareMode">
+        <option value="">Select mode</option>
+        <option value="one">One file pair</option>
+        <option value="multiple">Multiple files</option>
+      </select>
+    </div>
+
+    <ng-container *ngIf="compareMode">
+      <div class="row" style="margin-top:12px; gap:10px;" *ngIf="compareMode === 'one'; else multiplePicker">
+        <button class="btn" (click)="pickLeftFile()">Choose First File</button>
+        <div class="mono">{{ leftFile?.name || (savedLeftFileName ? savedLeftFileName + ' (saved)' : 'Not selected') }}</div>
+        <button class="btn" (click)="pickRightFile()">Choose Second File</button>
+        <div class="mono">{{ rightFile?.name || (savedRightFileName ? savedRightFileName + ' (saved)' : 'Not selected') }}</div>
+      </div>
+
+      <ng-template #multiplePicker>
+        <div class="row" style="margin-top:12px; gap:10px;">
+          <button class="btn" (click)="pickLeft()">Choose First Folder</button>
+          <div class="mono">{{ leftDir?.name || (savedLeftFolderName ? savedLeftFolderName + ' (saved)' : 'Not selected') }}</div>
+          <button class="btn" (click)="pickRight()">Choose Second Folder</button>
+          <div class="mono">{{ rightDir?.name || (savedRightFolderName ? savedRightFolderName + ' (saved)' : 'Not selected') }}</div>
+        </div>
+      </ng-template>
+    </ng-container>
+
+    <div class="row" style="margin-top:12px;" *ngIf="hasSelectionForMode() && compareMode === 'multiple' && leftDir && rightDir">
+      <label><input type="checkbox" [(ngModel)]="cfg.compareExactFilename"/> Compare exact filename</label>
+    </div>
+
+    <div class="row" style="margin-top:12px;" *ngIf="hasSelectionForMode() && compareMode === 'multiple' && leftDir && rightDir && !cfg.compareExactFilename">
+      <input class="search" style="width:180px" type="number" [(ngModel)]="cfg.leftKeyStart" placeholder="First key start"/>
+      <input class="search" style="width:180px" type="number" [(ngModel)]="cfg.leftKeyEnd" placeholder="First key end"/>
+      <input class="search" style="width:180px" type="number" [(ngModel)]="cfg.rightKeyStart" placeholder="Second key start"/>
+      <input class="search" style="width:180px" type="number" [(ngModel)]="cfg.rightKeyEnd" placeholder="Second key end"/>
+    </div>
+
+    <div class="row" style="margin-top:12px;" *ngIf="hasSelectionForMode()">
+      <label><input type="checkbox" [(ngModel)]="cfg.autoDetect"/> Auto-detect separators from ISA</label>
+      <input class="search" style="width:140px" maxlength="1" [(ngModel)]="cfg.segmentSep" [disabled]="cfg.autoDetect" placeholder="Seg sep"/>
+      <input class="search" style="width:140px" maxlength="1" [(ngModel)]="cfg.elementSep" [disabled]="cfg.autoDetect" placeholder="Elem sep"/>
+    </div>
+
+    <div class="row" style="margin-top:12px;" *ngIf="hasSelectionForMode()">
+      <input #ignoreInput class="search" style="width:240px" placeholder="Add ignore field, e.g. ISA:09" (keydown.enter)="addIgnoreField(ignoreInput.value); ignoreInput.value=''; $event.preventDefault()" />
+      <button class="btn" (click)="addIgnoreField(ignoreInput.value); ignoreInput.value=''">Add Ignore</button>
+      <span class="tag" style="margin-right:6px" *ngFor="let value of cfg.ignoreFields">{{ value }} <button class="btn" style="padding:2px 8px; margin-left:6px" (click)="removeIgnoreField(value)">x</button></span>
+    </div>
+
+    <div class="row" style="margin-top:12px;" *ngIf="hasSelectionForMode()">
+      <button class="btn" (click)="saveSetup()">Save Setup</button>
+      <label class="btn" style="display:inline-flex;align-items:center;gap:8px;">
+        <input type="file" accept="application/json" (change)="loadSetup($event)" style="display:none" />
+        Load Setup
+      </label>
+      <span class="muted">Filename: compare-setup.json</span>
+    </div>
+
+    <div class="row" style="margin-top:12px;" *ngIf="hasSelectionForMode()">
+      <button class="btn" (click)="runCompare()" [disabled]="working()">{{ working() ? 'Working…' : 'Compare' }}</button>
+      <select class="search" style="width:170px" [ngModel]="cfg.maxPreviewDiffs" (ngModelChange)="cfg.maxPreviewDiffs = $event">
+        <option *ngFor="let n of previewDiffOptions" [ngValue]="n">Preview lines: {{ n }}</option>
+      </select>
+    </div>
+
+    <div class="muted" style="margin-top:10px;" *ngIf="!hasSelectionForMode()">
+      {{ compareMode === 'one' ? 'Select both files to continue.' : (compareMode === 'multiple' ? 'Select both folders to continue.' : 'Select mode to continue.') }}
+    </div>
+
+    <ng-container *ngIf="compareMode === 'multiple'">
+      <div class="panel" style="margin-top:12px;" *ngIf="summary() as s">
+        <div class="muted" *ngFor="let e of s.errors" style="margin-top:6px;">{{ e }}</div>
+        <div class="muted" style="margin-top:6px;" *ngIf="s.leftOnly.length">Unmatched files in {{ getLeftContextName() }}: {{ s.leftOnly.length }}</div>
+        <div class="muted" style="margin-top:6px;" *ngIf="s.rightOnly.length">Unmatched files in {{ getRightContextName() }}: {{ s.rightOnly.length }}</div>
+
+        <div class="row" style="margin-top:10px;" *ngIf="results().length || s.leftOnly.length || s.rightOnly.length">
+          <button class="btn" (click)="exportPairsCsv()" [disabled]="!results().length">Export Pairs CSV</button>
+          <button class="btn" (click)="exportLeftOnlyCsv()" [disabled]="!s.leftOnly.length">Export Left-only CSV</button>
+          <button class="btn" (click)="exportRightOnlyCsv()" [disabled]="!s.rightOnly.length">Export Right-only CSV</button>
+        </div>
+      </div>
+    </ng-container>
+  </div>
+
+  <div class="panel" *ngIf="results().length">
+    <div class="row" style="margin-bottom:12px;">
+      <input class="search" placeholder="Filter by file or status" [(ngModel)]="filterValue"/>
+      <label><input type="radio" name="resultFilter" [checked]="resultFilter() === 'all'" (change)="setResultFilter('all')"/> Compared ({{ summary()?.compared ?? results().length }})</label>
+      <label><input type="radio" name="resultFilter" [checked]="resultFilter() === 'identical'" (change)="setResultFilter('identical')"/> Identical ({{ summary()?.identical ?? 0 }})</label>
+      <label><input type="radio" name="resultFilter" [checked]="resultFilter() === 'different'" (change)="setResultFilter('different')"/> Different ({{ summary()?.different ?? 0 }})</label>
+      <select class="search" style="width:110px" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}/page</option>
+      </select>
+      <span class="muted">{{ pageRangeLabel() }}</span>
+    </div>
+
+    <table class="mono">
+      <thead><tr><th style="width:47%">{{ getLeftContextName() }}</th><th style="width:47%">{{ getRightContextName() }}</th><th style="width:6%">Detail</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let r of pagedResults()">
+          <td>
+            <div style="margin-bottom:6px;"><b>{{ r.leftName }}</b> <span [class.ok]="r.identical" [class.bad]="!r.identical">{{ r.identical ? '✓' : '✗' }}</span></div>
+            <div *ngIf="r.identical">—</div>
+            <div *ngIf="!r.identical">
+              <div *ngFor="let d of r.firstThreeDiffs">
+                <div class="row" style="gap:8px; align-items:flex-start; margin-bottom:4px;">
+                  <div class="muted" style="min-width:52px;">#{{ d.index }}</div>
+                  <div class="mono preview-line">
+                    <ng-container *ngFor="let t of getDiffTokens(d, 'left'); let i = index">
+                      <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div style="margin-bottom:6px;"><b>{{ r.rightName }}</b> <span [class.ok]="r.identical" [class.bad]="!r.identical">{{ r.identical ? '✓' : '✗' }}</span></div>
+            <div *ngIf="r.identical">—</div>
+            <div *ngIf="!r.identical">
+              <div *ngFor="let d of r.firstThreeDiffs">
+                <div class="row" style="gap:8px; align-items:flex-start; margin-bottom:4px;">
+                  <div class="muted" style="min-width:52px;">#{{ d.index }}</div>
+                  <div class="mono preview-line">
+                    <ng-container *ngFor="let t of getDiffTokens(d, 'right'); let i = index">
+                      <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+                    </ng-container>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </td>
+          <td><button class="btn" *ngIf="!r.identical" (click)="openFullDiff(r)">Detail ({{ r.totalDiffs }})</button></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="row" style="margin-top:12px; justify-content:flex-end;">
+      <button class="btn" (click)="previousPage()" [disabled]="page() <= 1">Previous</button>
+      <span class="muted">Page {{ page() }} / {{ totalPages() }}</span>
+      <button class="btn" (click)="nextPage()" [disabled]="page() >= totalPages()">Next</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="fullDiffRow() as selected" (click)="closeFullDiff()">
+    <div class="modal-panel compare-modal" (click)="$event.stopPropagation()">
+      <div class="row" style="justify-content: space-between; margin-bottom:10px;">
+        <h3>Differences ({{ selected.leftName }} ⟷ {{ selected.rightName }})</h3>
+        <button class="btn" (click)="closeFullDiff()">Close</button>
+      </div>
+
+      <table class="mono">
+        <thead>
+          <tr>
+            <th style="width:60px;">St</th>
+            <th style="width:90px;">#</th>
+            <th>{{ getLeftContextName() }}</th>
+            <th>{{ getRightContextName() }}</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let d of fullDiffLines()">
+            <td><span [class.ok]="statusClass(d) === 'ok'" [class.bad]="statusClass(d) === 'bad'" [class.ignored]="statusClass(d) === 'ignored'">{{ statusSymbol(d) }}</span></td>
+            <td>{{ d.index }}</td>
+            <td>
+              <ng-container *ngFor="let t of getDiffTokens(d, 'left'); let i = index">
+                <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [class.diff-token-diff-detail]="t.isDiff" [class.tilde-match]="statusClass(d) === 'ignored' && !t.isIgnored" [class.tilde-unmatch]="statusClass(d) === 'ignored' && t.isIgnored" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+              </ng-container>
+            </td>
+            <td>
+              <ng-container *ngFor="let t of getDiffTokens(d, 'right'); let i = index">
+                <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [class.diff-token-diff-detail]="t.isDiff" [class.tilde-match]="statusClass(d) === 'ignored' && !t.isIgnored" [class.tilde-unmatch]="statusClass(d) === 'ignored' && t.isIgnored" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+              </ng-container>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>

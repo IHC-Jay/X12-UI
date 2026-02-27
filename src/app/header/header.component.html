@@ -22,23 +22,26 @@
         <mat-tab-group #tabGrp [selectedIndex]="selectedLnkIndex.value" *ngIf=isLogin mat-stretch-tabs="false" mat-align-tabs="start"
          (selectedTabChange)="onTabChanged($event)">
 
-        <ng-container *ngFor="let lnk of links;  let i = index">
 
-          <mat-tab *ngIf="i < links.length - 1 " style="font-weight: bolder; font-size: large;" label={{lnk.name}}>
-
-          </mat-tab>
-
+        <ng-container *ngFor="let lnk of links; let i = index">
+          <!-- If the link has children, render as a dropdown menu with a unique menu reference -->
+            <mat-tab *ngIf="!lnk.children" style="font-weight: bolder; font-size: large;" label={{lnk.name}}>
+            </mat-tab>
+            <mat-tab *ngIf="lnk.name === 'Utility' && lnk.children && lnk.children.length > 0" style="font-weight: bolder; font-size: large; position: relative;">
+              <ng-template mat-tab-label>
+                <span style="font-weight: bolder; font-size: large; cursor: pointer;" (click)="onUtilityTabClick(i, $event)">
+                  {{lnk.name}}
+                  <mat-icon>arrow_drop_down</mat-icon>
+                </span>
+              </ng-template>
+              <div *ngIf="utilitySubmenuVisible" style="display: flex; flex-direction: column; align-items: center; background: #f5f5f5; border-radius: 4px; margin-top: 4px; padding: 4px; width: 160px; min-width: 120px; max-width: 200px;">
+                <button type="button" mat-button *ngFor="let child of lnk.children" (click)="navigateTo(child)" style="text-align: left; margin-bottom: 2px;">
+                  {{child.name}}
+                </button>
+              </div>
+            </mat-tab>
         </ng-container>
 
-        <mat-tab label="WF">
-          <ng-template mat-tab-label>
-          <div *ngIf="NumAssignedItems > 0 ;else noBadge" matBadge={{NumAssignedItems}} matBadgeOverlap="false"
-            class="demo-section">Work Flow</div>
-          <ng-template #noBadge>
-            <div class="demo-section">Work Flow</div>
-          </ng-template>
-        </ng-template>
-        </mat-tab>
 
 
       </mat-tab-group>
@@ -46,12 +49,14 @@
 
 
           <div id="logout" *ngIf=isLogin style="align-items:start;">
+                <div style="font-size: 8pt; color: #666; text-align: right; margin-bottom: 4px;">Build: {{appVersion}}</div>
                 <button style="background-color: red; font-size: 9pt; width: 100pt;" (click)="logout()">{{currentUser.username}} &#64; {{currentUser.environment}} Logout</button>
           </div>
         </ng-template>
         <ng-template #loggedOut>
           <img [border]="1" width="100" alt="My image name" src="{{logo}}">
           <div style="font-size: 18px; align-self: center;"> Trading Partner Management</div>
+          <div style="font-size: 8pt; color: #666; align-self: center;">Build: {{appVersion}}</div>
         </ng-template>
 
   </nav>

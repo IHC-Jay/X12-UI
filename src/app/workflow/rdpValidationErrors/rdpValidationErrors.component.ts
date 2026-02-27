@@ -18,9 +18,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 import {RdpX12Error, x12err} from './rdpValidationErrors';
 import { Console } from 'node:console';
-import { Modalx12Component } from '../../transaction/transaction-details/modal/modal-x12.component';
-import { MatDialog } from '@angular/material/dialog';
-import { DialogRef } from '@angular/cdk/dialog';
+import { downloadTextFile } from '../../utils/file-download.util';
 
 @Component({
     selector: 'app-workflowDetails',
@@ -120,7 +118,6 @@ export class RdpValidationErrorsComponent implements OnInit {
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    public dialog: MatDialog,
     private storageService: StorageService
   ) {
     tpId: new FormControl();
@@ -375,20 +372,12 @@ export class RdpValidationErrorsComponent implements OnInit {
       if(this.x12Array !== null && this.x12Array.length > 0)
       {
         this.x12Array.forEach(element => {
-           x12Data += element.Data + "~" ;
+           x12Data += (element.Data || '') + "~" ;
         });
+      }
 
-
-        let param: string[] = [ x12Data, "WF" + this.ID + "-X12.txt", '' + " X12 Data, ID(" + this.ID + "), Size:" + x12Data.length  ];
-        const dialogRef = this.dialog.open(Modalx12Component, {
-          width: '1700px',
-          data: param
-        });
-
-        dialogRef.afterClosed().subscribe(result => {
-          console.log('The dialog closed');
-        });
-
+      if (x12Data !== "") {
+        downloadTextFile(x12Data, "WF" + this.ID + "-X12.txt");
       }
     }
 

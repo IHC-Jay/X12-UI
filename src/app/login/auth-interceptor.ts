@@ -9,6 +9,10 @@ export class AuthInterceptor implements HttpInterceptor {
     constructor(private authenticationService: AuthenticationService) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        if (request.url.includes('/x12-api/') || request.url.includes('x12-api/')) {
+            return next.handle(request);
+        }
+
         // add authorization header with  auth credentials if available
         if(this.authenticationService !== null)
         {

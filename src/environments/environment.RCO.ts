@@ -26,6 +26,8 @@ export const environment = {
 
   tpType: 'Payer',
   logo:'assets/ih-rco.jpg',
+  appVersion: 'RCO-2026.02.25.1',
+  x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
   allowedEnvironments: [ 'DEV', 'QA','UAT'],
   rtRoutes: ["NA"],
   batchRoutes:["R1","Assurance","UhinProvConnBatch","UhinBatch", "SelectHealth", "BitBucket", "NA"]

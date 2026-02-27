@@ -1,0 +1,135 @@
+
+<div class="container">
+  <h4>X12 Viewer{{ hideActions() ? '' : ' and Validator' }} <span *ngIf="!hideActions()" class="muted" style="font-size: 14px; font-weight: 400;">— Open an X12 file and click <b>Validate</b> to run the RDPCrystal validator via REST API.</span></h4>
+
+  <div class="panel" style="margin:16px 0;">
+    <div class="row" style="gap:16px;">
+      <input *ngIf="!hideActions()" type="file" (click)="onChooseFileClick()" (change)="onPick($event)" accept=".txt,.edi,.x12,.dat,.270,.271,.837,.999,.997"/>
+      <input class="search" placeholder="Search tag or text (e.g., ISA, GS, ST, NM1, EQ)"
+       [(ngModel)]="filterValue" [disabled]="!x12()" />
+      <button class="btn" *ngIf="hideActions() && x12()" (click)="downloadX12()">Download X12</button>
+      <button class="btn" *ngIf="x12() && !hideActions()" (click)="validate()" [disabled]="validating()">{{ validating() ? 'Validating…' : 'Validate' }}</button>
+    </div>
+    <div class="grid" style="margin-top:12px;">
+      <div class="muted">File</div>
+      <div>
+        {{ fileName() || '—' }}
+        <span class="muted" *ngIf="fileSizeLabel"> ({{ fileSizeLabel }})</span>
+        <span class="mono" *ngIf="x12()"> &nbsp; elem = {{ x12()!.elementSep }} &nbsp; seg = {{ x12()!.segTerm }}<span *ngIf="x12()!.compSep"> &nbsp; comp = {{ x12()!.compSep }}</span></span>
+      </div>
+      <div class="muted">Transaction: {{ detectedTransactionType }}</div>
+      <div *ngIf="x12(); else none" class="mono">
+        <div style="margin-top:4px;">Summary: #Segments = {{ x12()!.segments.length }},
+          #GS = {{ gsCount }},
+          #ST = {{ stCount }}
+          <span *ngIf="detectedCountTag">, #{{ detectedCountTag }} = {{ detectedCount }}</span></div>
+      </div>
+      <ng-template #none><span class="muted">(open a file to see details)</span></ng-template>
+    </div>
+  </div>
+
+  <div class="panel" *ngIf="error() || result()">
+    <h3>RDPCrystal Validation Result</h3>
+    <div *ngIf="error()" class="muted">{{ error() }}</div>
+    <div *ngIf="result() as r">
+      <div class="row" style="justify-content: space-between;">
+        <div class="row" style="gap:12px;">
+          <div>Overall: <b>{{ r.isValid ? 'VALID' : 'INVALID' }}</b></div>
+          <div>Total Errors: <b>{{ r.totalErrors ?? (r.errors?.length || 0) }}</b></div>
+        </div>
+        <div class="row" style="gap:8px;">
+          <button class="btn" *ngIf="!r.suppressErrorTable && hasHiddenValidationErrors(r.errors || [])" (click)="toggleValidationErrors()">
+            {{ validationErrorsExpanded() ? 'Show less' : ('View all (' + (r.errors?.length || 0) + ')') }}
+          </button>
+        </div>
+      </div>
+      <div class="muted" style="margin-top:6px;" *ngIf="r.suppressErrorTable">{{ r.rawMessage || (r.errors?.[0]?.message || 'Validation failed') }}</div>
+      <ng-container *ngIf="!r.suppressErrorTable && !validationErrorsExpanded()">
+        <div class="muted" style="margin-top:6px;" *ngFor="let msg of getValidationTopMessages(r.errors || [])">{{ msg }}</div>
+      </ng-container>
+      <div class="validation-errors-tray" [class.expanded]="validationErrorsExpanded()" *ngIf="!r.suppressErrorTable && r.errors?.length">
+        <div class="table-shell">
+        <table class="mono data-table validation-table">
+          <thead><tr><th>Line</th><th>Seg:Ord | Loop</th><th>Snip</th><th>Segment Data</th><th>Details</th></tr></thead>
+          <tbody>
+            <tr *ngFor="let e of getVisibleValidationErrors(r.errors || [])">
+              <td>
+                <button type="button" class="line-link" (click)="onValidationLineClick(e.line)">{{ e.line ?? '—' }}</button>
+              </td>
+              <td [attr.title]="getLoopDescription(e.loop)">{{ e.segment || e.tag || '—' }}:{{ e.ordinal ?? '—' }} | {{ e.loop || '—' }}</td>
+              <td>{{ getSnipDisplay(e.snip) }}</td>
+              <td>
+                <ng-container *ngIf="e.validatingSegment as segmentData; else noSegmentData">
+                  <div class="diff-token-diff-detail" *ngIf="getSegmentOrdinalData(segmentData, e.ordinal, e.segment || e.tag) as ordinalData">{{ ordinalData }}</div>
+                  <ng-container *ngIf="getValidatingSegmentParts(segmentData) as parts">
+                  <ng-container *ngFor="let part of parts; let i = index">
+                    <span>{{ part }}</span><span class="muted" *ngIf="i < parts.length - 1">{{ x12()?.elementSep || '*' }}</span>
+                  </ng-container>
+                  </ng-container>
+                </ng-container>
+                <ng-template #noSegmentData>—</ng-template>
+              </td>
+              <td>{{ e.details || e.message || '—' }}</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="panel" *ngIf="x12()">
+    <div class="row" style="margin-bottom:12px;">
+      <select class="search" style="width:110px" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+        <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}/page</option>
+      </select>
+      <span class="muted">{{ pageRangeLabel() }}</span>
+    </div>
+    <div class="table-shell">
+    <table class="mono data-table">
+      <thead><tr><th style="width:90px;">#</th><th style="width:110px;">SEG</th><th style="width:120px;">Loop</th><th>Elements</th></tr></thead>
+      <tbody>
+        <tr *ngFor="let s of pagedFiltered(); let i = index" [class.validation-line-highlight]="isHighlightedSegmentLine(s.index + 1)">
+          <td>{{ s.index + 1 }}</td>
+          <td><span class="tag" [class.detected-count-tag]="isDetectedCountSegment(s.tag)">{{ s.tag }}</span></td>
+          <td [attr.title]="getLoopDescription(s.loop)">{{ s.loop || '—' }}</td>
+          <td>
+            <span *ngFor="let e of s.elements; let j = index">
+              <span
+                class="x12-field"
+                [class.x12-field-selected]="isSelectedField(s.tag, j + 1)"
+                [title]="getFieldHoverText(s.tag, j + 1, e)"
+                [attr.aria-label]="getFieldHoverText(s.tag, j + 1, e)"
+                role="button"
+                tabindex="0"
+                (keydown.enter)="onFieldClick(s.tag, j + 1, e, s.loop)"
+                (keydown.space)="onFieldClick(s.tag, j + 1, e, s.loop); $event.preventDefault()"
+                (click)="onFieldClick(s.tag, j + 1, e, s.loop)">{{ e }}</span><span class="muted" *ngIf="getFieldResolvedName(s.tag, j + 1, e) as valueName"> (<i>{{ valueName }}</i>)</span><span class="muted" *ngIf="getCompositeDisplay(e) as composite"> [{{ composite }}]</span><span class="muted" *ngIf="j < s.elements.length-1">{{ x12()?.elementSep || '*' }}</span>
+            </span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+    <div class="row" style="margin-top:12px; justify-content:flex-end;">
+      <button class="btn" (click)="firstPage()" [disabled]="page() <= 1">First</button>
+      <button class="btn" (click)="previousPage()" [disabled]="page() <= 1">Previous</button>
+      <span class="muted">Page {{ page() }} / {{ totalPages() }}</span>
+      <button class="btn" (click)="nextPage()" [disabled]="page() >= totalPages()">Next</button>
+      <button class="btn" (click)="lastPage()" [disabled]="page() >= totalPages()">Last</button>
+    </div>
+  </div>
+
+  <div class="modal-backdrop" *ngIf="selectedFieldSummary" (click)="closeSelectedFieldDetails()">
+    <div class="modal-panel" style="width:min(900px,90vw)" (click)="$event.stopPropagation()">
+      <div class="row" style="justify-content:space-between; margin-bottom:10px;">
+        <h3 style="font-weight:400; margin:0; font-size:16px;">{{ selectedFieldSummaryTitle }}</h3>
+        <button class="btn" (click)="closeSelectedFieldDetails()">Close</button>
+      </div>
+      <div class="mono" style="color:#facc15; font-size:14px;" *ngIf="selectedFieldSummaryValue; else fullSelectedSummary">{{ selectedFieldSummaryValue }}</div>
+      <ng-template #fullSelectedSummary>
+        <div class="mono" style="color:#facc15; font-size:14px;">{{ selectedFieldSummary }}</div>
+      </ng-template>
+    </div>
+  </div>
+</div>

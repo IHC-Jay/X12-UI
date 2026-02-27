@@ -1,6 +1,6 @@
 import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef, Injectable } from '@angular/core';
 import { FormsModule, FormControl } from '@angular/forms';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
 import {User} from '../login/user';
 import {Link, tabLinks} from './Links';
@@ -80,11 +80,81 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
   NumAssignedItems:number;
   public links:Link[] = tabLinks;
 
+  // Track Utility submenu visibility
+  utilitySubmenuVisible: boolean = false;
+  private openUtilitySubmenuOnSelect: boolean = false;
+
+  // Navigate to a link (handles both top-level and submenu)
+  navigateTo(link: Link) {
+    if (link.link) {
+      this.storage.removeItem("currentTab");
+      this.storage.setItem("currentTab", link.name);
+      this.router.navigateByUrl(link.link);
+      this.utilitySubmenuVisible = false;
+    }
+  }
+
+  onUtilityTabClick(index: number, event?: Event): void {
+    if (event) {
+      event.preventDefault();
+      event.stopPropagation();
+    }
+
+    this.selectedLnkIndex.setValue(index);
+    if (this.tabGrp) {
+      this.tabGrp.selectedIndex = index;
+    }
+    this.openUtilitySubmenuOnSelect = true;
+    this.utilitySubmenuVisible = true;
+    this.prevLnkIndex = index;
+  }
+
+  private syncSelectedTabWithUrl(url: string): void {
+    const path = (url || '').split('?')[0].toLowerCase();
+    if (!path) return;
+
+    let targetIndex = -1;
+
+    for (let i = 0; i < this.links.length; i++) {
+      const link = this.links[i];
+      const linkPath = (link.link || '').toLowerCase();
+
+      if (linkPath && path.startsWith(linkPath)) {
+        targetIndex = i;
+        break;
+      }
+
+      if (link.children && link.children.length > 0) {
+        const matchedChild = link.children.find(child => {
+          const childPath = (child.link || '').toLowerCase();
+          return !!childPath && path.startsWith(childPath);
+        });
+
+        if (matchedChild) {
+          targetIndex = i;
+          break;
+        }
+      }
+    }
+
+    if (targetIndex < 0) return;
+
+    this.selectedLnkIndex.setValue(targetIndex);
+    if (this.tabGrp) {
+      this.tabGrp.selectedIndex = targetIndex;
+    }
+
+    this.utilitySubmenuVisible = false;
+    this.openUtilitySubmenuOnSelect = false;
+    this.prevLnkIndex = targetIndex;
+  }
+
 
   isLogin:boolean=false;
   collapsed = true;
 
   logo =`${environment.logo}`;
+  appVersion = `${environment.appVersion || 'unknown'}`;
 
   @ViewChild("username") focusField: ElementRef;
   @ViewChild("tabGrp", { static: false }) tabGrp: MatTabGroup;
@@ -225,6 +295,13 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
         }
       }
     );
+
+      this.syncSelectedTabWithUrl(this.router.url);
+      this.router.events.subscribe(event => {
+        if (event instanceof NavigationEnd) {
+          this.syncSelectedTabWithUrl(event.urlAfterRedirects || event.url);
+        }
+      });
 
   }
 
@@ -368,37 +445,39 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
 
       this.selectedLnkIndex.setValue(event.index);
+      const selectedLink = this.links[event.index];
 
-      console.info("onTabChanged Navigate to " + this.links[event.index].link)
+      if (!selectedLink.children || selectedLink.children.length === 0) {
+        this.utilitySubmenuVisible = false;
+      }
 
-      if (event.index == 6)
+      console.info("onTabChanged Navigate to " + selectedLink.link)
+
+      if (selectedLink.children && selectedLink.children.length > 0) {
+        this.utilitySubmenuVisible = this.openUtilitySubmenuOnSelect;
+        this.openUtilitySubmenuOnSelect = false;
+        this.prevLnkIndex = this.selectedLnkIndex.value
+        return;
+      }
+
+      if (selectedLink.name === 'Work Flow')
       {
-
           let numItems = this.NumAssignedItems
-
             this.NumAssignedItems = 0;
             this.storage.removeItem("currentTab")
-            this.storage.setItem("currentTab", this.links[event.index].name);
-
-            this.router.navigate([this.links[event.index].link], {queryParams: { 'WFitems':  numItems}} );
-
-
+            this.storage.setItem("currentTab", selectedLink.name);
+            this.router.navigate([selectedLink.link], {queryParams: { 'WFitems':  numItems}} );
       }
       else{
-
           this.getWFitems()
-
           if (event.index != 0)
           {
             this.storage.removeItem("currentTab")
-            this.storage.setItem("currentTab", this.links[event.index].name);
+            this.storage.setItem("currentTab", selectedLink.name);
           }
-          this.router.navigate([this.links[event.index].link]);
-
+          this.router.navigate([selectedLink.link]);
       }
       this.prevLnkIndex = this.selectedLnkIndex.value
-
-
    }
 
    getWFitems()

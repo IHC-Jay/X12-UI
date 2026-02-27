@@ -23,9 +23,10 @@ import {RdpValidationErrorsComponent} from './workflow/rdpValidationErrors/rdpVa
 
 import { SummaryComponent } from './summary/summary.component';
 import {DashBoardComponent} from './dashboard/dashboard.component';
-import { X12ViewerComponent } from './x12/x12-viewer.component';
 import { PdfReaderComponent } from './pdf-reader/pdf-reader.component';
 import { CodeValueLookupComponent } from './codeValue-lookup/codeValue-lookup.component';
+import { X12ViewerComponent } from './x12-utility/x12-viewer.component';
+import { X12CompareComponent } from './x12-utility/x12-compare.component';
 
 
 const appRoutes: Routes = [
@@ -44,7 +45,8 @@ const appRoutes: Routes = [
   {path: 'transaction', component: TransactionComponent, canActivate: [AuthGuard], title: 'Transactions'},
   {path: 'transaction/transaction-settings', component: TransactionSettingsComponent, canActivate: [AuthGuard], title: 'Settings'},
   {path: 'transaction/transaction-details', component: TransactionDetailComponent, canActivate: [AuthGuard], title: 'Transaction Details'},
-  {path: 'x12-viewer', component: X12ViewerComponent, canActivate: [AuthGuard], title: 'X12 Viewer'},
+  {path: 'x12-viewer', component: X12ViewerComponent, canActivate: [AuthGuard], title: 'X12 Viewer + Validator'},
+  {path: 'x12-compare', component: X12CompareComponent, canActivate: [AuthGuard], title: 'X12 Comparison'},
   {path: 'pdf-reader', component: PdfReaderComponent, canActivate: [AuthGuard], title: 'PDF Reader'},
   {path: 'hl3-lookup', component: CodeValueLookupComponent, canActivate: [AuthGuard], title: 'HL3 Lookup'},
   {path: 'workflow', component: WorkflowComponent, canActivate: [AuthGuard] , title: 'WorkFlow'},

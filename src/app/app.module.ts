@@ -82,7 +82,6 @@ import {
   CdkDropListGroup
 } from '@angular/cdk/drag-drop';
 import { RdpValidationErrorsComponent } from './workflow/rdpValidationErrors/rdpValidationErrors.component';
-import { X12ViewerComponent } from './x12/x12-viewer.component';
 import { PdfReaderComponent } from './pdf-reader/pdf-reader.component';
 import { CodeValueLookupComponent } from './codeValue-lookup/codeValue-lookup.component';
 
@@ -114,7 +113,6 @@ import { CodeValueLookupComponent } from './codeValue-lookup/codeValue-lookup.co
         WorkflowDetailsComponent,
         WorkflowHistoryComponent,
         RdpValidationErrorsComponent,
-        X12ViewerComponent,
         PdfReaderComponent
         ,CodeValueLookupComponent
     ],

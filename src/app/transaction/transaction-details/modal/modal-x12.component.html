@@ -3,7 +3,7 @@
   <br />
 </div>
 <div mat-dialog-content>
-  <app-x12-viewer [x12Text]="x12Data" [title]="title" [showControls]="false"></app-x12-viewer>
+  <pre class="x12-content">{{x12Data}}</pre>
 </div>
 <div mat-dialog-actions>
   @if (fileName !== '' && fileName !== 'NA' ) {
