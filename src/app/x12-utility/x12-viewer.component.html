@@ -10,37 +10,33 @@
       <button class="btn" *ngIf="hideActions() && x12()" (click)="downloadX12()">Download X12</button>
       <button class="btn" *ngIf="x12() && !hideActions()" (click)="validate()" [disabled]="validating()">{{ validating() ? 'Validating…' : 'Validate' }}</button>
     </div>
-    <div class="grid" style="margin-top:12px;">
-      <div class="muted">File</div>
+    <div style="margin-top:12px;">
       <div>
         {{ fileName() || '—' }}
         <span class="muted" *ngIf="fileSizeLabel"> ({{ fileSizeLabel }})</span>
-        <span class="mono" *ngIf="x12()"> &nbsp; elem = {{ x12()!.elementSep }} &nbsp; seg = {{ x12()!.segTerm }}<span *ngIf="x12()!.compSep"> &nbsp; comp = {{ x12()!.compSep }}</span></span>
+        <span class="muted" *ngIf="x12()">, Transaction: {{ detectedTransactionType }}</span>
       </div>
-      <div class="muted">Transaction: {{ detectedTransactionType }}</div>
-      <div *ngIf="x12(); else none" class="mono">
-        <div style="margin-top:4px;">Summary: #Segments = {{ x12()!.segments.length }},
-          #GS = {{ gsCount }},
-          #ST = {{ stCount }}
-          <span *ngIf="detectedCountTag">, #{{ detectedCountTag }} = {{ detectedCount }}</span></div>
-      </div>
-      <ng-template #none><span class="muted">(open a file to see details)</span></ng-template>
+      <div *ngIf="x12(); else none" class="mono" style="margin-top:4px;">Summary: #Segments = {{ x12()!.segments.length }}, #GS = {{ gsCount }}, #ST = {{ stCount }}<span *ngIf="detectedCountTag">, #{{ detectedCountTag }} = {{ detectedCount }}</span> (elem = {{ x12()!.elementSep }}, seg = {{ x12()!.segTerm }}<span *ngIf="x12()!.compSep">, comp = {{ x12()!.compSep }}</span>)</div>
+      <ng-template #none><span class="muted" style="margin-top:4px; display:block;">(open a file to see details)</span></ng-template>
+    </div>
+    <div *ngIf="error() || result()" class="mono" style="margin-top:10px;">
+      RDPCrystal Validation Result:
+      <ng-container *ngIf="result() as r">
+        <ng-container *ngIf="!(r.isValid && (r.totalErrors ?? (r.errors?.length || 0)) === 0 && r.rawMessage)">
+           Overall: <b [style.color]="!r.isValid ? '#ef4444' : '#fff'">{{ r.isValid ? 'VALID' : 'INVALID' }}</b>, Total Errors: <b>{{ r.totalErrors ?? (r.errors?.length || 0) }}</b>
+        </ng-container>
+      </ng-container>
     </div>
   </div>
 
-  <div class="panel" *ngIf="error() || result()">
-    <h3 class="validation-result-title">RDPCrystal Validation Result</h3>
+  <div class="panel" *ngIf="error() || (result() && (!result()!.isValid || (result()!.totalErrors ?? (result()!.errors?.length || 0)) > 0))">
     <div *ngIf="error()" class="muted">{{ error() }}</div>
     <div *ngIf="result() as r">
       <ng-container *ngIf="r.isValid && (r.totalErrors ?? (r.errors?.length || 0)) === 0 && r.rawMessage; else validationDetails">
         <div class="muted">{{ r.rawMessage }}</div>
       </ng-container>
       <ng-template #validationDetails>
-        <div class="row" style="justify-content: space-between;">
-          <div class="row" style="gap:12px;">
-            <div>Overall: <b>{{ r.isValid ? 'VALID' : 'INVALID' }}</b></div>
-            <div>Total Errors: <b>{{ r.totalErrors ?? (r.errors?.length || 0) }}</b></div>
-          </div>
+        <div class="row" style="justify-content: flex-end;">
           <div class="row" style="gap:8px;">
             <button class="btn" *ngIf="!r.suppressErrorTable && hasHiddenValidationErrors(r.errors || [])" (click)="toggleValidationErrors()">
               {{ validationErrorsExpanded() ? 'Show less' : ('View all (' + (r.errors?.length || 0) + ')') }}
@@ -48,13 +44,9 @@
           </div>
         </div>
         <div class="muted" style="margin-top:6px;" *ngIf="r.suppressErrorTable">{{ r.rawMessage || (r.errors?.[0]?.message || 'Validation failed') }}</div>
-        <ng-container *ngIf="!r.suppressErrorTable && !validationErrorsExpanded()">
-          <div class="muted" style="margin-top:6px;" *ngFor="let msg of getValidationTopMessages(r.errors || [])">{{ msg }}</div>
-        </ng-container>
-        <div class="validation-errors-tray" [class.expanded]="validationErrorsExpanded()" *ngIf="!r.suppressErrorTable && r.errors?.length">
-          <div class="table-shell">
+        <div class="table-shell" [class.expanded]="validationErrorsExpanded()" *ngIf="!r.suppressErrorTable && r.errors?.length">
           <table class="mono data-table validation-table">
-            <thead><tr><th>Line</th><th>Seg:Ord | Loop</th><th>Snip</th><th>Segment Data</th><th>Details</th></tr></thead>
+            <thead><tr><th>Line</th><th>Seg:Ord | Loop</th><th>Snip</th><th>Segment Data</th><th>Error</th></tr></thead>
             <tbody>
               <tr *ngFor="let e of getVisibleValidationErrors(r.errors || [])">
                 <td>
@@ -78,7 +70,6 @@
             </tbody>
           </table>
         </div>
-        </div>
       </ng-template>
     </div>
   </div>
@@ -90,7 +81,7 @@
       </select>
       <span class="muted">{{ pageRangeLabel() }}</span>
     </div>
-    <div class="table-shell">
+    <div class="table-shell" #dataTableContainer>
     <table class="mono data-table">
       <thead><tr><th style="width:90px;">#</th><th style="width:110px;">SEG</th><th style="width:120px;">Loop</th><th>Elements</th></tr></thead>
       <tbody>

@@ -1,5 +1,5 @@
 
-import { Component, signal, computed } from '@angular/core';
+import { Component, signal, computed, ViewChild, ElementRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
@@ -698,6 +698,8 @@ export class X12ViewerComponent {
     this.selectedLoop.set('');
   }
 
+  @ViewChild('dataTableContainer') dataTableContainer?: ElementRef<HTMLDivElement>;
+
   onValidationLineClick(line?: number): void {
     const lineNumber = Number(line);
     if (!Number.isFinite(lineNumber) || lineNumber < 1) return;
@@ -719,6 +721,18 @@ export class X12ViewerComponent {
     const page = Math.floor(rowIndex / pageSize) + 1;
     this.page.set(page);
     this.highlightedLine.set(lineNumber);
+
+    // Scroll to the highlighted row after the page renders
+    setTimeout(() => this.scrollToHighlightedRow(), 0);
+  }
+
+  private scrollToHighlightedRow(): void {
+    const container = this.dataTableContainer?.nativeElement;
+    if (!container) return;
+    const highlightedRow = container.querySelector('tr[class*="validation-line-highlight"]') as HTMLElement;
+    if (highlightedRow) {
+      highlightedRow.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
   }
 
   isHighlightedSegmentLine(lineNumber: number): boolean {
