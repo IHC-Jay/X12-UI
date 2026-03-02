@@ -44,7 +44,7 @@
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0",
     "zone.js": "^0.15.1",
-    "pdfjs-dist": "^5.4.530"
+    "pdfjs-dist": "5.5.207"
   },
   "devDependencies": {
     "@angular/build": "^21.0.2",

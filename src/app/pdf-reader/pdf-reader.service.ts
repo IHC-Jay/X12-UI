@@ -4,11 +4,13 @@ import * as pdfjsLib from 'pdfjs-dist/legacy/build/pdf.mjs';
 
 @Injectable({ providedIn: 'root' })
 export class PdfReaderService {
+  private readonly standardFontDataUrl = new URL('assets/standard_fonts/', document.baseURI).toString();
+
   constructor() {
     try {
-      // Use a static, locally-served worker URL from the application's assets
-      // so pdf.js loads the worker by URL instead of performing dynamic imports.
-      const localWorker = './assets/pdf.worker.mjs';
+      // Use assets worker URL resolved from base href (e.g. /SH/) so it works in IIS sub-path deployments.
+      const apiVersion = (pdfjsLib as any).version || '5.5.207';
+      const localWorker = new URL(`assets/pdf.worker.mjs?v=${apiVersion}`, document.baseURI).toString();
       if ((pdfjsLib as any).GlobalWorkerOptions) {
         (pdfjsLib as any).GlobalWorkerOptions.workerSrc = localWorker;
       } else {
@@ -18,9 +20,19 @@ export class PdfReaderService {
           enumerable: true,
         } as PropertyDescriptor);
       }
+      console.info('[PdfReader] PDF.js API version:', apiVersion, 'workerSrc:', localWorker);
+      console.info('[PdfReader] standardFontDataUrl:', this.standardFontDataUrl);
     } catch (e) {
       console.warn('Could not set pdfjs GlobalWorkerOptions.workerSrc', e);
     }
+  }
+
+  private getDocumentTask(dataCopy: Uint8Array) {
+    return (pdfjsLib as any).getDocument({
+      data: dataCopy,
+      standardFontDataUrl: this.standardFontDataUrl,
+      useSystemFonts: false,
+    });
   }
 
   async extractText(arrayBuffer: ArrayBuffer): Promise<string> {
@@ -29,7 +41,7 @@ export class PdfReaderService {
 
   async getNumPages(arrayBuffer: ArrayBuffer): Promise<number> {
     const dataCopy = new Uint8Array(arrayBuffer).slice();
-    const loadingTask = (pdfjsLib as any).getDocument({ data: dataCopy });
+    const loadingTask = this.getDocumentTask(dataCopy);
     const pdf = await loadingTask.promise;
     const n = pdf.numPages;
     try { pdf.destroy?.(); } catch (_) {}
@@ -39,7 +51,7 @@ export class PdfReaderService {
   async extractTextRange(arrayBuffer: ArrayBuffer, startPage = 1, endPage?: number): Promise<string> {
     // Create a copied Uint8Array to avoid transferring/detaching the original ArrayBuffer
     const dataCopy = new Uint8Array(arrayBuffer).slice();
-    const loadingTask = (pdfjsLib as any).getDocument({ data: dataCopy });
+    const loadingTask = this.getDocumentTask(dataCopy);
     const pdf = await loadingTask.promise;
     const from = Math.max(1, Math.floor(startPage));
     const to = endPage && endPage >= from ? Math.min(pdf.numPages, Math.floor(endPage)) : pdf.numPages;
@@ -56,7 +68,7 @@ export class PdfReaderService {
 
   async extractTextPerPage(arrayBuffer: ArrayBuffer): Promise<string[]> {
     const dataCopy = new Uint8Array(arrayBuffer).slice();
-    const loadingTask = (pdfjsLib as any).getDocument({ data: dataCopy });
+    const loadingTask = this.getDocumentTask(dataCopy);
     const pdf = await loadingTask.promise;
     const pages: string[] = [];
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -72,7 +84,7 @@ export class PdfReaderService {
   async renderPageToCanvas(arrayBuffer: ArrayBuffer, canvas: HTMLCanvasElement, pageNumber = 1, scale = 1.5): Promise<void> {
     // Use a copy so the original buffer in the component isn't detached by the worker
     const dataCopy = new Uint8Array(arrayBuffer).slice();
-    const loadingTask = (pdfjsLib as any).getDocument({ data: dataCopy });
+    const loadingTask = this.getDocumentTask(dataCopy);
     const pdf = await loadingTask.promise;
     const page = await pdf.getPage(pageNumber);
     const viewport = page.getViewport({ scale });
@@ -105,7 +117,7 @@ export class PdfReaderService {
   // Render multiple pages into provided canvas elements in a single PDF load (faster)
   async renderPagesToCanvases(arrayBuffer: ArrayBuffer, canvases: HTMLCanvasElement[], startPage = 1, endPage?: number, scale = 1.5): Promise<void> {
     const dataCopy = new Uint8Array(arrayBuffer).slice();
-    const loadingTask = (pdfjsLib as any).getDocument({ data: dataCopy });
+    const loadingTask = this.getDocumentTask(dataCopy);
     const pdf = await loadingTask.promise;
     const from = Math.max(1, Math.floor(startPage));
     const to = endPage && endPage >= from ? Math.min(pdf.numPages, Math.floor(endPage)) : pdf.numPages;

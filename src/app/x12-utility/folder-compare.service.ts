@@ -8,7 +8,8 @@ export class FolderCompareService {
     try {
       const handle = await (window as any).showDirectoryPicker();
       return handle as FileSystemDirectoryHandle;
-    } catch {
+    } catch (e) {
+      console.warn('[X12Compare] pickDirectory failed:', e instanceof Error ? e.message : String(e), '- File System Access API requires HTTPS (or localhost). Use HTTPS deployment or localhost to enable folder selection.');
       return null;
     }
   }
@@ -18,7 +19,8 @@ export class FolderCompareService {
       const handles = await (window as any).showOpenFilePicker({ multiple: false });
       const handle = Array.isArray(handles) ? handles[0] : null;
       return handle as FileSystemFileHandle | null;
-    } catch {
+    } catch (e) {
+      console.warn('[X12Compare] pickFile failed:', e instanceof Error ? e.message : String(e), '- File System Access API requires HTTPS (or localhost). Use HTTPS deployment or localhost to enable file selection.');
       return null;
     }
   }

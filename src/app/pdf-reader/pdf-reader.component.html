@@ -11,7 +11,7 @@
     </select>
 
     <!-- fallback: keep native file picker available via small link -->
-    <button mat-button style="margin-left:8px;" (click)="fileInput.click()">Choose File...</button>
+    <button style="margin-left:8px; padding:6px 12px; cursor:pointer;" (click)="fileInput.click()">Choose File...</button>
     <input #fileInput type="file" accept="application/pdf" (change)="onFileSelected($event)" style="display:none" />
   </div>
   <div *ngIf="selectedFileName" style="margin-bottom:8px; display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
