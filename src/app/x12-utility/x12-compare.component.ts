@@ -19,10 +19,10 @@ interface DiffToken {
 })
 export class X12CompareComponent {
   compareMode: '' | 'one' | 'multiple' = '';
-  leftDir: FileSystemDirectoryHandle | null = null;
-  rightDir: FileSystemDirectoryHandle | null = null;
-  leftFile: FileSystemFileHandle | null = null;
-  rightFile: FileSystemFileHandle | null = null;
+  leftDir: FileSystemDirectoryHandle | { name: string; files: File[] } | null = null;
+  rightDir: FileSystemDirectoryHandle | { name: string; files: File[] } | null = null;
+  leftFile: FileSystemFileHandle | File | null = null;
+  rightFile: FileSystemFileHandle | File | null = null;
   savedLeftFolderName = '';
   savedRightFolderName = '';
   savedLeftFileName = '';
@@ -158,24 +158,48 @@ export class X12CompareComponent {
     return this.rightDir?.name || this.savedRightFolderName || 'Second';
   }
 
-  async pickLeft(): Promise<void> {
-    this.leftDir = await this.svc.pickDirectory();
-    this.savedLeftFolderName = this.leftDir?.name ?? this.savedLeftFolderName;
+  onLeftFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.leftFile = input.files[0];
+      this.savedLeftFileName = this.leftFile?.name ?? this.savedLeftFileName;
+    }
+    input.value = '';
   }
 
-  async pickRight(): Promise<void> {
-    this.rightDir = await this.svc.pickDirectory();
-    this.savedRightFolderName = this.rightDir?.name ?? this.savedRightFolderName;
+  onRightFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.rightFile = input.files[0];
+      this.savedRightFileName = this.rightFile?.name ?? this.savedRightFileName;
+    }
+    input.value = '';
   }
 
-  async pickLeftFile(): Promise<void> {
-    this.leftFile = await this.svc.pickFile();
-    this.savedLeftFileName = this.leftFile?.name ?? this.savedLeftFileName;
+  onLeftFolderSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const files = Array.from(input.files);
+      this.leftDir = {
+        name: 'Selected Folder',
+        files
+      };
+      this.savedLeftFolderName = this.leftDir?.name ?? this.savedLeftFolderName;
+    }
+    input.value = '';
   }
 
-  async pickRightFile(): Promise<void> {
-    this.rightFile = await this.svc.pickFile();
-    this.savedRightFileName = this.rightFile?.name ?? this.savedRightFileName;
+  onRightFolderSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      const files = Array.from(input.files);
+      this.rightDir = {
+        name: 'Selected Folder',
+        files
+      };
+      this.savedRightFolderName = this.rightDir?.name ?? this.savedRightFolderName;
+    }
+    input.value = '';
   }
 
   saveSetup(): void {

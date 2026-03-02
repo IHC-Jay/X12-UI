@@ -25,7 +25,10 @@ export class FolderCompareService {
     }
   }
 
-  private async listFiles(dir: FileSystemDirectoryHandle): Promise<FileSystemFileHandle[]> {
+  private async listFiles(dir: FileSystemDirectoryHandle | { name: string; files: File[] }): Promise<(FileSystemFileHandle | File)[]> {
+    if ('files' in dir) {
+      return dir.files;
+    }
     const out: FileSystemFileHandle[] = [];
     for await (const [, handle] of (dir as any).entries()) {
       if (handle.kind === 'file') out.push(handle as FileSystemFileHandle);
@@ -43,16 +46,16 @@ export class FolderCompareService {
   }
 
   async pairFiles(
-    leftDir: FileSystemDirectoryHandle,
-    rightDir: FileSystemDirectoryHandle,
+    leftDir: FileSystemDirectoryHandle | { name: string; files: File[] },
+    rightDir: FileSystemDirectoryHandle | { name: string; files: File[] },
     cfg: CompareConfig
   ): Promise<{ pairs: FilePair[]; summary: RunSummary }> {
     const errors: string[] = [];
     const leftFiles = await this.listFiles(leftDir);
     const rightFiles = await this.listFiles(rightDir);
 
-    const leftMatch = new Map<string, FileSystemFileHandle[]>();
-    const rightMatch = new Map<string, FileSystemFileHandle[]>();
+    const leftMatch = new Map<string, (FileSystemFileHandle | File)[]>();
+    const rightMatch = new Map<string, (FileSystemFileHandle | File)[]>();
     const exactFilenameMode = cfg.compareExactFilename;
 
     for (const fileHandle of leftFiles) {
@@ -125,8 +128,13 @@ export class FolderCompareService {
     return { pairs, summary };
   }
 
-  private async readText(handle: FileSystemFileHandle): Promise<string> {
-    const file = await handle.getFile();
+  private async readText(handle: FileSystemFileHandle | File): Promise<string> {
+    let file: File;
+    if (handle instanceof File) {
+      file = handle;
+    } else {
+      file = await (handle as FileSystemFileHandle).getFile();
+    }
     return await file.text();
   }
 

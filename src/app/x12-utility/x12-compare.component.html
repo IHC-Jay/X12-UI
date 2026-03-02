@@ -12,18 +12,23 @@
     </div>
 
     <ng-container *ngIf="compareMode">
+      <input #leftFileInput type="file" accept=".edi,.x12,.txt" (change)="onLeftFileSelected($event)" style="display:none" />
+      <input #rightFileInput type="file" accept=".edi,.x12,.txt" (change)="onRightFileSelected($event)" style="display:none" />
+      <input #leftFolderInput type="file" webkitdirectory (change)="onLeftFolderSelected($event)" style="display:none" />
+      <input #rightFolderInput type="file" webkitdirectory (change)="onRightFolderSelected($event)" style="display:none" />
+      
       <div class="row" style="margin-top:12px; gap:10px;" *ngIf="compareMode === 'one'; else multiplePicker">
-        <button class="btn" (click)="pickLeftFile()">Choose First File</button>
+        <button class="btn" (click)="leftFileInput.click()">Choose First File</button>
         <div class="mono">{{ leftFile?.name || (savedLeftFileName ? savedLeftFileName + ' (saved)' : 'Not selected') }}</div>
-        <button class="btn" (click)="pickRightFile()">Choose Second File</button>
+        <button class="btn" (click)="rightFileInput.click()">Choose Second File</button>
         <div class="mono">{{ rightFile?.name || (savedRightFileName ? savedRightFileName + ' (saved)' : 'Not selected') }}</div>
       </div>
 
       <ng-template #multiplePicker>
         <div class="row" style="margin-top:12px; gap:10px;">
-          <button class="btn" (click)="pickLeft()">Choose First Folder</button>
+          <button class="btn" (click)="leftFolderInput.click()">Choose First Folder</button>
           <div class="mono">{{ leftDir?.name || (savedLeftFolderName ? savedLeftFolderName + ' (saved)' : 'Not selected') }}</div>
-          <button class="btn" (click)="pickRight()">Choose Second Folder</button>
+          <button class="btn" (click)="rightFolderInput.click()">Choose Second Folder</button>
           <div class="mono">{{ rightDir?.name || (savedRightFolderName ? savedRightFolderName + ' (saved)' : 'Not selected') }}</div>
         </div>
       </ng-template>

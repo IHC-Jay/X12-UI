@@ -17,8 +17,8 @@ export interface FilePair {
   key: string;
   leftName: string;
   rightName: string;
-  leftHandle: FileSystemFileHandle;
-  rightHandle: FileSystemFileHandle;
+  leftHandle: FileSystemFileHandle | File;
+  rightHandle: FileSystemFileHandle | File;
 }
 
 export interface DiffLine {
