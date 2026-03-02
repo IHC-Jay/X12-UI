@@ -29,52 +29,57 @@
   </div>
 
   <div class="panel" *ngIf="error() || result()">
-    <h3>RDPCrystal Validation Result</h3>
+    <h3 class="validation-result-title">RDPCrystal Validation Result</h3>
     <div *ngIf="error()" class="muted">{{ error() }}</div>
     <div *ngIf="result() as r">
-      <div class="row" style="justify-content: space-between;">
-        <div class="row" style="gap:12px;">
-          <div>Overall: <b>{{ r.isValid ? 'VALID' : 'INVALID' }}</b></div>
-          <div>Total Errors: <b>{{ r.totalErrors ?? (r.errors?.length || 0) }}</b></div>
-        </div>
-        <div class="row" style="gap:8px;">
-          <button class="btn" *ngIf="!r.suppressErrorTable && hasHiddenValidationErrors(r.errors || [])" (click)="toggleValidationErrors()">
-            {{ validationErrorsExpanded() ? 'Show less' : ('View all (' + (r.errors?.length || 0) + ')') }}
-          </button>
-        </div>
-      </div>
-      <div class="muted" style="margin-top:6px;" *ngIf="r.suppressErrorTable">{{ r.rawMessage || (r.errors?.[0]?.message || 'Validation failed') }}</div>
-      <ng-container *ngIf="!r.suppressErrorTable && !validationErrorsExpanded()">
-        <div class="muted" style="margin-top:6px;" *ngFor="let msg of getValidationTopMessages(r.errors || [])">{{ msg }}</div>
+      <ng-container *ngIf="r.isValid && (r.totalErrors ?? (r.errors?.length || 0)) === 0 && r.rawMessage; else validationDetails">
+        <div class="muted">{{ r.rawMessage }}</div>
       </ng-container>
-      <div class="validation-errors-tray" [class.expanded]="validationErrorsExpanded()" *ngIf="!r.suppressErrorTable && r.errors?.length">
-        <div class="table-shell">
-        <table class="mono data-table validation-table">
-          <thead><tr><th>Line</th><th>Seg:Ord | Loop</th><th>Snip</th><th>Segment Data</th><th>Details</th></tr></thead>
-          <tbody>
-            <tr *ngFor="let e of getVisibleValidationErrors(r.errors || [])">
-              <td>
-                <button type="button" class="line-link" (click)="onValidationLineClick(e.line)">{{ e.line ?? '—' }}</button>
-              </td>
-              <td [attr.title]="getLoopDescription(e.loop)">{{ e.segment || e.tag || '—' }}:{{ e.ordinal ?? '—' }} | {{ e.loop || '—' }}</td>
-              <td>{{ getSnipDisplay(e.snip) }}</td>
-              <td>
-                <ng-container *ngIf="e.validatingSegment as segmentData; else noSegmentData">
-                  <div class="diff-token-diff-detail" *ngIf="getSegmentOrdinalData(segmentData, e.ordinal, e.segment || e.tag) as ordinalData">{{ ordinalData }}</div>
-                  <ng-container *ngIf="getValidatingSegmentParts(segmentData) as parts">
-                  <ng-container *ngFor="let part of parts; let i = index">
-                    <span>{{ part }}</span><span class="muted" *ngIf="i < parts.length - 1">{{ x12()?.elementSep || '*' }}</span>
-                  </ng-container>
-                  </ng-container>
-                </ng-container>
-                <ng-template #noSegmentData>—</ng-template>
-              </td>
-              <td>{{ e.details || e.message || '—' }}</td>
-            </tr>
-          </tbody>
-        </table>
+      <ng-template #validationDetails>
+        <div class="row" style="justify-content: space-between;">
+          <div class="row" style="gap:12px;">
+            <div>Overall: <b>{{ r.isValid ? 'VALID' : 'INVALID' }}</b></div>
+            <div>Total Errors: <b>{{ r.totalErrors ?? (r.errors?.length || 0) }}</b></div>
+          </div>
+          <div class="row" style="gap:8px;">
+            <button class="btn" *ngIf="!r.suppressErrorTable && hasHiddenValidationErrors(r.errors || [])" (click)="toggleValidationErrors()">
+              {{ validationErrorsExpanded() ? 'Show less' : ('View all (' + (r.errors?.length || 0) + ')') }}
+            </button>
+          </div>
         </div>
-      </div>
+        <div class="muted" style="margin-top:6px;" *ngIf="r.suppressErrorTable">{{ r.rawMessage || (r.errors?.[0]?.message || 'Validation failed') }}</div>
+        <ng-container *ngIf="!r.suppressErrorTable && !validationErrorsExpanded()">
+          <div class="muted" style="margin-top:6px;" *ngFor="let msg of getValidationTopMessages(r.errors || [])">{{ msg }}</div>
+        </ng-container>
+        <div class="validation-errors-tray" [class.expanded]="validationErrorsExpanded()" *ngIf="!r.suppressErrorTable && r.errors?.length">
+          <div class="table-shell">
+          <table class="mono data-table validation-table">
+            <thead><tr><th>Line</th><th>Seg:Ord | Loop</th><th>Snip</th><th>Segment Data</th><th>Details</th></tr></thead>
+            <tbody>
+              <tr *ngFor="let e of getVisibleValidationErrors(r.errors || [])">
+                <td>
+                  <button type="button" class="line-link" (click)="onValidationLineClick(e.line)">{{ e.line ?? '—' }}</button>
+                </td>
+                <td [attr.title]="getLoopDescription(e.loop)">{{ e.segment || e.tag || '—' }}:{{ e.ordinal ?? '—' }} | {{ e.loop || '—' }}</td>
+                <td>{{ getSnipDisplay(e.snip) }}</td>
+                <td>
+                  <ng-container *ngIf="e.validatingSegment as segmentData; else noSegmentData">
+                    <div class="diff-token-diff-detail" *ngIf="getSegmentOrdinalData(segmentData, e.ordinal, e.segment || e.tag) as ordinalData">{{ ordinalData }}</div>
+                    <ng-container *ngIf="getValidatingSegmentParts(segmentData) as parts">
+                    <ng-container *ngFor="let part of parts; let i = index">
+                      <span>{{ part }}</span><span class="muted" *ngIf="i < parts.length - 1">{{ x12()?.elementSep || '*' }}</span>
+                    </ng-container>
+                    </ng-container>
+                  </ng-container>
+                  <ng-template #noSegmentData>—</ng-template>
+                </td>
+                <td>{{ e.details || e.message || '—' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        </div>
+      </ng-template>
     </div>
   </div>
 

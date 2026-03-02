@@ -2,11 +2,13 @@
 import { Component, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { ActivatedRoute } from '@angular/router';
 import { parseX12, X12File } from './x12.service';
 import { ValidatorService, ValidationError, ValidationResult } from './validator.service';
 import { SEGMENT_LIBRARY } from './lookups';
 import { KvLookupService } from './kv-lookup.service';
 import { StorageService } from '../services/storage.service';
+import { WfRestServiceComponent } from '../services/wfrest-service.component';
 import { downloadTextFile } from '../utils/file-download.util';
 @Component({ selector:'app-x12-viewer', standalone:true, imports:[CommonModule, FormsModule], templateUrl:'./x12-viewer.component.html', styleUrls:['./x12-utility.component.css'] })
 export class X12ViewerComponent {
@@ -186,9 +188,158 @@ export class X12ViewerComponent {
     return 3;
   }
 
-  constructor(private api: ValidatorService, private kvLookup: KvLookupService, private storage: StorageService) {
+  constructor(
+    private api: ValidatorService,
+    private kvLookup: KvLookupService,
+    private storage: StorageService,
+    private route: ActivatedRoute,
+    private wfService: WfRestServiceComponent
+  ) {
     void this.kvLookup.preload();
     this.loadSeedData();
+    this.loadWorkflowErrorsFromQueryParams();
+  }
+
+  private loadWorkflowErrorsFromQueryParams(): void {
+    const data = this.x12();
+    if (!data) return;
+
+    const queryMap = this.route.snapshot.queryParamMap;
+    const sessionId = queryMap.get('sessionID') || queryMap.get('SessionID') || queryMap.get('SessionId') || '';
+    const mode = queryMap.get('mode') || '';
+    const transactionType = queryMap.get('TransactionType') || data.transactionType || '';
+    const status = queryMap.get('Status') || queryMap.get('status') || '';
+    const isValidationFailed = status.trim().toLowerCase() === 'validation failed';
+
+    if (!sessionId || !mode) return;
+
+    if (!isValidationFailed) {
+      this.validating.set(false);
+      this.error.set('');
+      this.validationErrorsExpanded.set(false);
+      this.result.set({
+        isValid: true,
+        errors: [],
+        totalErrors: 0,
+        suppressErrorTable: true,
+        rawMessage: 'Valid X12, not errors'
+      });
+      return;
+    }
+
+    const searchStr =
+      'ID=&X12DataId=&SessionID=' + sessionId +
+      '&WFID=&TransactionType=' + transactionType +
+      '&Status=' + status;
+
+    console.log('[X12 Viewer] Workflow error fetch path active. Calling fetchRdpCrytalEntries with mode=' + mode + ', sessionID=' + sessionId + ', transactionType=' + transactionType + ', status=' + status);
+
+    this.validating.set(true);
+    this.error.set('');
+    this.validationErrorsExpanded.set(false);
+
+    this.wfService.fetchRdpCrytalEntries(mode, searchStr, sessionId).subscribe({
+      next: (res: any) => {
+        const errors = this.mapWorkflowErrors(res, data.text);
+        this.result.set({
+          isValid: errors.length === 0,
+          errors,
+          totalErrors: errors.length,
+          rawMessage: errors.length === 0 ? 'No workflow errors found.' : undefined
+        });
+        this.validating.set(false);
+      },
+      error: (err) => {
+        this.error.set('Workflow Validation: ' + (err?.message || 'Failed to fetch workflow errors'));
+        this.validating.set(false);
+      }
+    });
+  }
+
+  private mapWorkflowErrors(res: any, x12Text: string): ValidationError[] {
+    if (!Array.isArray(res) || res.length < 2) return [];
+
+    const segmentSeparator = this.x12()?.segTerm || '~';
+    const x12Lines = (x12Text || '').split(segmentSeparator).map((line) => line.trim());
+    const detailsRows = res.slice(1);
+
+    return detailsRows
+      .map((row: any, idx: number): ValidationError | null => {
+        const line = this.resolveWorkflowErrorLine(row, x12Lines);
+        const segment = String(row?.Segment || row?.segment || row?.tag || '').trim();
+        const ordinalValue = Number(row?.Element || row?.element || row?.eleNum || row?.ordinal);
+        const ordinal = Number.isFinite(ordinalValue) ? ordinalValue : undefined;
+        const code = String(row?.ErrorCode || row?.errorCode || '').trim();
+        const desc = String(row?.ErrorDesc || row?.errorDesc || row?.Error || row?.error || '').trim();
+        const details = desc || this.buildDynamicWorkflowErrorDetails(row);
+        const message = code ? `${details} (${code})` : details;
+        const validatingSegment = String(row?.SegmentData || row?.segmentData || '').trim();
+
+        if (!message) return null;
+
+        return {
+          severity: 'ERROR',
+          message,
+          tag: segment || 'RDP',
+          index: idx + 1,
+          line: line > 0 ? line : undefined,
+          ordinal,
+          segment: segment || undefined,
+          details,
+          validatingSegment: validatingSegment || undefined,
+          loop: String(row?.Loop || row?.loop || '').trim() || undefined,
+          snip: String(row?.SnipLevel || row?.snip || '').trim() || undefined
+        };
+      })
+      .filter((item): item is ValidationError => !!item);
+  }
+
+  private resolveWorkflowErrorLine(row: any, x12Lines: string[]): number {
+    const lineNum = Number(row?.LineNum || row?.lineNum);
+    if (Number.isFinite(lineNum) && lineNum > 0) return lineNum;
+
+    const segmentData = String(row?.SegmentData || row?.segmentData || '').trim();
+    if (segmentData) {
+      const segmentIndex = x12Lines.findIndex((line) => line === segmentData);
+      if (segmentIndex >= 0) return segmentIndex + 1;
+    }
+
+    for (const [key, value] of Object.entries(row || {})) {
+      const keyLine = Number(key);
+      if (Number.isFinite(keyLine) && keyLine > 0) return keyLine;
+
+      const text = String(value ?? '').trim();
+      if (!text) continue;
+      const lineIndex = x12Lines.findIndex((line) => line === text || line.includes(text));
+      if (lineIndex >= 0) return lineIndex + 1;
+    }
+
+    return -1;
+  }
+
+  private buildDynamicWorkflowErrorDetails(row: any): string {
+    const ignoredKeys = new Set([
+      'LineNum', 'lineNum',
+      'Segment', 'segment',
+      'Element', 'element', 'eleNum', 'ordinal',
+      'Loop', 'loop',
+      'SnipLevel', 'snip',
+      'ErrorDesc', 'errorDesc',
+      'ErrorCode', 'errorCode',
+      'Error', 'error',
+      'SegmentData', 'segmentData',
+      'X12', 'x12'
+    ]);
+
+    const parts: string[] = [];
+    Object.entries(row || {}).forEach(([key, value]) => {
+      if (ignoredKeys.has(key)) return;
+      const text = String(value ?? '').trim();
+      if (!text) return;
+      parts.push(`${key}: ${text}`);
+    });
+
+    return parts.join(', ');
   }
 
   private loadSeedData(): void {
@@ -375,7 +526,9 @@ export class X12ViewerComponent {
       return full.includes(normalized) || normalized.includes(definition.label.toLowerCase());
     });
 
-    return matched ? `${matched.level} - ${matched.label}` : raw;
+    if (matched) return `${matched.level}`;
+    if (Number.isFinite(numeric)) return `${numeric}`;
+    return raw;
   }
 
   getSelectedLoopDisplay(loop?: string): string {

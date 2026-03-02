@@ -250,13 +250,18 @@ updateWorkFlowItem(mode: string, paramsList: string[]) {
 
 }
 
-fetchRdpCrytalEntries(mode: string, searchStr: string) {
+fetchRdpCrytalEntries(mode: string, searchStr: string, sessionId: string = '') {
 
 
-  let url = this.batchWfUrl + 'RdpCrystalEntries?' +  searchStr+"&userNm="+ this.currentUser;
+  let searchString = searchStr || '';
+  if (sessionId && searchString.indexOf('SessionID=') < 0) {
+    searchString += (searchString.length > 0 ? '&' : '') + 'SessionID=' + sessionId;
+  }
+
+  let url = this.batchWfUrl + 'RdpCrystalEntries?' +  searchString+"&userNm="+ this.currentUser;
   if (mode === 'RealTime')
   {
-     url = this.rtWfUrl +  'RdpCrystalEntries?' +  searchStr+"&userNm="+ this.currentUser;
+     url = this.rtWfUrl +  'RdpCrystalEntries?' +  searchString+"&userNm="+ this.currentUser;
   }
   console.log('Fetch RdpCrystalEntries with Auth for '+ this.currentUser +", URL: " + url);
 

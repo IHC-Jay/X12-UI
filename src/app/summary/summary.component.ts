@@ -878,7 +878,7 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
 
   this.contextMenuPosition.x = event.clientX + 'px';
   this.contextMenuPosition.y = event.clientY + 'px';
-  let item: Item ={rowId: row.ID, FileName: row.FileName, sessionId: row.SessionID};
+  let item: Item ={rowId: row.ID, FileName: row.FileName, sessionId: row.SessionID, status: row.Status};
   this.contextMenu.menuData = { 'item': item };
   this.contextMenu.menu.focusFirstItem('mouse');
   this.contextMenu.openMenu();
@@ -894,7 +894,7 @@ handleContextMenu(item: Item, menu: string)  {
       this.storage.setItem("currentTab", "Work Flow");
 
       const url = this.router.serializeUrl(this.router.createUrlTree([ `${environment.org}` + "/workflow/workflowDetails/"],
-         {queryParams: { sessionID:  (item.sessionId),  mode:  this.formFields.mode, TransactionType: this.formFields.currentTransType} }
+        {queryParams: { sessionID:  (item.sessionId), Status: item.status, mode:  this.formFields.mode, TransactionType: this.formFields.currentTransType} }
       ));
       console.log("Open in new tab URL: " + url);
           const newTab = window.open(url, '_blank');
@@ -915,7 +915,7 @@ handleContextMenu(item: Item, menu: string)  {
    }
 }
 
-private openInX12Viewer(x12Text: string, fileName: string): void {
+private openInX12Viewer(x12Text: string, fileName: string, sessionId?: string, status?: string): void {
   this.storage.removeItem('x12ViewerSeed');
   this.storage.setItem('x12ViewerSeed', {
     text: x12Text,
@@ -926,7 +926,22 @@ private openInX12Viewer(x12Text: string, fileName: string): void {
   this.storage.setItem('currentTab', 'Utility');
   const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
   const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
-  const newTab = window.open(`${normalizedBase}/x12-viewer`, '_blank');
+  const query = new URLSearchParams();
+  if (sessionId) {
+    query.set('sessionID', sessionId);
+  }
+  if (status) {
+    query.set('Status', status);
+  }
+  if (this.formFields?.mode) {
+    query.set('mode', this.formFields.mode);
+  }
+  if (this.formFields?.currentTransType) {
+    query.set('TransactionType', this.formFields.currentTransType);
+  }
+  const queryString = query.toString();
+  const targetUrl = `${normalizedBase}/x12-viewer${queryString ? '?' + queryString : ''}`;
+  const newTab = window.open(targetUrl, '_blank');
   if (newTab) {
     newTab.opener = null;
   }
@@ -1045,7 +1060,7 @@ onContextMenuSame(item: Item) {
                   console.log('All sequential calls completed.' );
                     if(val !== "")
                     {
-                      this.openInX12Viewer(val, item.FileName);
+                      this.openInX12Viewer(val, item.FileName, item.sessionId, item.status);
 
                     }
 
@@ -1073,7 +1088,7 @@ onContextMenuSame(item: Item) {
 
       if(val !== "")
       {
-        this.openInX12Viewer(val, item.FileName);
+        this.openInX12Viewer(val, item.FileName, item.sessionId, item.status);
 
       }
     });
@@ -1106,6 +1121,7 @@ export interface Item {
   FileName: string;
   rowId: number;
   sessionId: string;
+  status?: string;
 }
 
 export interface customSearchStruct {

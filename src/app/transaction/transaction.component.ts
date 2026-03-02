@@ -928,7 +928,7 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
 
   this.contextMenuPosition.x = event.clientX + 'px';
   this.contextMenuPosition.y = event.clientY + 'px';
-  let item: Item ={ID: row.ID, rowId: ind, sessionId: row.SessionID};
+  let item: Item ={ID: row.ID, rowId: ind, sessionId: row.SessionID, status: row.Status};
   this.contextMenu.menuData = { 'item': item };
   this.contextMenu.menu.focusFirstItem('mouse');
   this.contextMenu.openMenu();
@@ -947,7 +947,7 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
       this.storageService.removeItem("currentTab");
       this.storageService.setItem("currentTab", "Work Flow");
       const url = this.router.serializeUrl(this.router.createUrlTree([`${environment.org}` + "/workflow/workflowDetails/"],
-        { queryParams: { sessionID: (item.sessionId), mode: this.formFields.mode, TransactionType: this.formFields.currentTransType } }
+        { queryParams: { sessionID: (item.sessionId), Status: item.status, mode: this.formFields.mode, TransactionType: this.formFields.currentTransType } }
       ));
       console.log("Details in new tab URL: " + url);
       const newTab = window.open(url, '_blank');
@@ -962,6 +962,8 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
             ID: item.ID,
             'transConfig': jsonString,
             'transaction': this.form.controls.transType.value,
+            'sessionID': item.sessionId,
+            'Status': item.status,
             'additionalSearch': this.staticSearchStr,
             'searchTypeString': this.transUserFlds
           }
@@ -975,6 +977,8 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
           queryParams: {
             ID: item.ID,
             'transaction': this.form.controls.transType.value,
+            'sessionID': item.sessionId,
+            'Status': item.status,
             'additionalSearch': this.staticSearchStr,
             'searchTypeString': this.transUserFlds
           }
@@ -1016,6 +1020,7 @@ export interface Item {
   ID: number;
   rowId: number;
   sessionId: string;
+  status?: string;
 }
 
 export interface customSearchStruct {

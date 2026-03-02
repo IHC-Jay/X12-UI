@@ -36,6 +36,8 @@ export class TransactionDetailComponent {
   transConfigJsonString:string;
   searchTypeString:string;
   transaction:string;
+  sessionID:string = '';
+  status:string = '';
   x12Data:string;
   fileName = "TEST";
 
@@ -58,7 +60,12 @@ export class TransactionDetailComponent {
       this.additionalSearchStr = params['additionalSearch'];
       this.searchTypeString = params['searchTypeString'];
       this.mode = params['mode'];
+      this.sessionID = params['sessionID'] || params['SessionID'] || params['SessionId'] || '';
+      this.status = params['Status'] || params['status'] || '';
       this.transConfigJsonString = params['transConfig'];
+      if (!this.status) {
+        this.status = this.extractSearchParam(this.searchTypeString, 'status');
+      }
       console.log('Query params ID: ', this.ID + ', trans: ' + this.transaction + ", additionalSearch: " + this.additionalSearchStr + ", searchTypeString: " + this.searchTypeString);
       if (this.mode != "" && this.searchTypeString.indexOf("Batch") > 0) {
         this.mode = "Batch";
@@ -82,6 +89,15 @@ export class TransactionDetailComponent {
       paramsList.push("count::" + 1);
       this.fetchTransactionDetailData(this.transaction, this.mode, paramsList);
     });
+  }
+
+  private extractSearchParam(paramStr: string, key: string): string {
+    if (!paramStr) return '';
+    const start = paramStr.indexOf(`${key}::`);
+    if (start < 0) return '';
+    const valueStart = start + key.length + 2;
+    const end = paramStr.indexOf(';', valueStart);
+    return end >= 0 ? paramStr.substring(valueStart, end) : paramStr.substring(valueStart);
   }
 
   // --- Refactored fetch logic for ngOnInit ---
@@ -191,7 +207,22 @@ export class TransactionDetailComponent {
       this.storage.setItem('currentTab', 'Utility');
       const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
       const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
-      const newTab = window.open(`${normalizedBase}/x12-viewer`, '_blank');
+      const query = new URLSearchParams();
+      if (this.sessionID) {
+        query.set('sessionID', this.sessionID);
+      }
+      if (this.status) {
+        query.set('Status', this.status);
+      }
+      if (this.mode) {
+        query.set('mode', this.mode);
+      }
+      if (this.transaction) {
+        query.set('TransactionType', this.transaction);
+      }
+      const queryString = query.toString();
+      const targetUrl = `${normalizedBase}/x12-viewer${queryString ? '?' + queryString : ''}`;
+      const newTab = window.open(targetUrl, '_blank');
       if (newTab) {
         newTab.opener = null;
       }

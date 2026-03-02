@@ -141,10 +141,15 @@ export class WorkflowDetailsComponent implements OnInit {
   }
 
   private handleQueryParams(searchParams: any) {
-    if (searchParams['sessionID'] !== undefined && searchParams['sessionID'] !== null) {
+    const sessionId = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'];
+    if (sessionId !== undefined && sessionId !== null && sessionId !== '') {
       console.log("sessionID query sessionID provided!");
+      this.wfStatus = searchParams['Status'] || searchParams['status'] || this.wfStatus;
+      if (this.form?.controls?.statusType && this.wfStatus) {
+        this.form.controls.statusType.setValue(this.wfStatus);
+      }
       this.fileName = searchParams['searchParams'];
-      this.getX12('ID=&SessionID=' + searchParams['sessionID']);
+      this.getX12('ID=&SessionID=' + sessionId);
     } else {
       this.parseSearchParams(searchParams);
       this.getX12("ID=" + this.ID + '&SessionID=');

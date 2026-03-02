@@ -40,3 +40,4 @@ th{position:sticky;top:0;background:#0f172a}
 .compare-modal .diff-token-diff-detail{color:#ef4444;font-size:14px}
 .validation-errors-tray{margin-top:8px;max-width:100%}
 .validation-errors-tray.expanded{max-height:220px;overflow:auto}
+.validation-result-title{font-size:16px;font-weight:600;margin:0 0 8px}

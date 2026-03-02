@@ -161,7 +161,8 @@ export class RdpValidationErrorsComponent implements OnInit {
    */
   private handleQueryParams() {
     this.sub = this.route.queryParams.subscribe(searchParams => {
-      if (searchParams['sessionID'] !== undefined && searchParams['sessionID'] !== null) {
+      const sessionId = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'];
+      if (sessionId !== undefined && sessionId !== null && sessionId !== '') {
         this.handleSessionIdParams(searchParams);
       } else {
         this.handleDefaultParams(searchParams);
@@ -173,8 +174,12 @@ export class RdpValidationErrorsComponent implements OnInit {
    * Handle initialization when sessionID is present in query params.
    */
   private handleSessionIdParams(searchParams: any) {
-    this.sessionID = searchParams['sessionID'];
+    this.sessionID = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'] || '';
     this.TransactionType = searchParams['TransactionType'];
+    this.wfStatus = searchParams['Status'] || searchParams['status'] || this.wfStatus;
+    if (this.form?.controls?.statusType && this.wfStatus) {
+      this.form.controls.statusType.setValue(this.wfStatus);
+    }
     console.log("sessionID query sessionID provided!" + this.sessionID + ", FileName: " + searchParams['searchParams'] + ", TransactionType: " + this.TransactionType);
     this.fileName = searchParams['searchParams'];
     this.wfMode = searchParams['mode'];
@@ -222,7 +227,7 @@ export class RdpValidationErrorsComponent implements OnInit {
     this.canRenderDetails = false;
     searchStr = this.buildX12SearchString();
     console.log("Call service for " + searchStr);
-    this.WfService.fetchRdpCrytalEntries(this.wfMode, searchStr).subscribe((res: any) => {
+    this.WfService.fetchRdpCrytalEntries(this.wfMode, searchStr, this.sessionID).subscribe((res: any) => {
       console.log("Call to get RDP Crystal Entries, count: " + Object.keys(res).length);
       this.processX12Response(res);
     });
@@ -249,6 +254,13 @@ export class RdpValidationErrorsComponent implements OnInit {
     }
     // Parse X12 data and error info
     const x12DataLns = res[0].X12.split(String(res[0].X12).substr(105, 1));
+    const isDataErrorPayload =
+      Array.isArray(res) &&
+      res.length > 2 &&
+      String(res[0]?.Error || '').trim().toLowerCase() === 'data error';
+    const dataErrorLookup = isDataErrorPayload
+      ? this.buildDataErrorLookup(res, x12DataLns)
+      : new Map<number, { num: string; segment: string; element: string; error: string }>();
     this.separator = res[0].X12.substr(3, 1);
     console.log("Sep: " + this.separator);
     const wfErr = String(res[0].Error).replaceAll(";", "\n");
@@ -264,24 +276,37 @@ export class RdpValidationErrorsComponent implements OnInit {
       let err = '';
       let ind = 1;
       segEle = '';
-      // Error details
-      for (ind = 1; ind < res.length; ind++) {
-        if (lenNum == res[ind].LineNum) {
-          segEle = "Loop: " + res[ind].Loop + ", " + res[ind].Segment + "/" + res[ind].Element;
-          err = segEle + ": " + res[ind].ErrorDesc + "(" + res[ind].ErrorCode + ")";
-          if (this.selectedRow === -1 && err !== '') {
+      if (isDataErrorPayload) {
+        const mappedError = dataErrorLookup.get(lenNum);
+        if (mappedError) {
+          segEle = "Loop: -, " + mappedError.segment + "/" + mappedError.element;
+          err = mappedError.error;
+          ind = Number(mappedError.num) || 1;
+          if (this.selectedRow === -1) {
             this.selectedRow = index + 1;
           }
-          break;
+        }
+      } else {
+        // Error details
+        for (ind = 1; ind < res.length; ind++) {
+          if (lenNum == res[ind].LineNum) {
+            segEle = "Loop: " + res[ind].Loop + ", " + res[ind].Segment + "/" + res[ind].Element;
+            err = segEle + ": " + res[ind].ErrorDesc + "(" + res[ind].ErrorCode + ")";
+            if (this.selectedRow === -1 && err !== '') {
+              this.selectedRow = index + 1;
+            }
+            break;
+          }
         }
       }
       if (item !== '') {
         if (err !== '') {
+          const mappedError = isDataErrorPayload ? dataErrorLookup.get(lenNum) : null;
           this.errArray.push({
             'Num': '' + ind,
             'LineNum': '' + lenNum,
-            'Segment': res[ind]?.Segment ?? '-',
-            'Element': res[ind]?.Element ?? '-',
+            'Segment': mappedError?.segment ?? res[ind]?.Segment ?? '-',
+            'Element': mappedError?.element ?? res[ind]?.Element ?? '-',
             'Error': err
           });
         }
@@ -305,6 +330,97 @@ export class RdpValidationErrorsComponent implements OnInit {
     this.canRenderDetails = true;
     this.removeCurrentStatusFromTypes();
     this.updateDataErrorState();
+  }
+
+  private buildDataErrorLookup(
+    res: any[],
+    x12DataLns: string[]
+  ): Map<number, { num: string; segment: string; element: string; error: string }> {
+    const lookup = new Map<number, { num: string; segment: string; element: string; error: string }>();
+    for (let i = 1; i < res.length; i++) {
+      const row = res[i] || {};
+      const lineNum = this.resolveDataErrorLineNum(row, x12DataLns);
+      if (lineNum < 1 || lookup.has(lineNum)) {
+        continue;
+      }
+
+      const segment = String(row?.Segment || row?.segment || '-');
+      const element = String(row?.Element || row?.element || '-');
+      const errorDesc = String(row?.ErrorDesc || row?.errorDesc || row?.Error || row?.error || '').trim();
+      const errorCode = String(row?.ErrorCode || row?.errorCode || '').trim();
+      const errorText =
+        errorDesc !== ''
+          ? `${errorDesc}${errorCode !== '' ? ` (${errorCode})` : ''}`
+          : this.buildDynamicDataErrorText(row);
+
+      lookup.set(lineNum, {
+        num: String(i),
+        segment,
+        element,
+        error: errorText !== '' ? errorText : 'Data Error'
+      });
+    }
+    return lookup;
+  }
+
+  private resolveDataErrorLineNum(row: any, x12DataLns: string[]): number {
+    const explicitLine = Number(row?.LineNum || row?.lineNum);
+    if (Number.isFinite(explicitLine) && explicitLine > 0) {
+      return explicitLine;
+    }
+
+    const segmentData = String(row?.SegmentData || row?.segmentData || '').trim();
+    if (segmentData !== '') {
+      const segIndex = x12DataLns.findIndex((item) => item?.trim() === segmentData);
+      if (segIndex >= 0) return segIndex + 1;
+    }
+
+    const entries = Object.entries(row || {});
+    for (const [key, value] of entries) {
+      const keyLine = Number(key);
+      if (Number.isFinite(keyLine) && keyLine > 0) {
+        return keyLine;
+      }
+
+      const val = String(value ?? '').trim();
+      if (!val) continue;
+      const lineIndex = x12DataLns.findIndex((item) => item?.trim() === val || item?.includes(val));
+      if (lineIndex >= 0) {
+        return lineIndex + 1;
+      }
+    }
+
+    return -1;
+  }
+
+  private buildDynamicDataErrorText(row: any): string {
+    const skipKeys = new Set([
+      'LineNum',
+      'lineNum',
+      'Segment',
+      'segment',
+      'Element',
+      'element',
+      'ErrorDesc',
+      'errorDesc',
+      'ErrorCode',
+      'errorCode',
+      'Error',
+      'error',
+      'SegmentData',
+      'segmentData',
+      'X12',
+      'x12'
+    ]);
+
+    const parts: string[] = [];
+    Object.entries(row || {}).forEach(([key, value]) => {
+      if (skipKeys.has(key)) return;
+      const val = String(value ?? '').trim();
+      if (val === '') return;
+      parts.push(`${key}: ${val}`);
+    });
+    return parts.join(', ');
   }
 
   /**
