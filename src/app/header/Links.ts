@@ -7,7 +7,7 @@ export class Link {
 }
 
 export const tabLinks: Link[] = [
-  {name:'Settings', link:"/transaction/transaction-settings/"},
+  {name:'Settings', link:"/transaction/transaction-settings"},
   {name:'Trading Partners', link:"/TradingPartners"},
   {name:'Search TPID', link:"/search"},
   {name:'Transmissions', link:"/summary"},

@@ -110,24 +110,35 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
   }
 
   private syncSelectedTabWithUrl(url: string): void {
-    const path = (url || '').split('?')[0].toLowerCase();
+    const normalizePath = (value: string): string => {
+      const base = (value || '').split('?')[0].toLowerCase();
+      if (!base || base === '/') return '/';
+      return base.endsWith('/') ? base.slice(0, -1) : base;
+    };
+
+    const matchesRoute = (currentPath: string, targetPath: string): boolean => {
+      if (!targetPath) return false;
+      return currentPath === targetPath || currentPath.startsWith(`${targetPath}/`);
+    };
+
+    const path = normalizePath(url || '');
     if (!path) return;
 
     let targetIndex = -1;
 
     for (let i = 0; i < this.links.length; i++) {
       const link = this.links[i];
-      const linkPath = (link.link || '').toLowerCase();
+      const linkPath = normalizePath(link.link || '');
 
-      if (linkPath && path.startsWith(linkPath)) {
+      if (matchesRoute(path, linkPath)) {
         targetIndex = i;
         break;
       }
 
       if (link.children && link.children.length > 0) {
         const matchedChild = link.children.find(child => {
-          const childPath = (child.link || '').toLowerCase();
-          return !!childPath && path.startsWith(childPath);
+          const childPath = normalizePath(child.link || '');
+          return matchesRoute(path, childPath);
         });
 
         if (matchedChild) {
