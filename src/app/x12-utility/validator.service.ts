@@ -4,6 +4,7 @@ import { HttpBackend, HttpClient } from '@angular/common/http';
 import { map, tap } from 'rxjs/operators';
 import { catchError } from 'rxjs/operators';
 import { Observable, throwError } from 'rxjs';
+import { environment } from '../../environments/environment';
 export interface ValidationError {
   severity: string;
   message: string;
@@ -62,8 +63,8 @@ function extractField(block: string, key: string): string {
 }
 @Injectable({ providedIn: 'root' })
 export class ValidatorService {
-  private baseUrl = 'x12-api';
   private rawHttp: HttpClient;
+  private hasLoggedEndpointResolution = false;
 
   constructor(private http: HttpClient, httpBackend: HttpBackend) {
     this.rawHttp = new HttpClient(httpBackend);
@@ -78,10 +79,33 @@ export class ValidatorService {
       x12String: x12Data
     };
 
-    const isShHosted = typeof window !== 'undefined' && window.location.pathname.toLowerCase().startsWith('/sh');
-    const endpointCandidates = isShHosted
-      ? ['/SH/x12-api/X12', `${this.baseUrl}/X12`, `/x12-api/X12`]
-      : [`/x12-api/X12`, `${this.baseUrl}/X12`];
+    const baseHref =
+      typeof document !== 'undefined'
+        ? (document.querySelector('base')?.getAttribute('href') || '/').trim()
+        : '/';
+
+    const normalizedBase = (() => {
+      const trimmed = baseHref.replace(/\/+$/, '');
+      if (!trimmed || trimmed === '.') return '';
+      return trimmed.startsWith('/') ? trimmed : `/${trimmed}`;
+    })();
+
+    const endpointCandidates = [
+      normalizedBase ? `${normalizedBase}/x12-api/X12` : '/x12-api/X12',
+      '/x12-api/X12',
+      this.getConfiguredValidationEndpoint()
+    ].filter((url, index, self) => self.indexOf(url) === index);
+
+    if (!this.hasLoggedEndpointResolution) {
+      this.hasLoggedEndpointResolution = true;
+      console.info('[ValidatorService] Endpoint resolution context:', {
+        origin: typeof window !== 'undefined' ? window.location.origin : '',
+        pathname: typeof window !== 'undefined' ? window.location.pathname : '',
+        baseHref,
+        normalizedBase,
+        endpointCandidates
+      });
+    }
 
     console.info('[ValidatorService] Endpoint candidates:', endpointCandidates);
     console.info('[ValidatorService] Payload:', {
@@ -215,5 +239,11 @@ export class ValidatorService {
         };
       })
     );
+  }
+
+  private getConfiguredValidationEndpoint(): string {
+    const configuredBase = String(environment?.x12ValidationBaseUrl || '').trim();
+    if (!configuredBase) return '';
+    return `${configuredBase.replace(/\/+$/, '')}/X12`;
   }
 }
