@@ -522,7 +522,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
             this.storage.removeItem("currentTab")
             this.storage.setItem("currentTab", selectedLink.name);
           }
-          this.router.navigate([selectedLink.link]);
+          this.router.navigate([selectedLink.link], { queryParamsHandling: 'preserve' });
       }
       this.prevLnkIndex = this.selectedLnkIndex.value
    }

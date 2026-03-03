@@ -27,7 +27,7 @@
           <!-- If the link has children, render as a dropdown menu with a unique menu reference -->
             <mat-tab *ngIf="!lnk.children" style="font-weight: bolder; font-size: large;" label={{lnk.name}}>
             </mat-tab>
-            <mat-tab *ngIf="lnk.name === 'Utility' && lnk.children && lnk.children.length > 0" style="font-weight: bolder; font-size: large; position: relative;">
+            <mat-tab *ngIf="lnk.name === 'Utilities' && lnk.children && lnk.children.length > 0" style="font-weight: bolder; font-size: large; position: relative;">
               <ng-template mat-tab-label>
                 <span style="font-weight: bolder; font-size: large; cursor: pointer;" (click)="onUtilityTabClick(i, $event)">
                   {{lnk.name}}

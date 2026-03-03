@@ -8,8 +8,7 @@ import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
 
 import {TradingPartner} from './TradingPartner';
 import { TpId } from './tpIds/TpId';
-import { TpRestServiceComponent } from '../services/tprest-service.component';
-import { TradingPartnersComponent } from './tradingPartners.component';
+import { TpRestServiceComponent } from '../services/tprest-service.component';import { StorageService } from '../services/storage.service';import { TradingPartnersComponent } from './tradingPartners.component';
 
 import { environment } from '../../environments/environment';
 
@@ -60,7 +59,8 @@ export class AddEditTP implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private TradingPartnerService: TpRestServiceComponent,
-        private cdRef: ChangeDetectorRef
+        private cdRef: ChangeDetectorRef,
+        private storageService: StorageService
     ) {
 
      }
@@ -84,8 +84,8 @@ public initializeData()
      * Remove and set the current tab in session storage.
      */
     private setupSessionTab() {
-      sessionStorage.removeItem("currentTab");
-      sessionStorage.setItem("currentTab", "Trading Partners");
+      this.storageService.removeItem("currentTab");
+      this.storageService.setItem("currentTab", "Trading Partners");
     }
 
     /**

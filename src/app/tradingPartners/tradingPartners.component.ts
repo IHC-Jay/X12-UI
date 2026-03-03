@@ -14,6 +14,7 @@ import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MatFormField } from '@angular/material/form-field';
 
 import {UtilService} from '../services/utilService';
+import { StorageService } from '../services/storage.service';
 import { environment } from '../../environments/environment';
 import { MatIconModule } from '@angular/material/icon';
 
@@ -67,7 +68,8 @@ export class TradingPartnersComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild(MatPaginator) paginator: MatPaginator;
 
     constructor(public dialog: MatDialog, private router: Router,
-      private TradingPartnerService: TpRestServiceComponent)
+      private TradingPartnerService: TpRestServiceComponent,
+      private storageService: StorageService)
     {
 
     }
@@ -75,8 +77,8 @@ export class TradingPartnersComponent implements OnInit, AfterViewInit, OnDestro
     ngOnInit()
     {
 
-      sessionStorage.removeItem("currentTab")
-      sessionStorage.setItem("currentTab", "Trading Partners");
+      this.storageService.removeItem("currentTab");
+      this.storageService.setItem("currentTab", "Trading Partners");
       let continueOn = true;
       if (sessionStorage.getItem("TpOperation") != null)
       {

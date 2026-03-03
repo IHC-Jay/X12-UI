@@ -893,7 +893,7 @@ handleContextMenu(item: Item, menu: string)  {
       this.storage.removeItem("currentTab");
       this.storage.setItem("currentTab", "Work Flow");
 
-      const url = this.router.serializeUrl(this.router.createUrlTree([ `${environment.org}` + "/workflow/workflowDetails/"],
+      const url = this.router.serializeUrl(this.router.createUrlTree(["/workflow/workflowDetails/"],
         {queryParams: { sessionID:  (item.sessionId), Status: item.status, mode:  this.formFields.mode, TransactionType: this.formFields.currentTransType} }
       ));
       console.log("Open in new tab URL: " + url);
@@ -923,7 +923,7 @@ private openInX12Viewer(x12Text: string, fileName: string, sessionId?: string, s
   });
   localStorage.setItem('x12ViewerSeed', JSON.stringify({ text: x12Text, fileName }));
   this.storage.removeItem('currentTab');
-  this.storage.setItem('currentTab', 'Utility');
+  this.storage.setItem('currentTab', 'Utilities');
   const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
   const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
   const query = new URLSearchParams();
@@ -968,11 +968,25 @@ onContextMenuNew(item: Item) {
 
     this.sumUserFlds += ";sameWindow::false";
 
-       const url = this.router.serializeUrl(this.router.createUrlTree([ `${environment.org}` +"/transaction/"],
-      {queryParams: { ID:  item.rowId, 'transConfig': jsonString, 'transaction': this.form.controls.transType.value,
-        'mode': this.form.controls.mode.value, 'additionalSearch': additionalsearchString, 'sumUserFlds': this.sumUserFlds } }
-       ));
-    const newTab = window.open(url, '_blank');
+    // Store complex parameters in localStorage to keep URL clean and share across tabs
+    localStorage.setItem('transactionNavData', JSON.stringify({
+      transConfig: jsonString,
+      transaction: this.form.controls.transType.value,
+      mode: this.form.controls.mode.value,
+      additionalSearch: additionalsearchString,
+      sumUserFlds: this.sumUserFlds
+    }));
+
+    // Build URL with additionalSearch parameter to display filtered transaction list
+    const relativeUrl = this.router.serializeUrl(this.router.createUrlTree(["/transaction/"],
+      {queryParams: { ID: item.rowId, 'additionalSearch': additionalsearchString } }
+    ));
+    
+    // Get base href to construct absolute URL for window.open
+    const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+    const absoluteUrl = window.location.origin + baseHref.replace(/\/$/, '') + relativeUrl;
+    
+    const newTab = window.open(absoluteUrl, '_blank');
     if(newTab) {
         newTab.opener = null;
     }
@@ -984,8 +998,8 @@ onContextMenuNew(item: Item) {
 onContextMenuSame(item: Item) {
 
   this.sumUserFlds = "";
-  sessionStorage.removeItem("currentTab")
-  sessionStorage.setItem("currentTab", "Transactions");
+  this.storage.removeItem("currentTab");
+  this.storage.setItem("currentTab", "Transactions");
   const jsonString = JSON.stringify(this.formFields);
 
   this.paramsList.forEach( val => {
@@ -994,9 +1008,19 @@ onContextMenuSame(item: Item) {
    let additionalsearchString = "FileName='"+item.FileName +"'";
 
    this.sumUserFlds += ";sameWindow::true";
-      this.router.navigate(["/transaction/"],
-      {queryParams: { ID:  item.rowId, 'transConfig': jsonString, 'transaction': this.form.controls.transType.value,
-         'additionalSearch': additionalsearchString, 'sumUserFlds': this.sumUserFlds } }
+   
+   // Store complex parameters in localStorage for same-window navigation too
+   localStorage.setItem('transactionNavData', JSON.stringify({
+     transConfig: jsonString,
+     transaction: this.form.controls.transType.value,
+     mode: this.form.controls.mode.value,
+     additionalSearch: additionalsearchString,
+     sumUserFlds: this.sumUserFlds
+   }));
+   
+   // Navigate with minimal URL params (ID and essential filters only)
+   this.router.navigate(["/transaction"],
+      {queryParams: { ID: item.rowId, 'additionalSearch': additionalsearchString } }
        );
 
 }

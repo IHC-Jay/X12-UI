@@ -204,7 +204,7 @@ export class TransactionDetailComponent {
       });
       localStorage.setItem('x12ViewerSeed', JSON.stringify({ text: x12Text, fileName }));
       this.storage.removeItem('currentTab');
-      this.storage.setItem('currentTab', 'Utility');
+      this.storage.setItem('currentTab', 'Utilities');
       const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
       const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
       const query = new URLSearchParams();
