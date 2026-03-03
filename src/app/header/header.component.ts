@@ -176,6 +176,8 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
   selectedLnkIndex = new FormControl(3);
   prevLnkIndex = 0;
+  private openDetailsRedirectHandled = false;
+  private standaloneDetailMode = false;
 
   background = 'white';
 
@@ -221,11 +223,30 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
       // get return url from route parameters or default to '/'
 
       this.route.queryParams.subscribe(params => {
+        const openDetails = params['openDetails'] === 'true';
+        if (openDetails && !this.openDetailsRedirectHandled) {
+          this.openDetailsRedirectHandled = true;
+          this.router.navigate(['/transaction/transaction-details'], {
+            queryParams: {
+              ID: params['ID'],
+              transConfig: params['transConfig'],
+              transaction: params['transaction'],
+              mode: params['mode'],
+              sessionID: params['sessionID'] || params['SessionID'] || params['SessionId'],
+              Status: params['Status'] || params['status'],
+              additionalSearch: params['additionalSearch'],
+              searchTypeString: params['searchTypeString']
+            },
+            replaceUrl: true
+          });
+          return;
+        }
+
         let retTab =  this.storage.getItem<string>("currentTab");
         console.log('HeaderComponent currentTab: '+ retTab);
         let tabInd = 0
 
-        for(; (retTab!== undefined || retTab !== '') && tabInd < this.links.length; tabInd++)
+        for(; (retTab!== undefined && retTab !== '') && tabInd < this.links.length; tabInd++)
           {
             if(this.links[tabInd].name === retTab)
             {
@@ -248,17 +269,22 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
           let str:string = this.paramsObject.searchTypeString.toString()
           if(str.indexOf('sameWindow::false') >= 0)
           {
+            this.standaloneDetailMode = true;
 
             if (this.paramsObject.transaction !== undefined)
             {
               this.searchStr = "Transaction: " + this.paramsObject.transaction
-              let element = document.getElementById('tabGrp') as HTMLElement;
-              element.setAttribute('hidden', 'true');
-              console.log("Disable: " + element);
+              let element = document.getElementById('tabGrp') as HTMLElement | null;
+              if (element) {
+                element.setAttribute('hidden', 'true');
+                console.log("Disable: " + element);
+              }
 
-              element = document.getElementById('logout') as HTMLElement;
-              element.setAttribute('hidden', 'true');
-              console.log("Disable: " + element);
+              element = document.getElementById('logout') as HTMLElement | null;
+              if (element) {
+                element.setAttribute('hidden', 'true');
+                console.log("Disable: " + element);
+              }
 
 
             }
@@ -278,11 +304,13 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
           }
           else
           {
+            this.standaloneDetailMode = false;
             this.searchStr = ""
           }
         }
         else
         {
+          this.standaloneDetailMode = false;
           this.searchStr = ""
         }
 
@@ -451,6 +479,14 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
    }
 
    onTabChanged(event: MatTabChangeEvent): void {
+
+    if (this.standaloneDetailMode) {
+      this.selectedLnkIndex.setValue(this.prevLnkIndex);
+      if (this.tabGrp) {
+        this.tabGrp.selectedIndex = this.prevLnkIndex;
+      }
+      return;
+    }
 
     console.log("header onTabChanged. from: " + this.selectedLnkIndex.value +" to: "+ event.index)
 

@@ -120,6 +120,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   searchColumns= this.transactionsFields.slice();
 
   sub: Subscription | undefined;
+  private openDetailsRedirectHandled = false;
 
   selDropdownList = [];
 
@@ -220,6 +221,25 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
     console.info("Handle query params and session storage for Transactions");
       this.sub = this.route.queryParams.subscribe(params => {
+        const openDetails = params['openDetails'] === 'true';
+        if (openDetails && !this.openDetailsRedirectHandled) {
+          this.openDetailsRedirectHandled = true;
+          this.router.navigate(['/transaction/transaction-details'], {
+            queryParams: {
+              ID: params['ID'],
+              transConfig: params['transConfig'],
+              transaction: params['transaction'],
+              mode: params['mode'],
+              sessionID: params['sessionID'] || params['SessionID'] || params['SessionId'],
+              Status: params['Status'] || params['status'],
+              additionalSearch: params['additionalSearch'],
+              searchTypeString: params['searchTypeString']
+            },
+            replaceUrl: true
+          });
+          return;
+        }
+
         if(params !== undefined) {
           if(params['transConfig'] !== undefined ) {
             let jsonString = params['transConfig'];
@@ -972,20 +992,21 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
     } else {
       this.transUserFlds += ";sameWindow::false";
       const jsonString = JSON.stringify(this.formFields);
-      const url = this.router.serializeUrl(this.router.createUrlTree([`${environment.org}` + "/transaction/transaction-details/"],
-        {
-          queryParams: {
-            ID: item.ID,
-            'transaction': this.form.controls.transType.value,
-            'sessionID': item.sessionId,
-            'Status': item.status,
-            'additionalSearch': this.staticSearchStr,
-            'searchTypeString': this.transUserFlds
-          }
-        }
-      ));
-      console.log("Details in new tab URL: " + url);
-      const newTab = window.open(url, '_blank');
+      const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+      const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
+      const query = new URLSearchParams();
+      query.set('ID', String(item.ID));
+      query.set('transConfig', jsonString);
+      query.set('transaction', this.form.controls.transType.value);
+      query.set('mode', this.form.controls.mode.value);
+      query.set('sessionID', item.sessionId || '');
+      query.set('Status', item.status || '');
+      query.set('additionalSearch', this.staticSearchStr || '');
+      query.set('searchTypeString', this.transUserFlds || '');
+      query.set('openDetails', 'true');
+      const targetUrl = `${normalizedBase}/transaction/transaction-details?${query.toString()}`;
+      console.log("Details in new tab URL: " + targetUrl);
+      const newTab = window.open(targetUrl, '_blank');
       if (newTab) {
         newTab.opener = null;
       }
