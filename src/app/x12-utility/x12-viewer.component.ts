@@ -71,6 +71,9 @@ export class X12ViewerComponent {
   selectedElementName = signal<string>('');
   selectedLoop = signal<string>('');
   highlightedLine = signal<number | null>(null);
+  claimJumpTarget = signal<string>('');
+  claimIdJumpTarget = signal<string>('');
+  claimJumpMessage = signal<string>('');
 
   private readonly commonLoopDescriptions: Record<string, string> = {
     '1000A': 'Submitter Name',
@@ -186,6 +189,18 @@ export class X12ViewerComponent {
 
   get validationPreviewCount(): number {
     return 3;
+  }
+
+  get isClaimJumpSupported(): boolean {
+    const tx = this.detectedTransactionType.toUpperCase();
+    return tx === '835' || tx.startsWith('837');
+  }
+
+  get claimSegmentTag(): string {
+    const tx = this.detectedTransactionType.toUpperCase();
+    if (tx === '835') return 'CLP';
+    if (tx.startsWith('837')) return 'CLM';
+    return '';
   }
 
   constructor(
@@ -393,6 +408,51 @@ export class X12ViewerComponent {
     return data.segments.filter(s => s.tag.includes(f) || s.raw.toUpperCase().includes(f));
   });
 
+  claimLineNumbers = computed(() => {
+    const data = this.x12();
+    const claimTag = this.claimSegmentTag;
+    if (!data || !claimTag) return [] as number[];
+    return data.segments
+      .filter((segment) => segment.tag === claimTag)
+      .map((segment) => segment.index + 1);
+  });
+
+  claimNumberByLine = computed(() => {
+    const data = this.x12();
+    if (!data) return new Map<number, number>();
+
+    const claimTags = new Set(['CLM', 'CLP']);
+    const map = new Map<number, number>();
+    let claimNumber = 0;
+
+    data.segments.forEach((segment) => {
+      if (!claimTags.has(segment.tag)) return;
+      claimNumber += 1;
+      map.set(segment.index + 1, claimNumber);
+    });
+
+    return map;
+  });
+
+  claimIdEntries = computed(() => {
+    const data = this.x12();
+    const claimTag = this.claimSegmentTag;
+    if (!data || !claimTag) return [] as Array<{ claimNumber: number; line: number; claimId: string }>;
+
+    let claimNumber = 0;
+    return data.segments
+      .filter((segment) => segment.tag === claimTag)
+      .map((segment) => {
+        claimNumber += 1;
+        return {
+          claimNumber,
+          line: segment.index + 1,
+          claimId: String(segment.elements?.[0] || '').trim()
+        };
+      })
+      .filter((entry) => !!entry.claimId);
+  });
+
   pagedFiltered = computed(() => {
     const rows = this.filtered();
     const size = this.pageSize();
@@ -499,6 +559,14 @@ export class X12ViewerComponent {
     return !!detectedTag && tag === detectedTag;
   }
 
+  getSegmentTagHoverText(tag: string, lineNumber: number): string {
+    const claimNumber = this.claimNumberByLine().get(lineNumber);
+    if ((tag === 'CLM' || tag === 'CLP') && claimNumber) {
+      return `Claim #${claimNumber}`;
+    }
+    return tag;
+  }
+
   getLoopDescription(loop?: string): string {
     const normalizedLoop = (loop || '').trim().toUpperCase();
     if (!normalizedLoop) return '';
@@ -555,6 +623,87 @@ export class X12ViewerComponent {
     const data = this.x12();
     if (!data) return 0;
     return data.segments.filter((segment) => segment.tag === 'ST').length;
+  }
+
+  jumpToClaimNumber(): void {
+    this.claimJumpMessage.set('');
+
+    if (!this.isClaimJumpSupported) return;
+
+    const claimNumber = Number(this.claimJumpTarget().trim());
+    if (!Number.isFinite(claimNumber) || claimNumber < 1 || !Number.isInteger(claimNumber)) {
+      this.claimJumpMessage.set('Enter a valid claim number.');
+      return;
+    }
+
+    const lines = this.claimLineNumbers();
+    if (claimNumber > lines.length) {
+      this.claimJumpMessage.set(`Claim # out of range (1-${lines.length}).`);
+      return;
+    }
+
+    const targetLine = lines[claimNumber - 1];
+    this.focusLine(targetLine);
+  }
+
+  onClaimNumberInputChange(value: unknown): void {
+    this.claimJumpMessage.set('');
+
+    const text = String(value ?? '').trim();
+    if (!text) {
+      this.claimJumpTarget.set('');
+      return;
+    }
+
+    const digitsOnly = text.replace(/\D/g, '');
+    if (!digitsOnly) {
+      this.claimJumpTarget.set('');
+      return;
+    }
+
+    const maxClaims = this.claimLineNumbers().length;
+    const parsed = Number(digitsOnly);
+    if (!Number.isFinite(parsed)) {
+      this.claimJumpTarget.set('');
+      return;
+    }
+
+    const clamped = Math.max(1, maxClaims > 0 ? Math.min(parsed, maxClaims) : parsed);
+    if (maxClaims > 0 && parsed > maxClaims) {
+      this.claimJumpMessage.set('Max claim number is ' + maxClaims + '.');
+    }
+
+    this.claimJumpTarget.set(String(clamped));
+  }
+
+  jumpToClaimId(): void {
+    this.claimJumpMessage.set('');
+
+    if (!this.isClaimJumpSupported) return;
+
+    const targetClaimId = this.claimIdJumpTarget().trim();
+    if (!targetClaimId) {
+      this.claimJumpMessage.set('Enter a claim ID value.');
+      return;
+    }
+
+    const normalizedTarget = targetClaimId.toUpperCase();
+    const entries = this.claimIdEntries();
+    const exactMatches = entries.filter((entry) => entry.claimId.toUpperCase() === normalizedTarget);
+    const matches = exactMatches.length > 0
+      ? exactMatches
+      : entries.filter((entry) => entry.claimId.toUpperCase().includes(normalizedTarget));
+
+    if (matches.length === 0) {
+      this.claimJumpMessage.set(`Claim ID not found: ${targetClaimId}`);
+      return;
+    }
+
+    this.focusLine(matches[0].line);
+
+    if (matches.length > 1) {
+      this.claimJumpMessage.set(`Multiple matches for ${targetClaimId}; jumped to first (claim #${matches[0].claimNumber}).`);
+    }
   }
 
   get selectedFieldLabel(): string {
@@ -704,6 +853,12 @@ export class X12ViewerComponent {
     const lineNumber = Number(line);
     if (!Number.isFinite(lineNumber) || lineNumber < 1) return;
 
+    this.focusLine(lineNumber);
+  }
+
+  private focusLine(lineNumber: number): void {
+    this.claimJumpMessage.set('');
+
     const data = this.x12();
     if (!data) return;
 
@@ -745,6 +900,9 @@ export class X12ViewerComponent {
     this.error.set('');
     this.validationErrorsExpanded.set(false);
     this.highlightedLine.set(null);
+    this.claimJumpTarget.set('');
+    this.claimIdJumpTarget.set('');
+    this.claimJumpMessage.set('');
     this.filter.set('');
     this.fileSizeBytes.set(0);
   }
@@ -763,6 +921,9 @@ export class X12ViewerComponent {
     this.error.set('');
     this.validationErrorsExpanded.set(false);
     this.highlightedLine.set(null);
+    this.claimJumpTarget.set('');
+    this.claimIdJumpTarget.set('');
+    this.claimJumpMessage.set('');
     const file = input.files[0];
     this.fileName.set(file.name);
     this.fileSizeBytes.set(file.size || 0);
@@ -779,6 +940,7 @@ export class X12ViewerComponent {
       this.selectedElementValue.set('');
       this.selectedElementName.set('');
       this.selectedLoop.set('');
+      this.claimIdJumpTarget.set('');
     };
     reader.readAsText(file);
   }

@@ -79,10 +79,35 @@
 
   <div class="panel" *ngIf="x12()">
     <div class="row" style="margin-bottom:12px;">
+      <span class="muted">{{ pageRangeLabel() }}</span>
       <select class="search" style="width:110px" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
         <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}/page</option>
       </select>
-      <span class="muted">{{ pageRangeLabel() }}</span>
+      <ng-container *ngIf="isClaimJumpSupported && claimLineNumbers().length > 0">
+        <input
+          class="search"
+          style="width:120px"
+          type="number"
+          min="1"
+          [max]="claimLineNumbers().length"
+          placeholder="Claim #"
+          [ngModel]="claimJumpTarget()"
+          (ngModelChange)="onClaimNumberInputChange($event)"
+          (keydown.enter)="jumpToClaimNumber()"
+        />
+        <button class="btn" (click)="jumpToClaimNumber()">Jump</button>
+        <input
+          class="search"
+          style="width:170px"
+          type="text"
+          placeholder="Claim ID"
+          [ngModel]="claimIdJumpTarget()"
+          (ngModelChange)="claimIdJumpTarget.set(($event ?? '').toString())"
+          (keydown.enter)="jumpToClaimId()"
+        />
+        <button class="btn" (click)="jumpToClaimId()">Jump ID</button>
+      </ng-container>
+      <span class="muted" *ngIf="claimJumpMessage()">{{ claimJumpMessage() }}</span>
     </div>
     <div class="table-shell" #dataTableContainer>
     <table class="mono data-table">
@@ -90,7 +115,7 @@
       <tbody>
         <tr *ngFor="let s of pagedFiltered(); let i = index" [class.validation-line-highlight]="isHighlightedSegmentLine(s.index + 1)">
           <td>{{ s.index + 1 }}</td>
-          <td><span class="tag" [class.detected-count-tag]="isDetectedCountSegment(s.tag)">{{ s.tag }}</span></td>
+          <td><span class="tag" [class.detected-count-tag]="isDetectedCountSegment(s.tag)" [title]="getSegmentTagHoverText(s.tag, s.index + 1)">{{ s.tag }}</span></td>
           <td [attr.title]="getLoopDescription(s.loop)">{{ s.loop || '—' }}</td>
           <td>
             <span *ngFor="let e of s.elements; let j = index">
