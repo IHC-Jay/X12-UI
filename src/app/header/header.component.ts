@@ -507,6 +507,12 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
         return;
       }
 
+      const currentPath = (this.router.url || '').split('?')[0];
+      if (selectedLink.link && (currentPath === selectedLink.link || currentPath.startsWith(`${selectedLink.link}/`))) {
+        this.prevLnkIndex = this.selectedLnkIndex.value;
+        return;
+      }
+
       if (selectedLink.name === 'Work Flow')
       {
           let numItems = this.NumAssignedItems

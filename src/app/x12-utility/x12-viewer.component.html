@@ -108,7 +108,7 @@
 
       <div class="row" style="margin-left:auto; gap:8px; min-width:0; flex:0 1 auto;">
         <span class="muted">{{ pageRangeLabel() }}</span>
-        <select class="search" style="width:90px" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
+        <select class="search" style="width:100px" [ngModel]="pageSize()" (ngModelChange)="onPageSizeChange($event)">
           <option *ngFor="let size of pageSizeOptions" [ngValue]="size">{{ size }}/page</option>
         </select>
       </div>

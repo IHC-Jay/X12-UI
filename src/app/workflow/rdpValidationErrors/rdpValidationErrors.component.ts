@@ -174,16 +174,17 @@ export class RdpValidationErrorsComponent implements OnInit {
    * Handle initialization when sessionID is present in query params.
    */
   private handleSessionIdParams(searchParams: any) {
+    this.ID = '' + (searchParams['ID'] || '');
     this.sessionID = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'] || '';
     this.TransactionType = searchParams['TransactionType'];
     this.wfStatus = searchParams['Status'] || searchParams['status'] || this.wfStatus;
     if (this.form?.controls?.statusType && this.wfStatus) {
       this.form.controls.statusType.setValue(this.wfStatus);
     }
-    console.log("sessionID query sessionID provided!" + this.sessionID + ", FileName: " + searchParams['searchParams'] + ", TransactionType: " + this.TransactionType);
+    console.log("sessionID query sessionID provided!" + this.sessionID + ", WF ID: " + this.ID + ", FileName: " + searchParams['searchParams'] + ", TransactionType: " + this.TransactionType);
     this.fileName = searchParams['searchParams'];
     this.wfMode = searchParams['mode'];
-    this.getX12('ID=&SessionID=' + this.sessionID);
+    this.getX12();
   }
 
   /**

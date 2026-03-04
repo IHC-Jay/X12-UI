@@ -1036,9 +1036,15 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
       console.log('Item: ' + item.ID + ", " + item.sessionId);
       this.storageService.removeItem("currentTab");
       this.storageService.setItem("currentTab", "Work Flow");
-      const url = this.router.serializeUrl(this.router.createUrlTree([`${environment.org}` + "/workflow/rdpValidationErrors/"],
-        { queryParams: { sessionID: (item.sessionId), Status: item.status, mode: this.formFields.mode, TransactionType: this.formFields.currentTransType } }
-      ));
+      const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
+      const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
+      const query = new URLSearchParams();
+      query.set('ID', String(item.ID));
+      query.set('sessionID', item.sessionId || '');
+      query.set('Status', item.status || '');
+      query.set('mode', this.formFields.mode || '');
+      query.set('TransactionType', this.formFields.currentTransType || '');
+      const url = `${normalizedBase}/workflow/rdpValidationErrors?${query.toString()}`;
       console.log("Details in new tab URL: " + url);
       const newTab = window.open(url, '_blank');
       if (newTab) {
