@@ -22,9 +22,12 @@
     <div *ngIf="error() || result()" class="mono" style="margin-top:10px;">
       RDPCrystal Validation Result:
       <ng-container *ngIf="result() as r">
-        <ng-container *ngIf="!(r.isValid && (r.totalErrors ?? (r.errors?.length || 0)) === 0 && r.rawMessage)">
+        <ng-container *ngIf="!(r.isValid && (r.totalErrors ?? (r.errors?.length || 0)) === 0 && r.rawMessage); else showOk">
            Overall: <b [style.color]="!r.isValid ? '#ef4444' : '#fff'">{{ r.isValid ? 'VALID' : 'INVALID' }}</b>, Total Errors: <b>{{ r.totalErrors ?? (r.errors?.length || 0) }}</b>
         </ng-container>
+        <ng-template #showOk>
+          <b style="color:#fff;">OK</b>
+        </ng-template>
       </ng-container>
     </div>
   </div>

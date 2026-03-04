@@ -52,7 +52,8 @@ const appRoutes: Routes = [
   {path: 'workflow', component: WorkflowComponent, canActivate: [AuthGuard] , title: 'WorkFlow'},
   {path: 'summary', component: SummaryComponent, canActivate: [AuthGuard] , title: 'Transmissions'},
   {path: 'dashboard', component: DashBoardComponent, canActivate: [AuthGuard], title: 'Dashboard'},
-  {path: 'workflow/workflowDetails', component: RdpValidationErrorsComponent, canActivate: [AuthGuard] , title: 'WF Details'},
+  {path: 'workflow/workflowDetails', component: WorkflowDetailsComponent, canActivate: [AuthGuard] , title: 'WF Details'},
+  {path: 'workflow/rdpValidationErrors', component: RdpValidationErrorsComponent, canActivate: [AuthGuard] , title: 'RDP Validation'},
   {path: 'workflow/workflowHistory', component: WorkflowHistoryComponent, canActivate: [AuthGuard], title: 'WF History'}
 ];
 

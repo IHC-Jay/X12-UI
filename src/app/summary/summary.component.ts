@@ -893,7 +893,7 @@ handleContextMenu(item: Item, menu: string)  {
       this.storage.removeItem("currentTab");
       this.storage.setItem("currentTab", "Work Flow");
 
-      const url = this.router.serializeUrl(this.router.createUrlTree(["/workflow/workflowDetails/"],
+      const url = this.router.serializeUrl(this.router.createUrlTree(["/workflow/rdpValidationErrors/"],
         {queryParams: { sessionID:  (item.sessionId), Status: item.status, mode:  this.formFields.mode, TransactionType: this.formFields.currentTransType} }
       ));
       console.log("Open in new tab URL: " + url);

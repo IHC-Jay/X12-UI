@@ -519,7 +519,7 @@ onDetailsClicked(row) {
 
   console.log('Row clicked, ID: ' + row.ID + ", Transaction: " + searchParamsString);
 
- this.router.navigate(["/workflow/workflowDetails/"],
+ this.router.navigate(["/workflow/rdpValidationErrors/"],
   {queryParams: { ID:  row.ID, TransactionType: row.TransactionType, searchParams:  searchParamsString } }
    );
 

@@ -21,7 +21,7 @@ import { Console } from 'node:console';
 import { downloadTextFile } from '../../utils/file-download.util';
 
 @Component({
-    selector: 'app-workflowDetails',
+    selector: 'app-rdp-validation-errors',
     templateUrl: './rdpValidationErrors.component.html',
     styleUrls: ['./rdpValidationErrors.component.css'],
     standalone: false
