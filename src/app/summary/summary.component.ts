@@ -22,7 +22,7 @@ import {MatFormFieldModule} from '@angular/material/form-field';
 import { MatMenu, MatMenuTrigger } from '@angular/material/menu';
 import { MatSelect, MatSelectChange } from '@angular/material/select';
 import { MatFormField } from '@angular/material/form-field';
-import { from, catchError, concatMap, forkJoin, toArray, Subscription } from 'rxjs';
+import { catchError, Subscription } from 'rxjs';
 
 import { MatDialog } from '@angular/material/dialog';
 import { DialogRef } from '@angular/cdk/dialog';
@@ -915,13 +915,9 @@ handleContextMenu(item: Item, menu: string)  {
    }
 }
 
-private openInX12Viewer(x12Text: string, fileName: string, sessionId?: string, status?: string): void {
+private openInX12Viewer(fileName: string, sessionId?: string, status?: string, x12DataId?: string): void {
   this.storage.removeItem('x12ViewerSeed');
-  this.storage.setItem('x12ViewerSeed', {
-    text: x12Text,
-    fileName
-  });
-  localStorage.setItem('x12ViewerSeed', JSON.stringify({ text: x12Text, fileName }));
+  localStorage.removeItem('x12ViewerSeed');
   this.storage.removeItem('currentTab');
   this.storage.setItem('currentTab', 'Utilities');
   const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
@@ -938,6 +934,15 @@ private openInX12Viewer(x12Text: string, fileName: string, sessionId?: string, s
   }
   if (this.formFields?.currentTransType) {
     query.set('TransactionType', this.formFields.currentTransType);
+  }
+  if (x12DataId) {
+    query.set('x12DataId', x12DataId);
+  }
+  if (this.form?.controls?.mode?.value) {
+    query.set('searchTypeString', this.form.controls.mode.value);
+  }
+  if (fileName) {
+    query.set('FileName', fileName);
   }
   const queryString = query.toString();
   const targetUrl = `${normalizedBase}/x12-viewer${queryString ? '?' + queryString : ''}`;
@@ -981,11 +986,11 @@ onContextMenuNew(item: Item) {
     const relativeUrl = this.router.serializeUrl(this.router.createUrlTree(["/transaction/"],
       {queryParams: { ID: item.rowId, 'additionalSearch': additionalsearchString } }
     ));
-    
+
     // Get base href to construct absolute URL for window.open
     const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
     const absoluteUrl = window.location.origin + baseHref.replace(/\/$/, '') + relativeUrl;
-    
+
     const newTab = window.open(absoluteUrl, '_blank');
     if(newTab) {
         newTab.opener = null;
@@ -1008,7 +1013,7 @@ onContextMenuSame(item: Item) {
    let additionalsearchString = "FileName='"+item.FileName +"'";
 
    this.sumUserFlds += ";sameWindow::true";
-   
+
    // Store complex parameters in localStorage for same-window navigation too
    localStorage.setItem('transactionNavData', JSON.stringify({
      transConfig: jsonString,
@@ -1017,7 +1022,7 @@ onContextMenuSame(item: Item) {
      additionalSearch: additionalsearchString,
      sumUserFlds: this.sumUserFlds
    }));
-   
+
    // Navigate with minimal URL params (ID and essential filters only)
    this.router.navigate(["/transaction"],
       {queryParams: { ID: item.rowId, 'additionalSearch': additionalsearchString } }
@@ -1028,94 +1033,8 @@ onContextMenuSame(item: Item) {
   openX12Modal(item: Item) {
 
     console.info("openX12Modal: " + item.rowId + ", " + this.formFields.currentTransType +", " + this.form.controls.mode.value);
-
-    this.SummaryService.fetchParentRecord(item.rowId.toString(), this.formFields.currentTransType, this.form.controls.mode.value).subscribe((res: any) =>
-      {
-      this.canRenderDetails = true;
-      let val = ""
-
-      if(res === "No data")
-      {
-        let param: string[] = [ "Not found", ""];
-        const dialogRef = this.dialog.open(Modalx12Component, {
-          width: '1700px',
-          data: param
-        });
-      }
-
-      else if (res.x12Data !== undefined && res.x12Data.indexOf('stored as a Stream') >= 0)
-      {
-            var stPos = 1;
-            var moreData = 1;
-            let letter = "";
-            var maxSize = 3000000;
-            var productIds: number[] = [0,1,2,3,4,5,6,7,8,9,10];
-
-            from(productIds).pipe(
-               concatMap(id =>  this.SummaryService.fetchX12Stream(item.rowId.toString(), this.formFields.currentTransType,
-                this.form.controls.mode.value, id * maxSize + 1)), toArray()).subscribe(
-                {next: (res: any) =>
-              {
-                console.info("Sequential calls completed. Total parts: " + res.length);
-                var totSize = 0;
-                for (let i = 0; i < res.length; i++) {
-                  console.info("Part " + i + ": " + res[i][0].startPos + ", " + res[i][0].x12Len + " more: "  + res[i][0].moreData);
-                  if (res[i][0].moreData > 0){
-                    totSize += res[i][0].x12Len;
-                    val = val + res[i][0].x12Data;
-                  }
-                  else if (res[i][0].x12Len > 0){
-                    totSize += res[i][0].x12Len;
-                    val = val + res[i][0].x12Data;
-                  }
-                  else
-                  {
-                    break;
-                  }
-
-
-                }
-                console.info(" Final X12 length: " + totSize);
-                val = val.replaceAll("~", "~\n")
-              }, error: (error) => {
-                  console.error('An error occurred:', error);
-                },
-                complete: () => {
-                  console.log('All sequential calls completed.' );
-                    if(val !== "")
-                    {
-                      this.openInX12Viewer(val, item.FileName, item.sessionId, item.status);
-
-                    }
-
-                }
-              }) ;
-
-      }
-      else if (res.x12Data !== undefined && res.x12Data.length > 0 )
-      {
-        if (res.x12Data.length > 105)
-        {
-           let letter = res.x12Data.charAt(105);
-
-           val = res.x12Data.replaceAll(letter, letter + "\n" )
-            console.info("Split X12 with: " + letter);
-         }
-         else
-         {
-           val = res.x12Data
-         }
-      }
-      else{
-          val = res.x12Data.replaceAll("~", "~\n")
-        }
-
-      if(val !== "")
-      {
-        this.openInX12Viewer(val, item.FileName, item.sessionId, item.status);
-
-      }
-    });
+    this.canRenderDetails = true;
+    this.openInX12Viewer(item.FileName, item.sessionId, item.status, item.rowId?.toString());
 
   }
 

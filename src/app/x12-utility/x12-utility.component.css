@@ -41,3 +41,4 @@ th{position:sticky;top:0;background:#0f172a}
 .validation-errors-tray{margin-top:8px;max-width:100%}
 .validation-errors-tray.expanded{max-height:220px;overflow:auto}
 .validation-result-title{font-size:16px;font-weight:600;margin:0 0 8px}
+.x12-load-status{color:#facc15;font-size:18px;font-weight:700;margin-bottom:6px}

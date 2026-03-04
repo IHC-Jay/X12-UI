@@ -10,7 +10,6 @@ import { MatDialog } from '@angular/material/dialog';
 import { Modalx12Component } from './modal/modal-x12.component';
 import { DialogRef } from '@angular/cdk/dialog';
 import { StorageService } from '../../services/storage.service';
-import { from, concatMap, toArray } from 'rxjs';
 
 @Component({
     selector: 'app-transaction-details',
@@ -196,13 +195,9 @@ export class TransactionDetailComponent {
   openX12Modal(): void {
     console.info("openX12Modal: " + this.X12DataParentId + ", " + this.transaction);
 
-    const openInX12Viewer = (x12Text: string, fileName: string) => {
+    const openInX12Viewer = (fileName: string) => {
       this.storage.removeItem('x12ViewerSeed');
-      this.storage.setItem('x12ViewerSeed', {
-        text: x12Text,
-        fileName
-      });
-      localStorage.setItem('x12ViewerSeed', JSON.stringify({ text: x12Text, fileName }));
+      localStorage.removeItem('x12ViewerSeed');
       this.storage.removeItem('currentTab');
       this.storage.setItem('currentTab', 'Utilities');
       const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
@@ -220,6 +215,15 @@ export class TransactionDetailComponent {
       if (this.transaction) {
         query.set('TransactionType', this.transaction);
       }
+      if (this.X12DataParentId) {
+        query.set('x12DataId', this.X12DataParentId);
+      }
+      if (this.searchTypeString) {
+        query.set('searchTypeString', this.searchTypeString);
+      }
+      if (fileName) {
+        query.set('FileName', fileName);
+      }
       const queryString = query.toString();
       const targetUrl = `${normalizedBase}/x12-viewer${queryString ? '?' + queryString : ''}`;
       const newTab = window.open(targetUrl, '_blank');
@@ -228,70 +232,8 @@ export class TransactionDetailComponent {
       }
     };
 
-    this.TransactionService.fetchParentRecord(this.X12DataParentId, this.transaction, this.searchTypeString).subscribe((res: any) => {
-      this.canRenderDetails = true;
-      let val = "";
-
-      if (res === "No data") {
-        openInX12Viewer("Not found", this.fileName || "X12.txt");
-        return;
-      }
-
-      if (res.x12Data !== undefined && res.x12Data.indexOf('stored as a Stream') >= 0) {
-        const maxSize = 3000000;
-        const productIds: number[] = [0,1,2,3,4,5,6,7,8,9,10];
-
-        from(productIds)
-          .pipe(
-            concatMap(id => this.TransactionService.fetchX12Stream(this.X12DataParentId, this.transaction, this.searchTypeString, id * maxSize + 1)),
-            toArray()
-          )
-          .subscribe({
-            next: (parts: any) => {
-              console.info("Sequential calls completed. Total parts: " + parts.length);
-              for (let i = 0; i < parts.length; i++) {
-                if (!parts[i] || !parts[i][0]) {
-                  break;
-                }
-                const part = parts[i][0];
-                console.info("Part " + i + ": " + part.startPos + ", " + part.x12Len + " more: " + part.moreData);
-                if (part.moreData > 0 || part.x12Len > 0) {
-                  val += part.x12Data;
-                } else {
-                  break;
-                }
-              }
-              val = val.replaceAll("~", "~\n");
-            },
-            error: (error) => {
-              console.error('An error occurred:', error);
-            },
-            complete: () => {
-              if (val !== "") {
-                openInX12Viewer(val, this.fileName || 'X12.txt');
-              }
-            }
-          });
-
-        return;
-      }
-
-      if (res.x12Data !== undefined && res.x12Data.length > 0) {
-        if (res.x12Data.length > 105) {
-          const letter = res.x12Data.charAt(105);
-          val = res.x12Data.replaceAll(letter, letter + "\n");
-          console.info("Split X12 with: " + letter);
-        } else {
-          val = res.x12Data;
-        }
-      } else {
-        val = res.x12Data.replaceAll("~", "~\n");
-      }
-
-      if (val !== "") {
-        openInX12Viewer(val, this.fileName || 'X12.txt');
-      }
-    });
+    this.canRenderDetails = true;
+    openInX12Viewer(this.fileName || 'X12.txt');
 
   }
 

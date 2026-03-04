@@ -3,12 +3,15 @@ import { Component, signal, computed, ViewChild, ElementRef } from '@angular/cor
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute } from '@angular/router';
+import { from } from 'rxjs';
+import { concatMap, toArray } from 'rxjs/operators';
 import { parseX12, X12File } from './x12.service';
 import { ValidatorService, ValidationError, ValidationResult } from './validator.service';
 import { SEGMENT_LIBRARY } from './lookups';
 import { KvLookupService } from './kv-lookup.service';
 import { StorageService } from '../services/storage.service';
 import { WfRestServiceComponent } from '../services/wfrest-service.component';
+import { TransRestServiceComponent } from '../services/transrest-service.component';
 import { downloadTextFile } from '../utils/file-download.util';
 @Component({ selector:'app-x12-viewer', standalone:true, imports:[CommonModule, FormsModule], templateUrl:'./x12-viewer.component.html', styleUrls:['./x12-utility.component.css'] })
 export class X12ViewerComponent {
@@ -33,6 +36,8 @@ export class X12ViewerComponent {
         result = signal<ValidationResult | null>(null);
         error = signal<string>('');
         validationErrorsExpanded = signal<boolean>(false);
+        x12LoadInProgress = signal<boolean>(false);
+        x12LoadStatus = signal<string>('');
 
         validate() {
           const data = this.x12();
@@ -208,10 +213,139 @@ export class X12ViewerComponent {
     private kvLookup: KvLookupService,
     private storage: StorageService,
     private route: ActivatedRoute,
-    private wfService: WfRestServiceComponent
+    private wfService: WfRestServiceComponent,
+    private transService: TransRestServiceComponent
   ) {
     void this.kvLookup.preload();
-    this.loadSeedData();
+    const loadedFromSeed = this.loadSeedData();
+    if (loadedFromSeed) {
+      this.loadWorkflowErrorsFromQueryParams();
+    } else {
+      this.loadX12FromQueryParams();
+    }
+  }
+
+  private loadX12FromQueryParams(): void {
+    const queryMap = this.route.snapshot.queryParamMap;
+    const x12DataId = queryMap.get('x12DataId') || queryMap.get('X12DataId') || queryMap.get('id') || '';
+    const transactionType = queryMap.get('TransactionType') || '';
+    const searchTypeString = queryMap.get('searchTypeString') || queryMap.get('mode') || '';
+    const fileName = queryMap.get('FileName') || queryMap.get('fileName') || 'Transmission-X12.txt';
+
+    if (!x12DataId || !transactionType || !searchTypeString) {
+      this.hideActions.set(false);
+      return;
+    }
+
+    this.hideActions.set(true);
+    this.validating.set(true);
+    this.error.set('');
+    this.x12LoadInProgress.set(true);
+    this.x12LoadStatus.set('Loading X12 header...');
+
+    this.transService.fetchParentRecord(x12DataId, transactionType, searchTypeString).subscribe({
+      next: (res: any) => {
+        if (res === 'No data' || !res) {
+          this.error.set('No X12 data found.');
+          this.validating.set(false);
+          this.x12LoadInProgress.set(false);
+          this.x12LoadStatus.set('');
+          this.hideActions.set(false);
+          return;
+        }
+
+        const x12Data = String(res?.x12Data || '');
+        if (x12Data.indexOf('stored as a Stream') >= 0) {
+          this.x12LoadStatus.set('Loading streamed X12 chunks...');
+          this.fetchStreamedX12(x12DataId, transactionType, searchTypeString, fileName);
+          return;
+        }
+
+        this.applyLoadedX12Text(this.normalizeX12ForDisplay(x12Data), fileName);
+      },
+      error: (err) => {
+        this.error.set('Failed to load X12: ' + (err?.message || 'Unknown error'));
+        this.validating.set(false);
+        this.x12LoadInProgress.set(false);
+        this.x12LoadStatus.set('');
+        this.hideActions.set(false);
+      }
+    });
+  }
+
+  private fetchStreamedX12(x12DataId: string, transactionType: string, searchTypeString: string, fileName: string): void {
+    const maxSize = 3000000;
+    const chunkIndexes: number[] = [0,1,2,3,4,5,6,7,8,9,10];
+
+    from(chunkIndexes)
+      .pipe(
+        concatMap((id, index) => {
+          this.x12LoadStatus.set('Loading X12 chunk ' + (index + 1) + ' of ' + chunkIndexes.length + '...');
+          return this.transService.fetchX12Stream(x12DataId, transactionType, searchTypeString, id * maxSize + 1);
+        }),
+        toArray()
+      )
+      .subscribe({
+        next: (parts: any[]) => {
+          let combined = '';
+          for (let i = 0; i < parts.length; i++) {
+            if (!parts[i] || !parts[i][0]) break;
+            const part = parts[i][0];
+            if (part.moreData > 0 || part.x12Len > 0) {
+              combined += String(part.x12Data || '');
+            } else {
+              break;
+            }
+          }
+
+          if (!combined) {
+            this.error.set('No streamed X12 data found.');
+            this.validating.set(false);
+            this.x12LoadInProgress.set(false);
+            this.x12LoadStatus.set('');
+            this.hideActions.set(false);
+            return;
+          }
+
+          this.applyLoadedX12Text(this.normalizeX12ForDisplay(combined), fileName);
+        },
+        error: (err) => {
+          this.error.set('Failed to stream X12: ' + (err?.message || 'Unknown error'));
+          this.validating.set(false);
+          this.x12LoadInProgress.set(false);
+          this.x12LoadStatus.set('');
+          this.hideActions.set(false);
+        }
+      });
+  }
+
+  private normalizeX12ForDisplay(text: string): string {
+    return String(text || '').replaceAll('~', '~\n');
+  }
+
+  private applyLoadedX12Text(text: string, fileName: string): void {
+    this.validating.set(false);
+    this.x12LoadInProgress.set(false);
+    this.x12LoadStatus.set('');
+    this.error.set('');
+    this.validationErrorsExpanded.set(false);
+    this.highlightedLine.set(null);
+    this.filter.set('');
+    this.selectedSegmentTag.set('');
+    this.selectedElementPosition.set(0);
+    this.selectedElementValue.set('');
+    this.selectedElementName.set('');
+    this.selectedLoop.set('');
+    this.page.set(1);
+    this.claimJumpTarget.set('');
+    this.claimIdJumpTarget.set('');
+    this.claimJumpMessage.set('');
+
+    this.fileName.set(fileName || 'Transmission-X12.txt');
+    this.fileSizeBytes.set(text.length || 0);
+    this.originalText.set(text);
+    this.x12.set(parseX12(text));
+
     this.loadWorkflowErrorsFromQueryParams();
   }
 
@@ -357,7 +491,7 @@ export class X12ViewerComponent {
     return parts.join(', ');
   }
 
-  private loadSeedData(): void {
+  private loadSeedData(): boolean {
     let seed = this.storage.getItem<{ text?: string; fileName?: string }>('x12ViewerSeed');
     if (!seed?.text) {
       const fallback = localStorage.getItem('x12ViewerSeed');
@@ -372,7 +506,7 @@ export class X12ViewerComponent {
 
     if (!seed?.text) {
       this.hideActions.set(false);
-      return;
+      return false;
     }
 
     this.hideActions.set(true);
@@ -398,6 +532,7 @@ export class X12ViewerComponent {
 
     this.storage.removeItem('x12ViewerSeed');
     localStorage.removeItem('x12ViewerSeed');
+    return true;
   }
 
   filtered = computed(() => {
