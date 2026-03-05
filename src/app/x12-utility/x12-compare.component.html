@@ -12,8 +12,8 @@
     </div>
 
     <ng-container *ngIf="compareMode">
-      <input #leftFileInput type="file" accept=".edi,.x12,.txt" (change)="onLeftFileSelected($event)" style="display:none" />
-      <input #rightFileInput type="file" accept=".edi,.x12,.txt" (change)="onRightFileSelected($event)" style="display:none" />
+      <input #leftFileInput type="file" accept=".edi,.x12,.txt,.270,.271,.276,.277,.835,.837,.997,.999" (change)="onLeftFileSelected($event)" style="display:none" />
+      <input #rightFileInput type="file" accept=".edi,.x12,.txt,.270,.271,.276,.277,.835,.837,.997,.999" (change)="onRightFileSelected($event)" style="display:none" />
       <input #leftFolderInput type="file" webkitdirectory (change)="onLeftFolderSelected($event)" style="display:none" />
       <input #rightFolderInput type="file" webkitdirectory (change)="onRightFolderSelected($event)" style="display:none" />
       
@@ -104,46 +104,48 @@
       <span class="muted">{{ pageRangeLabel() }}</span>
     </div>
 
-    <table class="mono">
-      <thead><tr><th style="width:47%">{{ getLeftContextName() }}</th><th style="width:47%">{{ getRightContextName() }}</th><th style="width:6%">Detail</th></tr></thead>
-      <tbody>
-        <tr *ngFor="let r of pagedResults()">
-          <td>
-            <div style="margin-bottom:6px;"><b>{{ r.leftName }}</b> <span [class.ok]="r.identical" [class.bad]="!r.identical">{{ r.identical ? '✓' : '✗' }}</span></div>
-            <div *ngIf="r.identical">—</div>
-            <div *ngIf="!r.identical">
-              <div *ngFor="let d of r.firstThreeDiffs">
-                <div class="row" style="gap:8px; align-items:flex-start; margin-bottom:4px;">
-                  <div class="muted" style="min-width:52px;">#{{ d.index }}</div>
-                  <div class="mono preview-line">
-                    <ng-container *ngFor="let t of getDiffTokens(d, 'left'); let i = index">
-                      <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
-                    </ng-container>
+    <div class="table-shell">
+      <table class="mono data-table">
+        <thead><tr><th style="width:47%">{{ getLeftContextName() }}</th><th style="width:47%">{{ getRightContextName() }}</th><th style="width:6%">Detail</th></tr></thead>
+        <tbody>
+          <tr *ngFor="let r of pagedResults()">
+            <td>
+              <div style="margin-bottom:6px;"><b>{{ r.leftName }}</b> <span [class.ok]="r.identical" [class.bad]="!r.identical">{{ r.identical ? '✓' : '✗' }}</span></div>
+              <div *ngIf="r.identical">—</div>
+              <div *ngIf="!r.identical">
+                <div *ngFor="let d of r.firstThreeDiffs">
+                  <div class="row" style="gap:8px; align-items:flex-start; margin-bottom:4px;">
+                    <div class="muted" style="min-width:52px;">#{{ d.index }}</div>
+                    <div class="mono preview-line">
+                      <ng-container *ngFor="let t of getDiffTokens(d, 'left'); let i = index">
+                        <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+                      </ng-container>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </td>
-          <td>
-            <div style="margin-bottom:6px;"><b>{{ r.rightName }}</b> <span [class.ok]="r.identical" [class.bad]="!r.identical">{{ r.identical ? '✓' : '✗' }}</span></div>
-            <div *ngIf="r.identical">—</div>
-            <div *ngIf="!r.identical">
-              <div *ngFor="let d of r.firstThreeDiffs">
-                <div class="row" style="gap:8px; align-items:flex-start; margin-bottom:4px;">
-                  <div class="muted" style="min-width:52px;">#{{ d.index }}</div>
-                  <div class="mono preview-line">
-                    <ng-container *ngFor="let t of getDiffTokens(d, 'right'); let i = index">
-                      <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
-                    </ng-container>
+            </td>
+            <td>
+              <div style="margin-bottom:6px;"><b>{{ r.rightName }}</b> <span [class.ok]="r.identical" [class.bad]="!r.identical">{{ r.identical ? '✓' : '✗' }}</span></div>
+              <div *ngIf="r.identical">—</div>
+              <div *ngIf="!r.identical">
+                <div *ngFor="let d of r.firstThreeDiffs">
+                  <div class="row" style="gap:8px; align-items:flex-start; margin-bottom:4px;">
+                    <div class="muted" style="min-width:52px;">#{{ d.index }}</div>
+                    <div class="mono preview-line">
+                      <ng-container *ngFor="let t of getDiffTokens(d, 'right'); let i = index">
+                        <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+                      </ng-container>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          </td>
-          <td><button class="btn" *ngIf="!r.identical" (click)="openFullDiff(r)">Detail ({{ r.totalDiffs }})</button></td>
-        </tr>
-      </tbody>
-    </table>
+            </td>
+            <td><button class="btn" *ngIf="!r.identical" (click)="openFullDiff(r)" title="Detail ({{ r.totalDiffs }})">👁️</button></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
 
     <div class="row" style="margin-top:12px; justify-content:flex-end;">
       <button class="btn" (click)="previousPage()" [disabled]="page() <= 1">Previous</button>
