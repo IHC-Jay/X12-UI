@@ -46,7 +46,7 @@ export class WorkflowDetailsComponent implements OnInit {
  // @ViewChild('dataTable') dataTable!: MatTable<any>;
  // @ViewChild('errorTable') errorTable!: MatTable<any>;
 
-  statusTypeString = "";
+
   wfStatus: string = "";
   transTypeStr = '';
   wfMode = '';
@@ -133,7 +133,7 @@ export class WorkflowDetailsComponent implements OnInit {
     this.storageService.removeItem("currentTab");
     this.storageService.setItem("currentTab", "Work Flow");
     this.form = this.formBuilder.group({
-      statusType: ['', Validators.required]
+      statusType: ['Resolved', Validators.required]
     });
     this.form.controls.statusType.setValue(this.statusTypes[0]);
     this.wfStatus = this.statusTypes[0];

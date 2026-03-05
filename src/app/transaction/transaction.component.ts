@@ -1039,7 +1039,7 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
       const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
       const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
       const query = new URLSearchParams();
-      query.set('ID', String(item.ID));
+      query.set('TransId', String(item.ID));
       query.set('sessionID', item.sessionId || '');
       query.set('Status', item.status || '');
       query.set('mode', this.formFields.mode || '');

@@ -896,7 +896,7 @@ handleContextMenu(item: Item, menu: string)  {
       const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
       const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
       const query = new URLSearchParams();
-      query.set('ID', String(item.rowId));
+      query.set('TransId', String(item.rowId));
       query.set('sessionID', item.sessionId || '');
       query.set('Status', item.status || '');
       query.set('mode', this.formFields.mode || '');

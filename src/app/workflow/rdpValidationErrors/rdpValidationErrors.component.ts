@@ -46,7 +46,7 @@ export class RdpValidationErrorsComponent implements OnInit {
  // @ViewChild('dataTable') dataTable!: MatTable<any>;
  // @ViewChild('errorTable') errorTable!: MatTable<any>;
 
-  statusTypeString = "";
+
   wfStatus: string = "";
   transTypeStr = '';
   wfMode = '';
@@ -152,8 +152,8 @@ export class RdpValidationErrorsComponent implements OnInit {
     this.form = this.formBuilder.group({
       statusType: ['', Validators.required]
     });
-    this.form.controls.statusType.setValue(this.statusTypes[0]);
-    this.wfStatus = this.statusTypes[0];
+    this.form.controls.statusType.setValue('Resolved');
+    this.wfStatus = 'Resolved';
   }
 
   /**
@@ -175,6 +175,7 @@ export class RdpValidationErrorsComponent implements OnInit {
    */
   private handleSessionIdParams(searchParams: any) {
     this.ID = '' + (searchParams['ID'] || '');
+    console.log( "ID: " + this.ID +", Transaction ID: "  + searchParams['TransId'] || '');
     this.sessionID = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'] || '';
     this.TransactionType = searchParams['TransactionType'];
     this.wfStatus = searchParams['Status'] || searchParams['status'] || this.wfStatus;
@@ -240,7 +241,7 @@ export class RdpValidationErrorsComponent implements OnInit {
   private buildX12SearchString(): string {
     return (
       "ID=&X12DataId=&SessionID=" + this.sessionID +
-      "&WFID=" + this.ID +
+      "&WFID=" + (this.ID || '') +
       "&TransactionType=" + this.TransactionType
     );
   }
@@ -253,8 +254,18 @@ export class RdpValidationErrorsComponent implements OnInit {
       this.canRenderDetails = true;
       return;
     }
+    
+    // Check for "ID not found" error in X12 field
+    const x12String = String(res[0].X12);
+    if (x12String.includes('ID not found')) {
+      const searchStr = this.buildX12SearchString();
+      this.errorStr = x12String + ', searchStr: ' + searchStr;
+      this.canRenderDetails = true;
+      return;
+    }
+    
     // Parse X12 data and error info
-    const x12DataLns = res[0].X12.split(String(res[0].X12).substr(105, 1));
+    const x12DataLns = x12String.split(String(res[0].X12).substr(105, 1));
     const isDataErrorPayload =
       Array.isArray(res) &&
       res.length > 2 &&
