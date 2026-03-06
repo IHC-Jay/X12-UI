@@ -111,6 +111,10 @@ export class X12CompareComponent {
     return `${start}-${end} of ${total}`;
   });
 
+  countNotEqualDifferences(): number {
+    return this.fullDiffLines().filter(d => d.isDifferent).length;
+  }
+
   clearState(): void {
     this.pairs.set([]);
     this.results.set([]);
@@ -180,8 +184,9 @@ export class X12CompareComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const files = Array.from(input.files);
+      const folderName = this.getSelectedFolderName(files);
       this.leftDir = {
-        name: 'Selected Folder',
+        name: folderName,
         files
       };
       this.savedLeftFolderName = this.leftDir?.name ?? this.savedLeftFolderName;
@@ -193,13 +198,21 @@ export class X12CompareComponent {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       const files = Array.from(input.files);
+      const folderName = this.getSelectedFolderName(files);
       this.rightDir = {
-        name: 'Selected Folder',
+        name: folderName,
         files
       };
       this.savedRightFolderName = this.rightDir?.name ?? this.savedRightFolderName;
     }
     input.value = '';
+  }
+
+  private getSelectedFolderName(files: File[]): string {
+    const sample = files.find(file => !!file.webkitRelativePath) || files[0];
+    const relativePath = sample?.webkitRelativePath || '';
+    const firstSegment = relativePath.split(/[\\/]/).filter(Boolean)[0];
+    return firstSegment || 'Selected Folder';
   }
 
   saveSetup(): void {
@@ -241,7 +254,7 @@ export class X12CompareComponent {
       try {
         const parsed = JSON.parse(txt);
         const mode = parsed?.selectionMode;
-        if (mode === 'one' || mode === 'multiple') {
+        if (!this.compareMode && (mode === 'one' || mode === 'multiple')) {
           this.compareMode = mode;
         }
 

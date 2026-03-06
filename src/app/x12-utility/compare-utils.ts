@@ -42,8 +42,28 @@ export function detectDelimitersFromISA(text: string): X12Delimiters | null {
 
 export function splitSegments(raw: string, segmentSep: string): string[] {
   const byLines = raw.includes('\n') ? raw.split(/\r?\n/) : [raw];
-  const base = byLines.length === 1 ? raw.split(segmentSep) : byLines.flatMap(line => line.split(segmentSep));
-  return base.map(s => s.trim()).filter((s, idx, arr) => !(s === '' && idx === arr.length - 1));
+  const hasMultipleLines = byLines.filter(line => line.trim().length > 0).length > 1;
+  if (hasMultipleLines) {
+    return byLines.filter(line => line.trim().length > 0);
+  }
+
+  const segments: string[] = [];
+  let start = 0;
+
+  while (start < raw.length) {
+    const separatorIndex = raw.indexOf(segmentSep, start);
+    if (separatorIndex === -1) {
+      const tail = raw.substring(start).trim();
+      if (tail) segments.push(tail);
+      break;
+    }
+
+    const segment = raw.substring(start, separatorIndex + segmentSep.length).trim();
+    if (segment) segments.push(segment);
+    start = separatorIndex + segmentSep.length;
+  }
+
+  return segments;
 }
 
 export function normalizeSegments(
@@ -86,7 +106,15 @@ export function normalizeFromRaw(
   elementSep: string,
   ignoreRules: string[]
 ): NormalizedDoc {
-  const segs = splitSegments(raw, segmentSep);
-  const { normalized, raw: rawSegments } = normalizeSegments(segs, elementSep, ignoreRules);
+  const rawSegments = splitSegments(raw, segmentSep);
+  const segmentsForCompare = rawSegments.map((segment) => {
+    const trimmed = segment.trim();
+    if (trimmed.endsWith(segmentSep)) {
+      return trimmed.substring(0, trimmed.length - segmentSep.length).trimEnd();
+    }
+    return trimmed;
+  });
+
+  const { normalized } = normalizeSegments(segmentsForCompare, elementSep, ignoreRules);
   return { segments: normalized, rawSegments };
 }

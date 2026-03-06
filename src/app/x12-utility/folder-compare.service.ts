@@ -174,13 +174,13 @@ export class FolderCompareService {
 
     while (leftIndex < left.length || rightIndex < right.length) {
       if (leftIndex >= left.length) {
-        lines.push({ index: rightIndex, left: null, right: rightRaw[rightIndex] ?? null, isDifferent: true });
+        lines.push({ index: rightIndex + 1, left: null, right: rightRaw[rightIndex] ?? null, isDifferent: true });
         rightIndex++;
         continue;
       }
 
       if (rightIndex >= right.length) {
-        lines.push({ index: leftIndex, left: leftRaw[leftIndex] ?? null, right: null, isDifferent: true });
+        lines.push({ index: leftIndex + 1, left: leftRaw[leftIndex] ?? null, right: null, isDifferent: true });
         leftIndex++;
         continue;
       }
@@ -189,10 +189,22 @@ export class FolderCompareService {
       const rightSeg = right[rightIndex];
       if (leftSeg === rightSeg) {
         lines.push({
-          index: Math.max(leftIndex, rightIndex),
+          index: Math.max(leftIndex, rightIndex) + 1,
           left: leftRaw[leftIndex] ?? null,
           right: rightRaw[rightIndex] ?? null,
           isDifferent: false
+        });
+        leftIndex++;
+        rightIndex++;
+        continue;
+      }
+
+      if (tagOf(leftSeg) && tagOf(leftSeg) === tagOf(rightSeg)) {
+        lines.push({
+          index: Math.max(leftIndex, rightIndex) + 1,
+          left: leftRaw[leftIndex] ?? null,
+          right: rightRaw[rightIndex] ?? null,
+          isDifferent: true
         });
         leftIndex++;
         rightIndex++;
@@ -208,12 +220,12 @@ export class FolderCompareService {
 
         if (skipLeft <= skipRight) {
           while (leftIndex < leftMatchExact) {
-            lines.push({ index: leftIndex, left: leftRaw[leftIndex] ?? null, right: null, isDifferent: true });
+            lines.push({ index: leftIndex + 1, left: leftRaw[leftIndex] ?? null, right: null, isDifferent: true });
             leftIndex++;
           }
         } else {
           while (rightIndex < rightMatchExact) {
-            lines.push({ index: rightIndex, left: null, right: rightRaw[rightIndex] ?? null, isDifferent: true });
+            lines.push({ index: rightIndex + 1, left: null, right: rightRaw[rightIndex] ?? null, isDifferent: true });
             rightIndex++;
           }
         }
@@ -229,12 +241,12 @@ export class FolderCompareService {
 
         if (skipLeft <= skipRight) {
           while (leftIndex < leftMatchTag) {
-            lines.push({ index: leftIndex, left: leftRaw[leftIndex] ?? null, right: null, isDifferent: true });
+            lines.push({ index: leftIndex + 1, left: leftRaw[leftIndex] ?? null, right: null, isDifferent: true });
             leftIndex++;
           }
         } else {
           while (rightIndex < rightMatchTag) {
-            lines.push({ index: rightIndex, left: null, right: rightRaw[rightIndex] ?? null, isDifferent: true });
+            lines.push({ index: rightIndex + 1, left: null, right: rightRaw[rightIndex] ?? null, isDifferent: true });
             rightIndex++;
           }
         }
@@ -242,7 +254,7 @@ export class FolderCompareService {
       }
 
       lines.push({
-        index: Math.max(leftIndex, rightIndex),
+        index: Math.max(leftIndex, rightIndex) + 1,
         left: leftRaw[leftIndex] ?? null,
         right: rightRaw[rightIndex] ?? null,
         isDifferent: true
