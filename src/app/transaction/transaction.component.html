@@ -162,7 +162,7 @@
         <div formArrayName="additional" style="font-size: 10px; background-color: azure;  ">
           <tr style="font-size: 10px; background-color: azure;  ">
 
-            @for (newFld of form.get('additional')['controls']; track newFld; let i = $index) {
+            @for (newFld of additionalControls; track newFld; let i = $index) {
               <td [formGroupName]="i">
                 <label class="searchLbl"> {{newFld.get('fld').value}}</label>
                 <input style="font-size: 10px; padding-right: 20pt; margin-right: 10pt;"
