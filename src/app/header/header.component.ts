@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef, Injectable } from '@angular/core';
+import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef, Injectable, OnDestroy } from '@angular/core';
 import { FormsModule, FormControl } from '@angular/forms';
 import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
 import {AuthenticationService} from '../services/authentication.service';
@@ -6,7 +6,7 @@ import {User} from '../login/user';
 import {Link, tabLinks} from './Links';
 
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { catchError, Observable } from 'rxjs';
+import { catchError, Observable, Subscription } from 'rxjs';
 import {TransRestServiceComponent} from '../services/transrest-service.component';
 import {WfRestServiceComponent} from '../services/wfrest-service.component';
 import { MatTabsModule, MatTabChangeEvent, MatTabGroup } from '@angular/material/tabs';
@@ -29,7 +29,7 @@ const STORE_KEY =  'lastAction';
 })
 
 
-export class HeaderComponent implements AfterViewInit, OnInit   {
+export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
 
   /**
    *
@@ -83,6 +83,11 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
   // Track Utility submenu visibility
   utilitySubmenuVisible: boolean = false;
   private openUtilitySubmenuOnSelect: boolean = false;
+  private eventUnlisteners: Array<() => void> = [];
+  private inactivityIntervalId: ReturnType<typeof setInterval> | null = null;
+  private currentUserSub?: Subscription;
+  private routeParamsSub?: Subscription;
+  private routerEventsSub?: Subscription;
 
   // Navigate to a link (handles both top-level and submenu)
   navigateTo(link: Link) {
@@ -193,7 +198,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
     {
       console.log('**** HeaderComponent constructor ****');
 
-      this.authenticationService.currentUser.subscribe(x => {
+        this.currentUserSub = this.authenticationService.currentUser.subscribe(x => {
           this.currentUser = x
 
           if  (this.currentUser !== undefined && this.currentUser !== null)
@@ -222,7 +227,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
 
       // get return url from route parameters or default to '/'
 
-      this.route.queryParams.subscribe(params => {
+      this.routeParamsSub = this.route.queryParams.subscribe(params => {
         const openDetails = params['openDetails'] === 'true';
         if (openDetails && !this.openDetailsRedirectHandled) {
           this.openDetailsRedirectHandled = true;
@@ -336,7 +341,7 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
     );
 
       this.syncSelectedTabWithUrl(this.router.url);
-      this.router.events.subscribe(event => {
+      this.routerEventsSub = this.router.events.subscribe(event => {
         if (event instanceof NavigationEnd) {
           this.syncSelectedTabWithUrl(event.urlAfterRedirects || event.url);
         }
@@ -585,13 +590,33 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
   }
 
    initListener() {
-    document.body.addEventListener('click', () => this.reset());
-    document.body.addEventListener('mouseover',()=> this.reset());
-    document.body.addEventListener('mouseout',() => this.reset());
-    document.body.addEventListener('keydown',() => this.reset());
-    document.body.addEventListener('keyup',() => this.reset());
-    document.body.addEventListener('keypress',() => this.reset());
-     window.addEventListener("storage",() => this.storageEvt());
+    if (this.eventUnlisteners.length > 0) {
+      return;
+    }
+
+    const resetHandler = () => this.reset();
+    const storageHandler = () => this.storageEvt();
+
+    document.body.addEventListener('click', resetHandler);
+    this.eventUnlisteners.push(() => document.body.removeEventListener('click', resetHandler));
+
+    document.body.addEventListener('mouseover', resetHandler);
+    this.eventUnlisteners.push(() => document.body.removeEventListener('mouseover', resetHandler));
+
+    document.body.addEventListener('mouseout', resetHandler);
+    this.eventUnlisteners.push(() => document.body.removeEventListener('mouseout', resetHandler));
+
+    document.body.addEventListener('keydown', resetHandler);
+    this.eventUnlisteners.push(() => document.body.removeEventListener('keydown', resetHandler));
+
+    document.body.addEventListener('keyup', resetHandler);
+    this.eventUnlisteners.push(() => document.body.removeEventListener('keyup', resetHandler));
+
+    document.body.addEventListener('keypress', resetHandler);
+    this.eventUnlisteners.push(() => document.body.removeEventListener('keypress', resetHandler));
+
+    window.addEventListener('storage', storageHandler);
+    this.eventUnlisteners.push(() => window.removeEventListener('storage', storageHandler));
 
   }
 
@@ -603,9 +628,27 @@ export class HeaderComponent implements AfterViewInit, OnInit   {
   }
 
   initInterval() {
-    setInterval(() => {
+    if (this.inactivityIntervalId !== null) {
+      clearInterval(this.inactivityIntervalId);
+    }
+
+    this.inactivityIntervalId = setInterval(() => {
       this.check();
     }, CHECK_INTERVAL);
+  }
+
+  ngOnDestroy(): void {
+    this.currentUserSub?.unsubscribe();
+    this.routeParamsSub?.unsubscribe();
+    this.routerEventsSub?.unsubscribe();
+
+    if (this.inactivityIntervalId !== null) {
+      clearInterval(this.inactivityIntervalId);
+      this.inactivityIntervalId = null;
+    }
+
+    this.eventUnlisteners.forEach(unlisten => unlisten());
+    this.eventUnlisteners = [];
   }
 
   onContextSettings()

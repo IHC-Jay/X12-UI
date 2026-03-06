@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -29,7 +29,7 @@ import { downloadTextFile } from '../../utils/file-download.util';
 
 
 
-export class RdpValidationErrorsComponent implements OnInit {
+export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
   displayLabel: string = "Display columns:";
   statusTypes = [
     "Assigned",
@@ -135,6 +135,12 @@ export class RdpValidationErrorsComponent implements OnInit {
     this.setupSessionTab();
     this.initForm();
     this.handleQueryParams();
+  }
+
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 
   /**

@@ -1,4 +1,4 @@
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -26,7 +26,7 @@ import {WfHistory} from './WfHistory';
 
 
 
-export class WorkflowHistoryComponent implements OnInit {
+export class WorkflowHistoryComponent implements OnInit, OnDestroy {
   // =====================
   // Form & Table Setup
   // =====================
@@ -135,5 +135,11 @@ export class WorkflowHistoryComponent implements OnInit {
     this.router.navigate(["/workflow/"], {
       queryParams: { searchParams: this.searchParams }
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit,Input } from '@angular/core';
+import { Component, OnInit,Input, OnDestroy } from '@angular/core';
 import { CommonModule } from "@angular/common";
 
 import { transition } from '@angular/animations';
@@ -17,7 +17,7 @@ import { StorageService } from '../../services/storage.service';
     styleUrls: ['./transaction-details.component.css'],
     standalone: false
 })
-export class TransactionDetailComponent {
+export class TransactionDetailComponent implements OnDestroy {
 
   canRenderDetails: boolean = false;
   prevWindow: boolean = false;
@@ -88,6 +88,12 @@ export class TransactionDetailComponent {
       paramsList.push("count::" + 1);
       this.fetchTransactionDetailData(this.transaction, this.mode, paramsList);
     });
+  }
+
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 
   private extractSearchParam(paramStr: string, key: string): string {

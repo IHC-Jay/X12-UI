@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, Input, Output, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormControl, Validators } from '@angular/forms';
 
@@ -29,7 +29,7 @@ import { downloadTextFile } from '../../utils/file-download.util';
 
 
 
-export class WorkflowDetailsComponent implements OnInit {
+export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   displayLabel: string = "Display columns:";
   statusTypes = [
     "Assigned",
@@ -138,6 +138,12 @@ export class WorkflowDetailsComponent implements OnInit {
     this.form.controls.statusType.setValue(this.statusTypes[0]);
     this.wfStatus = this.statusTypes[0];
     this.sub = this.route.queryParams.subscribe(params => this.handleQueryParams(params));
+  }
+
+  ngOnDestroy(): void {
+    if (this.sub) {
+      this.sub.unsubscribe();
+    }
   }
 
   private handleQueryParams(searchParams: any) {
