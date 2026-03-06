@@ -161,6 +161,10 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     tpId: new FormControl();
   }
 
+  get additionalControls() {
+    return (this.form.get('additional') as FormArray).controls;
+  }
+
 
   createinitForm(): FormGroup
   {
@@ -181,7 +185,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     this.setFormControlValues();
     await this.initTransactionFieldsAndColumnsAsync();
     this.setDataSourceSort();
-    
+
     // Call handleCustomFieldsAndSearch after all fields are initialized
     // This ensures additionalSearch filename filter is applied
     this.handleCustomFieldsAndSearch();
@@ -205,6 +209,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   private initForm() {
     // Determine initial value for transType
     let initialTransType = '';
+    const defaultMode = this.org === 'RCO' ? 'Batch' : 'RealTime';
     if (this.formFields && this.formFields.currentTransType) {
       initialTransType = this.formFields.currentTransType;
     } else if (this.transactionTypes && this.transactionTypes.length > 0) {
@@ -214,7 +219,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
       rowCnt:['25', Validators.required],
       transType: [initialTransType, Validators.required],
       disposition: ['All', Validators.required],
-      mode:['RealTime', Validators.required],
+      mode:[defaultMode, Validators.required],
       direction:['Inbound'],
       additional:this.formBuilder.array([this.createinitForm()])
     });
@@ -225,11 +230,11 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     console.info("Handle query params and session storage for Transactions");
       this.sub = this.route.queryParams.subscribe(params => {
         const openDetails = params['openDetails'] === 'true';
-        
+
         // If openDetails flag is set, check for detailed nav data in localStorage
         if (openDetails && !this.openDetailsRedirectHandled) {
           this.openDetailsRedirectHandled = true;
-          
+
           // Try to get additional params from localStorage if not in URL
           let navData: any = {};
           const transactionNavData = localStorage.getItem('transactionNavData');
@@ -241,12 +246,12 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
               console.warn('Failed to parse transactionNavData from localStorage', e);
             }
           }
-          
+
           // Build the redirect query params, using sessionStorage data as fallback
           const redirectParams: any = {
             ID: params['ID']
           };
-          
+
           if (params['transConfig'] || navData.transConfig) {
             redirectParams.transConfig = params['transConfig'] || navData.transConfig;
           }
@@ -268,7 +273,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
           if (params['searchTypeString']) {
             redirectParams.searchTypeString = params['searchTypeString'];
           }
-          
+
           this.router.navigate(['/transaction/transaction-details'], {
             queryParams: redirectParams,
             replaceUrl: true
@@ -278,7 +283,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
         if(params !== undefined) {
           let jsonString = params['transConfig'];
-          
+
           // If transConfig not in URL params, try to get from localStorage
           if (!jsonString) {
             const transactionNavData = localStorage.getItem('transactionNavData');
@@ -291,7 +296,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
               }
             }
           }
-          
+
           if(jsonString !== undefined && jsonString !== null) {
             console.info("TransConfig from parent or sessionStorage: " + jsonString);
             this.formFields = JSON.parse(jsonString);
@@ -377,7 +382,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.formFields.currentTransType !== '') {
       this.updateCustomFlds();
       this.searchTransaction = true;
-      
+
       // If additionalSearch is set (e.g., from Summary filtering by filename), automatically execute search
       if (this.additionalSearchStr && this.additionalSearchStr.trim().length > 0) {
         console.info('AutoSearch triggered: additionalSearchStr = ' + this.additionalSearchStr);
@@ -732,10 +737,10 @@ transactionChange(evt: any)
   var allTempArr= [];
   this.dataSource.data = [];
   console.info("In transactionChange: currentTransType: " + this.formFields.currentTransType)
-  
+
   // Preserve additionalSearchStr (filename filter) instead of clearing it
   const preservedAdditionalSearch = this.additionalSearchStr;
-  
+
   if(this.form.controls.transType.value !== this.formFields.currentTransType &&
     this.form.controls.mode.value !== this.formFields.mode)
   {
@@ -879,7 +884,7 @@ transactionChange(evt: any)
       }
     }
   });
-  
+
   // Only call updateCustomFlds and onSearchTransactions if we're not handling additionalSearch
   // (additionalSearch will be handled by handleCustomFieldsAndSearch in ngOnInit)
   if (!this.additionalSearchStr || this.additionalSearchStr.trim().length === 0) {
