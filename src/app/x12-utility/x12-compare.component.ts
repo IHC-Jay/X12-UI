@@ -167,6 +167,7 @@ export class X12CompareComponent {
     if (input.files && input.files.length > 0) {
       this.leftFile = input.files[0];
       this.savedLeftFileName = this.leftFile?.name ?? this.savedLeftFileName;
+      this.clearState();
     }
     input.value = '';
   }
@@ -176,6 +177,7 @@ export class X12CompareComponent {
     if (input.files && input.files.length > 0) {
       this.rightFile = input.files[0];
       this.savedRightFileName = this.rightFile?.name ?? this.savedRightFileName;
+      this.clearState();
     }
     input.value = '';
   }
@@ -190,6 +192,7 @@ export class X12CompareComponent {
         files
       };
       this.savedLeftFolderName = this.leftDir?.name ?? this.savedLeftFolderName;
+      this.clearState();
     }
     input.value = '';
   }
@@ -204,6 +207,7 @@ export class X12CompareComponent {
         files
       };
       this.savedRightFolderName = this.rightDir?.name ?? this.savedRightFolderName;
+      this.clearState();
     }
     input.value = '';
   }

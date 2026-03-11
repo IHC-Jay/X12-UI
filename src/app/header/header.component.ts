@@ -513,7 +513,7 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
       }
 
       const currentPath = (this.router.url || '').split('?')[0];
-      if (selectedLink.link && (currentPath === selectedLink.link || currentPath.startsWith(`${selectedLink.link}/`))) {
+      if (selectedLink.link && currentPath === selectedLink.link) {
         this.prevLnkIndex = this.selectedLnkIndex.value;
         return;
       }

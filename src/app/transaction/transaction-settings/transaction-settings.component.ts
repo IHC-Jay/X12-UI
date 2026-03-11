@@ -73,7 +73,7 @@ export class TransactionSettingsComponent implements OnInit, AfterViewInit {
 
   searchTime = ["Last 1 day", "Last 7 days", "Last 30 days", "Last 90 days", "Last 365 days",];
 
-  landingPage = ["Trading Partners", "Dashboard", "Transmissions", "Transactions", "Work Flow"];
+  landingPage = ["Trading Partners", "Transmissions", "Transactions", "Work Flow"];
 
   transactionTypes: string[] = ["270", "271","276", "277", "277CA", "835", "837I", "837P", "837D", "999", "TA1"];
 

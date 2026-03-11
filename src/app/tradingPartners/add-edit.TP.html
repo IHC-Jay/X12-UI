@@ -41,13 +41,17 @@
           </mat-select>
           </mat-form-field>
           </td>
+          @if(!isAddMode)
+    {
   <td>
  <label  style="color: grey; margin-left: 50pt;">TPID: </label>
             <input style="color: grey; margin-left: 10pt;" formControlName="TpId" matInput readonly
             [(ngModel)]="tpId" matTooltip="Read Only, Edit in TPID screen" />
 
 
-  </td></tr>
+  </td>
+}
+</tr>
   </table>
  </div>
 
