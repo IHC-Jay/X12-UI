@@ -157,7 +157,7 @@
   <div class="modal-backdrop" *ngIf="fullDiffRow() as selected" (click)="closeFullDiff()">
     <div class="modal-panel compare-modal" (click)="$event.stopPropagation()">
       <div class="row" style="justify-content: space-between; margin-bottom:10px;">
-        <h3 style="font-size:12px;">Differences ({{ countNotEqualDifferences() }}) — {{ selected.leftName }} ⟷ {{ selected.rightName }}</h3>
+        <h3 style="font-size:12px;">Differences ({{ countNotEqualDifferences() }}) — {{ getFullDiffTitle(selected) }}</h3>
         <button class="btn" (click)="closeFullDiff()">Close</button>
       </div>
 
@@ -172,8 +172,8 @@
           <tr>
             <th style="width:60px;">St</th>
             <th style="width:90px;">#</th>
-            <th>{{ getLeftContextName() }}</th>
-            <th>{{ getRightContextName() }}</th>
+            <th>Left</th>
+            <th>Right</th>
           </tr>
         </thead>
         <tbody>

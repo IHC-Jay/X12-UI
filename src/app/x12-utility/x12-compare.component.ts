@@ -368,6 +368,12 @@ export class X12CompareComponent {
     this.fullDiffLines.set(diffs);
   }
 
+  getFullDiffTitle(row: PairResult): string {
+    const left = row.leftName ?? '';
+    const right = row.rightName ?? '';
+    return left === right ? left : `${left} ⟷ ${right}`;
+  }
+
   closeFullDiff(): void {
     this.fullDiffRow.set(null);
     this.fullDiffLines.set([]);
