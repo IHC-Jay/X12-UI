@@ -285,7 +285,8 @@ searchTypeString:string = "";
   {
     console.info("Mode: " + this.form.controls.dispMode.value)
     this.formFields.modeString = this.form.controls.dispMode.value
-
+    // Re-filter columns when mode changes
+    this.transactionChange(this.form.controls.dispTransType.value);
   }
 
   cngfTranTypeChange(evt: any)
