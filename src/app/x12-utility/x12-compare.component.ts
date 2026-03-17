@@ -29,6 +29,7 @@ export class X12CompareComponent {
   savedRightFileName = '';
 
   working = signal(false);
+  compareReady = signal(true);
   pairs = signal<FilePair[]>([]);
   results = signal<PairResult[]>([]);
   summary = signal<RunSummary | null>(null);
@@ -122,6 +123,7 @@ export class X12CompareComponent {
     this.fullDiffRow.set(null);
     this.fullDiffLines.set([]);
     this.working.set(false);
+    this.compareReady.set(true);
     this.filter.set('');
     this.page.set(1);
   }
@@ -354,6 +356,7 @@ export class X12CompareComponent {
       const summary = this.summary() || { compared: 0, identical: 0, different: 0, errors: [], leftOnly: [], rightOnly: [] };
       this.summary.set({ ...summary, compared: res.length, identical, different });
       this.results.set(res);
+      this.compareReady.set(false);
       this.page.set(1);
     } finally {
       this.working.set(false);

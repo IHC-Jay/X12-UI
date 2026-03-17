@@ -19,11 +19,8 @@ if (-not (Test-Path $TargetPath)) {
   New-Item -ItemType Directory -Path $TargetPath -Force | Out-Null
 }
 
-# Remove existing deployed files/folders
-Get-ChildItem -Path $TargetPath -Force | Remove-Item -Recurse -Force
-
-# Copy ONLY browser output contents
-Copy-Item -Path (Join-Path $SourcePath '*') -Destination $TargetPath -Recurse -Force
+# Mirror source to target (preserves subfolder structure such as assets/)
+robocopy $SourcePath $TargetPath /E /PURGE /NFL /NDL /NJH /NJS | Out-Null
 
 Write-Host "Deployment complete."
 Write-Host "Verify these files exist in target root:"

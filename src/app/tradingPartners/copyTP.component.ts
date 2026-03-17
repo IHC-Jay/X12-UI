@@ -72,7 +72,8 @@ export class copyTPComponent implements OnInit, AfterViewInit {
   onSubmit()
   {
     var info = "Created TP: " + this.f.Name.value + ", TPID: " + this.f.TpId.value + " from: " + this.f.tpName.value
-    console.log(info)
+    console.log(info);
+    this.f.status.setValue("");
     console.info('Create TPLinks for name: ' + this.form.value);
       this.TradingPartnerService.copyTpLinksfromTP(this.form.value)
           .pipe(first())
