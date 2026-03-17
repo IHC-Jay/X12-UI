@@ -1,0 +1,27 @@
+.help-dialog {
+  min-width: 560px;
+  max-width: 760px;
+}
+
+.help-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.help-header h3 {
+  margin: 0;
+}
+
+.help-section {
+  margin-top: 10px;
+}
+
+.help-section h4 {
+  margin-bottom: 6px;
+}
+
+.help-section p {
+  margin-bottom: 6px;
+}

@@ -14,9 +14,12 @@ import { Title } from '@angular/platform-browser';
 import {MatIconModule} from '@angular/material/icon';
 import {MatButtonModule} from '@angular/material/button';
 import {MatBadgeModule} from '@angular/material/badge';
+import { MatDialog } from '@angular/material/dialog';
 import { tpLinks } from '../tradingPartners/tpIds/tp-links/tp-links';
 import { environment } from '../../environments/environment';
 import { StorageService } from '../services/storage.service';
+import { HelpService } from '../help/help.service';
+import { HelpDialogComponent } from '../help/help-dialog.component';
 
 const CHECK_INTERVAL = 5000 // in ms
 const STORE_KEY =  'lastAction';
@@ -193,7 +196,9 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
     private route: ActivatedRoute,
     private TransactionService: TransRestServiceComponent,
     private WfService: WfRestServiceComponent,
-    private storage: StorageService
+    private storage: StorageService,
+    private dialog: MatDialog,
+    private helpService: HelpService
   )
     {
       console.log('**** HeaderComponent constructor ****');
@@ -210,6 +215,15 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
         }
         );
 
+    }
+
+    openHelp(): void {
+      const helpContent = this.helpService.getHelpForUrl(this.router.url || '');
+      this.dialog.open(HelpDialogComponent, {
+        width: '700px',
+        maxWidth: '95vw',
+        data: helpContent
+      });
     }
 
     ngOnInit() {

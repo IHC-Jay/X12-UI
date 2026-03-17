@@ -83,7 +83,7 @@ import {
 } from '@angular/cdk/drag-drop';
 import { RdpValidationErrorsComponent } from './workflow/rdpValidationErrors/rdpValidationErrors.component';
 import { PdfReaderComponent } from './pdf-reader/pdf-reader.component';
-import { CodeValueLookupComponent } from './codeValue-lookup/codeValue-lookup.component';
+import { HelpDialogComponent } from './help/help-dialog.component';
 
 @NgModule({ declarations: [
         AppComponent,
@@ -113,8 +113,8 @@ import { CodeValueLookupComponent } from './codeValue-lookup/codeValue-lookup.co
         WorkflowDetailsComponent,
         WorkflowHistoryComponent,
         RdpValidationErrorsComponent,
-        PdfReaderComponent
-        ,CodeValueLookupComponent
+        PdfReaderComponent,
+        HelpDialogComponent
     ],
     exports: [
         MatTableModule,

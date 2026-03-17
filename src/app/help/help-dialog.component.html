@@ -1,0 +1,25 @@
+<div class="help-dialog">
+  <div class="help-header">
+    <h3>{{ data.title }}</h3>
+    <button class="btn" (click)="close()">Close</button>
+  </div>
+
+  <div class="help-section">
+    <h4>Overview</h4>
+    <p>{{ data.overview }}</p>
+  </div>
+
+  <div class="help-section" *ngIf="data.quickSteps?.length">
+    <h4>Quick Steps</h4>
+    <ol>
+      <li *ngFor="let step of data.quickSteps">{{ step }}</li>
+    </ol>
+  </div>
+
+  <div class="help-section" *ngIf="data.tips?.length">
+    <h4>Tips</h4>
+    <ul>
+      <li *ngFor="let tip of data.tips">{{ tip }}</li>
+    </ul>
+  </div>
+</div>
