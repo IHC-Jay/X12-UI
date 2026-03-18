@@ -1,0 +1,45 @@
+"ID(String)","Name(String)"
+12,Medicare Secondary Working Aged Beneficiary or Spouse with Employer Group Health Plan
+13,Medicare Secondary End-Stage Renal Disease Beneficiary in the Mandated Coordination Period with an Employer's Group Health Plan
+14,Medicare Secondary, No-fault Insurance including Auto is Primary
+15,Medicare Secondary Worker's Compensation
+16,Medicare Secondary Public Health Service (PHS) or Other Federal Agency
+41,Medicare Secondary Black Lung
+42,Medicare Secondary Veteran's Administration
+43,Medicare Secondary Disabled Beneficiary Under Age 65 with Large Group Health Plan (LGHP)
+47,Medicare Secondary, Other Liability Insurance is Primary
+AP,Auto Insurance Policy
+C1,Commercial
+CO,Consolidated Omnibus Budget Reconciliation Act (COBRA)
+CP,Medicare Conditionally Primary
+DB,Disability
+EP,Exclusive Provider Organization
+FF,Family or Friends
+GP,Group Policy
+HM,Health Maintenance Organization
+HN,Health
+HS,Special Low Income Medicare Beneficiary
+IN,Indemnity
+IP,Individual Policy
+LC,Long Term Care
+LD,Long Term Policy
+LI,Life Insurance
+LT,Litigation
+MA,Medicare Part A
+MB,Medicare Part B
+MC,Medicaid
+MH,Medigap Part A
+MI,Medigap Part B
+MP,Medicare Primary
+OT,Other
+PE,Property Insurance - Personal
+PL,Personal
+PP,Preferred Provider Organization (PPO)
+PR,Point of Service (POS)
+PS,Part B Primary
+QM,Qualified Medicare Beneficiary
+RP,Property Insurance - Real
+SP,Supplemental Policy
+TF,Tax Equity Fiscal Responsibility Act (TEFRA)
+WC,Worker's Compensation
+WU,Wrap Up Policy

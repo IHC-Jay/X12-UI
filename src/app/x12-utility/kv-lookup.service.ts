@@ -5,11 +5,15 @@ import { firstValueFrom } from 'rxjs';
 const LOOKUP_BASE_PATHS = ['assets/KV-lookup'];
 
 const LOOKUP_FILES: string[] = [
+  'AAA-03.csv',
+  'AAA-04.csv',
   'AMT-01.csv',
+  'EB-01.csv',
+  'EB-02.csv',
+  'EB-03.csv',
+  'EB-04.csv',
   'BHT-01.csv',
   'BHT-02.csv',
-  'BHT01.csv',
-  'BHT02.csv',
   'BPR-01.csv',
   'BPR-04.csv',
   'CAS-01.csv',
@@ -18,18 +22,13 @@ const LOOKUP_FILES: string[] = [
   'DTM-01.csv',
   'DTP-01.csv',
   'DTP-02.csv',
-  'DTP01.csv',
-  'DTP02.csv',
   'EQ-01.csv',
-  'EQ01.csv',
   'HI-01.csv',
   'HL-03.csv',
   'INS-02.csv',
   'N1-01.csv',
   'NM1-01.csv',
   'NM1-02.csv',
-  'NM101.csv',
-  'NM102.csv',
   'NM108.csv',
   'NTE-01.csv',
   'PER-01.csv',
@@ -63,11 +62,21 @@ export class KvLookupService {
     const normalizedValue = this.normalizeLookupValue(value);
     if (!normalizedValue) return null;
 
-    const key = this.buildLookupKey(segmentTag, elementPosition);
-    const map = this.fileLookup.get(key);
-    if (!map) return null;
+    const primaryKey = this.buildLookupKey(segmentTag, elementPosition);
+    const keys = [primaryKey];
 
-    return map.get(normalizedValue) ?? null;
+    if (segmentTag.toUpperCase() === 'EB' && elementPosition === 3) {
+      keys.push(this.normalizeKey('EQ01'));
+    }
+
+    for (const key of keys) {
+      const map = this.fileLookup.get(key);
+      if (!map) continue;
+      const resolved = map.get(normalizedValue);
+      if (resolved) return resolved;
+    }
+
+    return null;
   }
 
   async resolveName(segmentTag: string, elementPosition: number, value: string): Promise<string | null> {

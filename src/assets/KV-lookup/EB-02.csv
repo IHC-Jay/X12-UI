@@ -1,0 +1,12 @@
+"ID(String)","Name(String)"
+CHD,Child
+DEP,Dependent
+ECH,Employee and Children
+EMP,Employee Only
+ESP,Employee and Spouse
+FAM,Family
+IND,Individual
+SPC,Spouse and Children
+SPO,Spouse Only
+TWO,Two Party
+THR,Three Party
