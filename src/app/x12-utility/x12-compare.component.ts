@@ -35,6 +35,7 @@ export class X12CompareComponent {
   summary = signal<RunSummary | null>(null);
   fullDiffRow = signal<PairResult | null>(null);
   fullDiffLines = signal<DiffLine[]>([]);
+  selectedNotEqualCursor = signal(-1);
 
   cfg: CompareConfig = {
     compareExactFilename: false,
@@ -300,11 +301,16 @@ export class X12CompareComponent {
     if (!ok) return;
     if (!this.cfg.ignoreFields.includes(trimmed as any)) {
       this.cfg.ignoreFields = [...this.cfg.ignoreFields, trimmed as any];
+      this.compareReady.set(true);
     }
   }
 
   removeIgnoreField(value: string): void {
-    this.cfg.ignoreFields = this.cfg.ignoreFields.filter(v => v !== value);
+    const nextIgnoreFields = this.cfg.ignoreFields.filter(v => v !== value);
+    if (nextIgnoreFields.length !== this.cfg.ignoreFields.length) {
+      this.cfg.ignoreFields = nextIgnoreFields;
+      this.compareReady.set(true);
+    }
   }
 
   async pair(): Promise<void> {
@@ -369,6 +375,8 @@ export class X12CompareComponent {
     const diffs = await this.svc.loadFullDiff(pair, this.cfg);
     this.fullDiffRow.set(row);
     this.fullDiffLines.set(diffs);
+    const notEqualIndexes = this.getNotEqualLineIndexes();
+    this.selectedNotEqualCursor.set(notEqualIndexes.length ? 0 : -1);
   }
 
   getFullDiffTitle(row: PairResult): string {
@@ -380,6 +388,59 @@ export class X12CompareComponent {
   closeFullDiff(): void {
     this.fullDiffRow.set(null);
     this.fullDiffLines.set([]);
+    this.selectedNotEqualCursor.set(-1);
+  }
+
+  getNotEqualLineIndexes(): number[] {
+    const indexes: number[] = [];
+    for (let index = 0; index < this.fullDiffLines().length; index++) {
+      if (this.fullDiffLines()[index].isDifferent) {
+        indexes.push(index);
+      }
+    }
+    return indexes;
+  }
+
+  currentNotEqualPosition(): number {
+    return this.selectedNotEqualCursor() + 1;
+  }
+
+  getDiffRowId(index: number): string {
+    return `compare-diff-row-${index}`;
+  }
+
+  isSelectedNotEqualRow(index: number): boolean {
+    const notEqualIndexes = this.getNotEqualLineIndexes();
+    const cursor = this.selectedNotEqualCursor();
+    if (cursor < 0 || cursor >= notEqualIndexes.length) return false;
+    return notEqualIndexes[cursor] === index;
+  }
+
+  goToNextNotEqual(): void {
+    const notEqualIndexes = this.getNotEqualLineIndexes();
+    if (!notEqualIndexes.length) return;
+    const currentCursor = this.selectedNotEqualCursor();
+    const nextCursor = currentCursor < 0 ? 0 : (currentCursor + 1) % notEqualIndexes.length;
+    this.selectedNotEqualCursor.set(nextCursor);
+    this.scrollToSelectedNotEqual(notEqualIndexes[nextCursor]);
+  }
+
+  goToPreviousNotEqual(): void {
+    const notEqualIndexes = this.getNotEqualLineIndexes();
+    if (!notEqualIndexes.length) return;
+    const currentCursor = this.selectedNotEqualCursor();
+    const previousCursor = currentCursor < 0
+      ? notEqualIndexes.length - 1
+      : (currentCursor - 1 + notEqualIndexes.length) % notEqualIndexes.length;
+    this.selectedNotEqualCursor.set(previousCursor);
+    this.scrollToSelectedNotEqual(notEqualIndexes[previousCursor]);
+  }
+
+  private scrollToSelectedNotEqual(lineIndex: number): void {
+    setTimeout(() => {
+      const row = document.getElementById(this.getDiffRowId(lineIndex));
+      row?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    });
   }
 
   private isIgnoredField(tag: string, fieldPosition: number): boolean {

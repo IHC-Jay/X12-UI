@@ -298,14 +298,6 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
                 element.setAttribute('hidden', 'true');
                 console.log("Disable: " + element);
               }
-
-              element = document.getElementById('logout') as HTMLElement | null;
-              if (element) {
-                element.setAttribute('hidden', 'true');
-                console.log("Disable: " + element);
-              }
-
-
             }
 
 

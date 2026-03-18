@@ -146,38 +146,45 @@
         <button class="btn" (click)="closeFullDiff()">Close</button>
       </div>
 
-      <div class="row muted" style="margin-bottom:10px; gap:12px; font-size:12px;">
-        <span class="mono">= Equal</span>
-        <span class="mono">~= Equal (ignored fields differ)</span>
-        <span class="mono">≠ Not Equal</span>
+      <div class="compare-summary-container">
+        <div class="row muted" style="gap:12px; font-size:12px;">
+          <span class="mono">= Equal</span>
+          <span class="mono">~= Equal (ignored fields differ)</span>
+          <span class="mono">≠ Not Equal</span>
+          <button class="btn" (click)="goToPreviousNotEqual()" [disabled]="countNotEqualDifferences() === 0" title="Previous not equal" aria-label="Previous not equal">▲</button>
+          <button class="btn" (click)="goToNextNotEqual()" [disabled]="countNotEqualDifferences() === 0" title="Next not equal" aria-label="Next not equal">▼</button>
+          <span class="mono" *ngIf="countNotEqualDifferences() > 0">{{ currentNotEqualPosition() }} / {{ countNotEqualDifferences() }}</span>
+        </div>
       </div>
 
-      <table class="mono">
-        <thead>
-          <tr>
-            <th style="width:60px;">St</th>
-            <th style="width:90px;">#</th>
-            <th>Left</th>
-            <th>Right</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr *ngFor="let d of fullDiffLines()">
-            <td><span [class.ok]="statusClass(d) === 'ok'" [class.bad]="statusClass(d) === 'bad'" [class.ignored]="statusClass(d) === 'ignored'">{{ statusSymbol(d) }}</span></td>
-            <td>{{ d.index }}</td>
-            <td>
-              <ng-container *ngFor="let t of getDiffTokens(d, 'left'); let i = index">
-                <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [class.diff-token-diff-detail]="t.isDiff" [class.tilde-match]="statusClass(d) === 'ignored' && !t.isIgnored" [class.tilde-unmatch]="statusClass(d) === 'ignored' && t.isIgnored" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
-              </ng-container>
-            </td>
-            <td>
-              <ng-container *ngFor="let t of getDiffTokens(d, 'right'); let i = index">
-                <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [class.diff-token-diff-detail]="t.isDiff" [class.tilde-match]="statusClass(d) === 'ignored' && !t.isIgnored" [class.tilde-unmatch]="statusClass(d) === 'ignored' && t.isIgnored" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
-              </ng-container>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <div class="compare-data-container">
+        <table class="mono">
+          <thead>
+            <tr>
+              <th style="width:60px;">St</th>
+              <th style="width:90px;">#</th>
+              <th>{{ getLeftContextName() }}</th>
+              <th>{{ getRightContextName() }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let d of fullDiffLines(); let i = index" [attr.id]="getDiffRowId(i)" [class.compare-line-highlight]="isSelectedNotEqualRow(i)">
+              <td><span [class.ok]="statusClass(d) === 'ok'" [class.bad]="statusClass(d) === 'bad'" [class.ignored]="statusClass(d) === 'ignored'">{{ statusSymbol(d) }}</span></td>
+              <td>{{ d.index }}</td>
+              <td>
+                <ng-container *ngFor="let t of getDiffTokens(d, 'left'); let i = index">
+                  <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [class.diff-token-diff-detail]="t.isDiff" [class.tilde-match]="statusClass(d) === 'ignored' && !t.isIgnored" [class.tilde-unmatch]="statusClass(d) === 'ignored' && t.isIgnored" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+                </ng-container>
+              </td>
+              <td>
+                <ng-container *ngFor="let t of getDiffTokens(d, 'right'); let i = index">
+                  <span *ngIf="i > 0">*</span><span [class.ignored]="t.isIgnored" [class.diff-token-diff]="t.isDiff" [class.diff-token-diff-detail]="t.isDiff" [class.tilde-match]="statusClass(d) === 'ignored' && !t.isIgnored" [class.tilde-unmatch]="statusClass(d) === 'ignored' && t.isIgnored" [attr.title]="(t.isDiff || t.isIgnored) ? getFieldLabel(i) : null">{{ t.value }}</span>
+                </ng-container>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
 
     <div class="row" style="margin-top:12px; justify-content:flex-end;">
