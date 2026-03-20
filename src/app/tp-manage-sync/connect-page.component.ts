@@ -14,6 +14,7 @@ export class TpConnectPageComponent implements OnInit {
   private username = '';
   private password = '';
   sourceServerPort = 'lp-itfdevvp2:6973';
+  sourceNamespace = 'EDIPAYER';
   destinationServerPort = 'lp-itfdevvp1:6972';
   destinationNamespace = 'MISC';
   isConnecting = false;
@@ -97,6 +98,7 @@ export class TpConnectPageComponent implements OnInit {
     console.log('[TpSync] Connect clicked', {
       username: this.username,
       sourceServerPort: this.sourceServerPort,
+      sourceNamespace: this.sourceNamespace,
       destinationServerPort: this.destinationServerPort,
       destinationNamespace: this.destinationNamespace,
       timeoutMs: this.requestTimeoutMs
@@ -148,10 +150,11 @@ export class TpConnectPageComponent implements OnInit {
         password: this.password,
         serverPort: this.sourceServerPort,
         sourceServerPort: this.sourceServerPort,
+        sourceNamespace: this.sourceNamespace,
         destinationServerPort: this.destinationServerPort,
         destinationNamespace: this.destinationNamespace,
         lastRunByTable,
-        namespace: 'EDIPAYER'
+        namespace: this.sourceNamespace
       };
 
       sessionStorage.setItem('tpManageSync.tradingPartners', JSON.stringify(navPayload));
