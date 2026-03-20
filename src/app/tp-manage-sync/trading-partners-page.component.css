@@ -173,3 +173,23 @@ th { position: sticky; top: 0; background: #f9fafb; font-weight: 700; }
   user-select: none;
 }
 .radio-label input[type="radio"] { cursor: pointer; width: 1rem; height: 1rem; }
+
+.migrate-fieldset .radio-label .from-prod-text {
+  color: #065f46;
+  font-weight: 600;
+}
+
+.migrate-fieldset .radio-label .to-prod-text {
+  color: #b91c1c;
+  font-weight: 700;
+}
+
+.to-prod-label.to-prod-active {
+  background: #fee2e2;
+  border-radius: 6px;
+  padding: 0.2rem 0.35rem;
+}
+
+.to-prod-label.to-prod-active .to-prod-text {
+  color: #991b1b;
+}

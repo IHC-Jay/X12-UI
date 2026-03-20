@@ -18,7 +18,7 @@
     <div class="header-row">
       <h1 id="trading-partners-title">Sync Trading Partners Data ({{ syncDirectionLabel }})</h1>
       <div class="header-actions">
-        <button type="button" class="logout-btn" (click)="logout()">Logout</button>
+        <button type="button" class="logout-btn" (click)="disconnectSync()">Disconnect</button>
       </div>
     </div>
 
@@ -63,11 +63,11 @@
           <legend>Migrate</legend>
           <label class="radio-label" title="From Prod: HT000015-001 -> HT000015-004">
             <input type="radio" name="migrateDirection" value="fromProd" [checked]="migrateDirection === 'fromProd'" (change)="migrateDirection = 'fromProd'" />
-            From Prod
+            <span class="from-prod-text">From Prod</span>
           </label>
-          <label class="radio-label" title="To Prod: HT000015-004 -> HT000015-001">
+          <label class="radio-label to-prod-label" [class.to-prod-active]="migrateDirection === 'toProd'" title="To Prod: HT000015-004 -> HT000015-001">
             <input type="radio" name="migrateDirection" value="toProd" [checked]="migrateDirection === 'toProd'" (change)="migrateDirection = 'toProd'" />
-            To Prod
+            <span class="to-prod-text">To Prod</span>
           </label>
         </fieldset>
 

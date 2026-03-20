@@ -120,24 +120,25 @@ export class TpConnectPageComponent implements OnInit {
         password: this.password,
         serverPort: this.sourceServerPort,
         sourceServerPort: this.sourceServerPort,
+        sourceNamespace: this.sourceNamespace,
         destinationServerPort: this.destinationServerPort,
         destinationNamespace: this.destinationNamespace,
         sourceTimezoneOffsetMinutes: new Date().getTimezoneOffset()
       };
 
-      const statusData = await this.postApi('/api/connect-status', requestPayload);
+      const statusData = await this.postApi('/connect-status', requestPayload);
       this.statusType = 'success';
       this.statusMessage = statusData?.syncTime ? `Connected (${statusData.syncTime})` : 'Connected';
       console.log('[TpSync] Status label set', { statusMessage: this.statusMessage });
 
-      const baselineData = await this.postApi('/api/sync-baseline', requestPayload);
+      const baselineData = await this.postApi('/sync-baseline', requestPayload);
       const lastRunByTable = baselineData?.lastRunByTable ?? {};
       const tradingPartnerLastRun = typeof lastRunByTable?.TradingPartner === 'string'
         ? lastRunByTable.TradingPartner
         : undefined;
       console.log('[TpSync] Baseline lastRunByTable', { lastRunByTable });
 
-      const data = await this.postApi('/api/connect', {
+      const data = await this.postApi('/connect', {
         ...requestPayload,
         sinceLastRunAt: tradingPartnerLastRun
       });
@@ -181,6 +182,9 @@ export class TpConnectPageComponent implements OnInit {
       console.error('[TpSync] Connect flow failed', error);
       this.statusType = 'error';
       this.statusMessage = error instanceof Error ? error.message : 'Connection failed.';
+      if (this.statusMessage.includes('Another user is connected at this time')) {
+        window.alert('Another user is connected at this time');
+      }
     } finally {
       const totalDurationMs = Math.round(performance.now() - connectStartedAt);
       console.log('[TpSync] Connect flow finished', {

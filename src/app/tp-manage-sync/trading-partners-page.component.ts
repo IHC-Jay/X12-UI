@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component } from '@angular/core';
+import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
@@ -40,7 +40,7 @@ type TableCacheEntry = {
   templateUrl: './trading-partners-page.component.html',
   styleUrl: './trading-partners-page.component.css'
 })
-export class TpTradingPartnersPageComponent {
+export class TpTradingPartnersPageComponent implements OnDestroy {
   rows: Record<string, unknown>[] = [];
   columns: string[] = [];
   message = '';
@@ -82,10 +82,10 @@ export class TpTradingPartnersPageComponent {
   private readonly apiBaseUrl: string;
 
   private readonly tablePathByKey: Record<TableKey, string> = {
-    TradingPartner: '/api/connect',
-    TPIDS: '/api/tpids',
-    TRADELINKS: '/api/tradelinks',
-    TRANSACTIONTYPES: '/api/transactiontypes'
+    TradingPartner: '/connect',
+    TPIDS: '/tpids',
+    TRADELINKS: '/tradelinks',
+    TRANSACTIONTYPES: '/transactiontypes'
   };
 
   private readonly syncSelectionKeyByTable: Record<TableKey, string> = {
@@ -96,6 +96,7 @@ export class TpTradingPartnersPageComponent {
   };
 
   private readonly tableCache: Partial<Record<TableKey, TableCacheEntry>> = {};
+  private syncDisconnected = false;
 
   get resultLabel(): string {
     const value = typeof this.sqlUsed === 'string' ? this.sqlUsed.trim() : '';
@@ -285,6 +286,13 @@ export class TpTradingPartnersPageComponent {
     if (!this.username || !this.password || !this.sourceServerPort || !this.destinationServerPort) {
       this.syncStatus = 'Missing connection details. Go back and connect again.'; return;
     }
+    if (this.migrateDirection === 'toProd') {
+      const confirmed = window.confirm('Do you want to move TP data to Production?');
+      if (!confirmed) {
+        this.syncStatus = 'Sync canceled.';
+        return;
+      }
+    }
     this.isSyncing = true;
     const clickStartedAt = performance.now();
     try {
@@ -294,6 +302,7 @@ export class TpTradingPartnersPageComponent {
           password: this.password,
           serverPort: this.sourceServerPort,
           sourceServerPort: this.sourceServerPort,
+          sourceNamespace: this.namespace,
           destinationServerPort: this.destinationServerPort,
           destinationNamespace: this.destinationNamespace,
           tableName: this.selectedTable,
@@ -363,9 +372,73 @@ export class TpTradingPartnersPageComponent {
 
   closeSyncPopup(): void { this.showSyncPopup = false; }
 
-  logout(): void {
+  async disconnectSync(navigateToConnect: boolean = true): Promise<void> {
+    console.log('[TpSync] Disconnect requested', {
+      navigateToConnect,
+      selectedTable: this.selectedTable,
+      selectedRowCount: this.selectedRowCount,
+      sourceServerPort: this.sourceServerPort,
+      destinationServerPort: this.destinationServerPort,
+      destinationNamespace: this.destinationNamespace
+    });
+
+    if (this.syncDisconnected) {
+      console.log('[TpSync] Disconnect skipped; sync context already disconnected');
+      if (navigateToConnect) {
+        await this.router.navigate(['/tp-manage-sync']);
+      }
+      return;
+    }
+
+    this.syncDisconnected = true;
+    this.syncStatus = 'Sync disconnected.';
+
+    if (this.username && this.sourceServerPort && this.destinationServerPort) {
+      try {
+        await firstValueFrom(
+          this.http.post<any>(`${this.apiBaseUrl}/disconnect`, {
+            username: this.username,
+            password: this.password,
+            serverPort: this.sourceServerPort,
+            sourceServerPort: this.sourceServerPort,
+            sourceNamespace: this.namespace,
+            destinationServerPort: this.destinationServerPort,
+            destinationNamespace: this.destinationNamespace
+          }).pipe(timeout(this.requestTimeoutMs))
+        );
+        console.log('[TpSync] Backend sync lock released');
+      } catch (error) {
+        console.warn('[TpSync] Backend sync lock release failed', error);
+      }
+    }
+
     sessionStorage.removeItem('tpManageSync.tradingPartners');
-    this.router.navigate(['/tp-manage-sync']);
+
+    // Clear only TP Sync context; keep app login/session intact for other features.
+    this.rows = [];
+    this.columns = [];
+    this.selectedRowIndexes.clear();
+    this.username = '';
+    this.password = '';
+    this.serverPort = 'Server:Port';
+    this.sourceServerPort = 'Server:Port';
+    this.destinationServerPort = 'Server:Port';
+    this.destinationNamespace = 'MISC';
+    this.namespace = 'EDIPAYER';
+    this.lastRunByTable = {};
+
+    console.log('[TpSync] Sync context disconnected');
+
+    if (navigateToConnect) {
+      console.log('[TpSync] Navigating to connect page after disconnect');
+      await this.router.navigate(['/tp-manage-sync']);
+    }
+  }
+
+  ngOnDestroy(): void {
+    // If user changes app tab/route, disconnect only TP Sync context.
+    console.log('[TpSync] Trading partners page destroyed; auto-disconnecting sync context');
+    void this.disconnectSync(false);
   }
 
   private formatSummaryLine(label: string, summary: any): string {
@@ -401,6 +474,7 @@ export class TpTradingPartnersPageComponent {
           password: this.password,
           serverPort: this.sourceServerPort,
           sourceServerPort: this.sourceServerPort,
+          sourceNamespace: this.namespace,
           destinationServerPort: this.destinationServerPort,
           destinationNamespace: this.destinationNamespace,
           sourceTimezoneOffsetMinutes: new Date().getTimezoneOffset(),
