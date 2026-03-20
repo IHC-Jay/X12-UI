@@ -44,15 +44,15 @@ if (-not $FrontendOnly) {
     Write-Host "Starting .NET Backend..." -ForegroundColor Green
     Write-Host "Backend Path: $BackendPath" -ForegroundColor Yellow
     Write-Host ""
-    
+
     if (-not (Test-Path $BackendPath)) {
         Write-Error "Backend path not found: $BackendPath"
     }
-    
+
     # Start backend in a new PowerShell window
     $backendCmd = "Set-Location '$BackendPath'; dotnet run"
     Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", $backendCmd -WindowStyle Normal
-    
+
     Write-Host "[OK] Backend started in new window" -ForegroundColor Green
     Write-Host "  Waiting for: 'Now listening on: http://localhost:3100'" -ForegroundColor Yellow
     Start-Sleep -Seconds 3
@@ -64,11 +64,11 @@ if (-not $BackendOnly) {
     Write-Host "Frontend Path: $X12UIPath" -ForegroundColor Yellow
     Write-Host "Angular Profile: $Profile" -ForegroundColor Yellow
     Write-Host ""
-    
+
     # Start frontend in a new PowerShell window
     $frontendCmd = "Set-Location '$X12UIPath'; npx ng serve $Profile"
     Start-Process -FilePath "powershell.exe" -ArgumentList "-NoExit", "-Command", $frontendCmd -WindowStyle Normal
-    
+
     Write-Host "[OK] Frontend started in new window" -ForegroundColor Green
     Write-Host "  Waiting for frontend readiness at http://localhost:4200 ..." -ForegroundColor Yellow
 }
