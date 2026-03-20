@@ -37,28 +37,28 @@ export const HELP_CONTENT_BY_ROUTE: Array<{ routePrefix: string; content: HelpCo
     routePrefix: '/summary',
     content: {
       title: 'Transmissions Help',
-      overview: 'Transmissions lets you review transmission-level activity and statuses.',
+      overview: 'Transmissions lets you review transmission-level (ISA-IEA) activity and statuses.',
       quickSteps: [
-        'Apply date/status filters.',
-        'Open transmission rows for deeper details.',
-        'Use export options where available.'
+        'Only transmissions with the selected date/status are included.',
+        'Right-Click transmission rows for further details or to view raw X12.'
       ],
-      tips: ['Start broad, then narrow with filters.']
+      tips: ['Start broad, then narrow with filters.',
+      'Results can be exported to a file.']
     }
   },
   {
     routePrefix: '/transaction/transaction-settings',
     content: {
       title: 'Transaction Settings Help',
-      overview: 'This screen has two setup areas: user configuration (landing page, default transaction/mode, time windows, row count, auto logoff) and transaction columns (display/search fields by transaction and mode).',
+      overview: 'This screen has two setup areas: Default User configuration on the left to set the landing page, default transaction/mode, time windows, row count, auto logout.  Transaction columns on the right set display/search fields by transaction and mode.',
       quickSteps: [
         'Update User Configuration values and click Save Configuration.',
-        'Select a transaction and mode, then move fields between Available and Selected lists.',
-        'Click Save to store your own settings, or Save as Default when needed for global defaults.'
+        'Select a transaction and mode, then click and drag fields between Available and Selected lists to enable or disable search or visibilty, respectively',
+        'Click Save For Session for temporary changes, Save As Defaults for change to persist across sessions.'
       ],
       tips: [
-        'Mode-specific field selections can differ (Batch vs RealTime).',
-        'Use Reset Settings to copy default columns back to your user profile.'
+        'Batch and Realtime settings are configured separately.',
+        'Use Reset Settings to restore back to default.'
       ]
     }
   },
@@ -66,26 +66,25 @@ export const HELP_CONTENT_BY_ROUTE: Array<{ routePrefix: string; content: HelpCo
     routePrefix: '/transaction/transaction-details',
     content: {
       title: 'Transaction Details Help',
-      overview: 'Inspect detailed transaction payloads and supporting metadata.',
+      overview: 'Displays detailed information for a single transaction.',
       quickSteps: [
-        'Open a transaction from the main list.',
-        'Review summary, payload, and validation sections.',
-        'Use navigation/actions to return or drill down.'
+        'Raw X12 is for the transaction is shown at the bottom (scroll down).',
+        'Also at the bottom are buttons to display full X12 (ISA-IEA), or to access the results this transaction generated.'
       ],
-      tips: ['Use search/filter fields to jump to specific segments quickly.']
+      tips: ['In most browsers, ctrl-f can be used to search for a given heading or value.']
     }
   },
   {
     routePrefix: '/transaction',
     content: {
       title: 'Transactions Help',
-      overview: 'Search and analyze transactions by type, status, and timeframe.',
+      overview: 'View transaction by timestamp, mode, and transaction type.',
       quickSteps: [
-        'Choose transaction type and filters.',
-        'Run search to load results.',
-        'Open details for specific transactions.'
+        'Right-click a transaction to view transaction contents, transaction responses, and/or display raw X12.',
+        'Batch/RealTime selection only available for relevant transaction types.',
+        'Sort columns by clicking on column headers.'
       ],
-      tips: ['Save your preferred result columns in Settings.']
+      tips: ['Available search fields and data columns can be configured in the Settings tab','This data can be exported to file.']
     }
   },
   {
@@ -120,9 +119,9 @@ export const HELP_CONTENT_BY_ROUTE: Array<{ routePrefix: string; content: HelpCo
       title: 'RDP Validation Errors Help',
       overview: 'Review validation failures and error details for troubleshooting.',
       quickSteps: [
-        'Open records with failed validation.',
+        'Click error on left to select rejected segment.',
         'Read error code/message and affected fields.',
-        'Return to source workflow/transaction to correct data.'
+        'To correct data, return to source workflow/transation.'
       ],
       tips: ['Focus on the first blocking error before secondary errors.']
     }
@@ -133,11 +132,11 @@ export const HELP_CONTENT_BY_ROUTE: Array<{ routePrefix: string; content: HelpCo
       title: 'Workflow Help',
       overview: 'Workflow screen helps monitor processing states and exceptions.',
       quickSteps: [
-        'Apply filters for date/status/type.',
+        'Apply filters for date, status, and/or type.',
         'Search and review matching workflows.',
-        'Open details/history/errors for selected rows.'
+        'Open details (error information) and history for selected rows.'
       ],
-      tips: ['Use quick date presets first, then narrow if needed.']
+      tips: ['Use quick date presets first, then narrow if needed.','Button at top can be used to assign a workflow to yourself.','check-boxes at left can be used to select multiple.']
     }
   },
   {
@@ -192,7 +191,7 @@ export const HELP_CONTENT_BY_ROUTE: Array<{ routePrefix: string; content: HelpCo
         'Run search and inspect results.',
         'Open linked records for details.'
       ],
-      tips: ['Use specific keywords to reduce noisy results.']
+      tips: ['Use specific keywords to produce clean results.']
     }
   },
   {
@@ -218,7 +217,7 @@ export const HELP_CONTENT_BY_ROUTE: Array<{ routePrefix: string; content: HelpCo
         'Choose files/folders and optional compare settings.',
         'Run Compare, then open detail rows for full diff.'
       ],
-      tips: ['Use ignore fields for known volatile values like timestamps.']
+      tips: ['Use ignore fields for known-volatile values like timestamps.']
     }
   },
   {

@@ -584,6 +584,19 @@ private clearCustomFlds() {
   }
 }
 
+resetCustomFields(): void {
+  const formArr = this.form.get('additional') as FormArray;
+
+  if (formArr.length >= 1) {
+    for (let i = 0; i < formArr.length; i++) {
+      const fGrp = formArr.at(i) as FormGroup;
+      fGrp.controls.newFldValue.setValue('');
+      fGrp.controls.newFldValue.markAsPristine();
+      fGrp.controls.newFldValue.markAsUntouched();
+    }
+  }
+}
+
 private readCustomFlds() {
 
   const formArr = this.form.get('additional') as FormArray
