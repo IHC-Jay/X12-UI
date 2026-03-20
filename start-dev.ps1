@@ -12,7 +12,7 @@ param(
 $ErrorActionPreference = "Stop"
 
 $X12UIPath = Get-Location
-$BackendPath = "C:\CoPilot\TpDataSync\TpManageSync\server-dotnet\TpManageSync.Api"
+$BackendPath = Join-Path $X12UIPath "server"
 
 function Wait-ForHttpReady {
     param(
