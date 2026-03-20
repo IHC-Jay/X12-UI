@@ -13,6 +13,261 @@
   row-gap: 2;
 }
 
+.workflow-page {
+  width: 100%;
+  min-height: 800px;
+  background: white;
+}
+
+.workflow-input-table {
+  border-color: blue;
+  border-style: groove;
+  border-width: thin;
+  align-items: center;
+  font-size: small;
+  background-color: azure;
+}
+
+.workflow-filter-row {
+  font-size: 10px;
+  vertical-align: top;
+}
+
+.workflow-label {
+  font-size: 10px;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif;
+  font-weight: bold;
+}
+
+.workflow-label-normal {
+  font-weight: 400;
+}
+
+.workflow-text-input {
+  width: 100pt;
+  font-size: 10px;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.workflow-small-cell {
+  font-size: 10px;
+}
+
+.workflow-border-box {
+  border-color: black;
+}
+
+.workflow-date-input,
+.workflow-time-input,
+.workflow-select,
+.workflow-option,
+.workflow-radio-text {
+  font-size: 10px;
+}
+
+.workflow-inner-table {
+  width: 100%;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: small;
+  background-color: azure;
+}
+
+.workflow-vertical-top-row,
+.workflow-table-vertical-top {
+  vertical-align: top;
+}
+
+.workflow-safe-align-cell {
+  font-size: 10px;
+  align-self: safe;
+}
+
+.workflow-search-btn {
+  align-content: center;
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: navy;
+  color: white;
+  font-size: 10px;
+  padding: 5px;
+  cursor: pointer;
+  border: 1px solid navy;
+}
+
+.workflow-assign-btn {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: green;
+  font-size: 10px;
+  padding: 5px;
+}
+
+.workflow-update-btn {
+  font-family: Arial, Helvetica, sans-serif;
+  background-color: blue;
+  font-size: 10px;
+  padding: 5px;
+}
+
+.workflow-form-field {
+  font-size: 8px;
+  width: fit-content;
+}
+
+.workflow-notes-label {
+  font-size: 11px;
+  text-align: left;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.workflow-notes-input {
+  font-size: 11px;
+  width: 300pt;
+}
+
+.workflow-data-table {
+  width: 100%;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: small;
+  background-color: azure;
+}
+
+.workflow-header-cell {
+  font-size: smaller;
+  font-weight: bold;
+}
+
+.workflow-small-cell-text {
+  font-size: smaller;
+}
+
+.workflow-grid-btn {
+  height: 2pc;
+  width: auto;
+}
+
+.workflow-data-row {
+  font-size: smaller;
+  font-family: 'Courier New', Courier, monospace;
+}
+
+/* Work Flow dark-mode readability for results grid */
+:host-context(body.app-theme-dark) .workflow-data-table,
+:host-context(body.app-theme-dark) .workflow-data-table .mat-mdc-header-row,
+:host-context(body.app-theme-dark) .workflow-data-table .mat-mdc-row {
+  background-color: #1f2937 !important;
+}
+
+:host-context(body.app-theme-dark) .workflow-data-table .mat-mdc-header-cell,
+:host-context(body.app-theme-dark) .workflow-data-table .mat-mdc-cell,
+:host-context(body.app-theme-dark) .workflow-data-table .mat-mdc-footer-cell,
+:host-context(body.app-theme-dark) .workflow-data-row,
+:host-context(body.app-theme-dark) .workflow-small-cell-text,
+:host-context(body.app-theme-dark) .workflow-header-cell {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .workflow-grid-btn {
+  background-color: #e5e7eb;
+  color: #111827;
+  border: 1px solid #9ca3af;
+}
+
+/* Work Flow dark-mode dropdown readability */
+:host-context(body.app-theme-dark) .workflow-select,
+:host-context(body.app-theme-dark) .workflow-select .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) .workflow-select .mat-mdc-select-value,
+:host-context(body.app-theme-dark) .workflow-select .mat-mdc-select-value-text,
+:host-context(body.app-theme-dark) .workflow-select .mat-mdc-select-min-line,
+:host-context(body.app-theme-dark) .workflow-select .mat-mdc-select-placeholder,
+:host-context(body.app-theme-dark) .workflow-form-field .mat-mdc-form-field-infix {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) .workflow-select .mat-mdc-select-arrow,
+:host-context(body.app-theme-dark) .workflow-select .mat-mdc-select-arrow svg {
+  color: #111827 !important;
+  fill: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .workflow-select .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) ::ng-deep .workflow-select .mat-mdc-select-value,
+:host-context(body.app-theme-dark) ::ng-deep .workflow-select .mat-mdc-select-value-text,
+:host-context(body.app-theme-dark) ::ng-deep .workflow-select .mat-mdc-select-min-line,
+:host-context(body.app-theme-dark) ::ng-deep .workflow-select .mat-mdc-select-placeholder {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+/* Work Flow dark-mode button readability */
+:host-context(body.app-theme-dark) .workflow-search-btn,
+:host-context(body.app-theme-dark) .workflow-assign-btn,
+:host-context(body.app-theme-dark) .workflow-update-btn {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  border-color: #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) .workflow-search-btn:hover,
+:host-context(body.app-theme-dark) .workflow-search-btn:active,
+:host-context(body.app-theme-dark) .workflow-assign-btn:hover,
+:host-context(body.app-theme-dark) .workflow-assign-btn:active,
+:host-context(body.app-theme-dark) .workflow-update-btn:hover,
+:host-context(body.app-theme-dark) .workflow-update-btn:active {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+/* Work Flow data table Select column width control */
+::ng-deep [matColumnDef="Select"] {
+  max-width: 60px !important;
+  width: 60px !important;
+}
+
+::ng-deep .cdk-column-Select {
+  max-width: 60px !important;
+  width: 60px !important;
+  padding: 8px !important;
+}
+
+/* Work Flow dark-mode checkbox styling for data table */
+:host-context(body.app-theme-dark) ::ng-deep .workflow-data-table .mat-mdc-checkbox {
+  --mdc-checkbox-selected-checkmark-color: #111827 !important;
+  --mdc-checkbox-selected-focus-icon-color: #0ea5e9 !important;
+  --mdc-checkbox-selected-hover-icon-color: #0ea5e9 !important;
+  --mdc-checkbox-selected-icon-color: #0ea5e9 !important;
+  --mdc-checkbox-unselected-focus-icon-color: #e5e7eb !important;
+  --mdc-checkbox-unselected-hover-icon-color: #e5e7eb !important;
+  --mdc-checkbox-unselected-icon-color: #e5e7eb !important;
+  max-width: 24px !important;
+  width: 24px !important;
+  min-width: 24px !important;
+}
+
+::ng-deep .workflow-data-table .mat-mdc-checkbox {
+  max-width: 24px !important;
+  width: 24px !important;
+  min-width: 24px !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .workflow-data-table .mdc-checkbox--selected .mdc-checkbox__background {
+  border-color: #0ea5e9 !important;
+  background-color: #0ea5e9 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .workflow-data-table .mdc-checkbox:not(.mdc-checkbox--selected) .mdc-checkbox__background {
+  border-color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .workflow-data-table .mdc-checkbox__checkmark {
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .workflow-data-table .mdc-checkbox__checkmark-path {
+  stroke: #111827 !important;
+}
+
 table {
   width: 100%;
   background-color: rgb(245, 235, 223);

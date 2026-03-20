@@ -88,3 +88,68 @@ tr.trans-element-row:not(.tpLinks-expanded-row):active {
   color:navy ;
 }
 
+.dashboard-chart-panel {
+  width: 90%;
+  min-height: 400px;
+  background: rgb(246, 247, 248);
+  border: 1px solid #d1d5db;
+}
+
+.dashboard-chart-panel canvas {
+  background: #ffffff;
+}
+
+.dashboard-data-table {
+  font-size: small;
+  background-color: azure;
+  border-color: blue;
+}
+
+/* Dashboard dark-mode styling */
+:host-context(body.app-theme-dark) .dashboard-chart-panel {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+}
+
+:host-context(body.app-theme-dark) .dashboard-chart-panel canvas {
+  background: #ffffff !important;
+}
+
+:host-context(body.app-theme-dark) .dashboard-data-table,
+:host-context(body.app-theme-dark) table {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .dashboard-data-table .mat-mdc-header-cell,
+:host-context(body.app-theme-dark) .dashboard-data-table .mat-mdc-cell,
+:host-context(body.app-theme-dark) .dashboard-data-table .mat-mdc-footer-cell,
+:host-context(body.app-theme-dark) .dashboard-data-table .mat-cell,
+:host-context(body.app-theme-dark) .dashboard-data-table .mat-header-cell {
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .dashboard-data-table .mat-header-cell,
+:host-context(body.app-theme-dark) .dashboard-data-table .mat-mdc-header-cell {
+  color: #ffffff !important;
+}
+
+:host-context(body.app-theme-dark) tr.trans-element-row {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) tr.trans-element-row:not(.tpLinks-expanded-row):hover,
+:host-context(body.app-theme-dark) tr.trans-element-row:not(.tpLinks-expanded-row):active {
+  background: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) .mat-row,
+:host-context(body.app-theme-dark) .mat-cell,
+:host-context(body.app-theme-dark) .mat-no-data-row,
+:host-context(body.app-theme-dark) .mat-mdc-no-data-row,
+:host-context(body.app-theme-dark) div {
+  color: #e5e7eb;
+}
+

@@ -3,7 +3,7 @@
 <form [formGroup]="form"  class="form-group" >
 
   @if (canRenderDetails) {
-    <div style="width: 90%; height: 400px; background:rgb(246, 247, 248) ">
+    <div class="dashboard-chart-panel">
       <canvas baseChart
         [datasets]="barChartData"
         [labels]="mbarChartLabels"
@@ -21,9 +21,8 @@
 
 
     @if (dataSource.data.length > 0) {
-      <table style="font-size: small; background-color: azure; border-color: blue;"
-        mat-table [dataSource]="dataSource" multiTemplateDataRows matSort
-        style="font-size: small; background-color: azure;">
+      <table class="dashboard-data-table"
+        mat-table [dataSource]="dataSource" multiTemplateDataRows matSort>
         @for (column of dataTableKey; track column; let i = $index) {
           <ng-container [matColumnDef]="column">
             <th style="font-size: smaller;" class="mat-header-cell" *matHeaderCellDef mat-sort-header> {{dataTableLabel[i]}} </th>

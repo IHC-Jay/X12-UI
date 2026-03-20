@@ -188,6 +188,8 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
   private standaloneDetailMode = false;
 
   background = 'white';
+  currentTheme: 'light' | 'dark' = 'light';
+  private readonly themeStorageKey = 'appTheme';
 
   constructor(
     private router: Router,
@@ -228,6 +230,8 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
 
     ngOnInit() {
       console.log('HeaderComponent ngOnInit')
+
+      this.initializeTheme();
 
       this.loginForm = this.formBuilder.group({
           username: ['', Validators.required],
@@ -680,6 +684,25 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
   storageEvt(){
 	  console.log("storage");
 	  this.val = this.storage.getItem<string>(STORE_KEY);
+  }
+
+  toggleTheme(): void {
+    const nextTheme: 'light' | 'dark' = this.currentTheme === 'dark' ? 'light' : 'dark';
+    this.applyTheme(nextTheme);
+  }
+
+  private initializeTheme(): void {
+    const storedTheme = localStorage.getItem(this.themeStorageKey);
+    const initialTheme: 'light' | 'dark' = storedTheme === 'dark' ? 'dark' : 'light';
+    this.applyTheme(initialTheme);
+  }
+
+  private applyTheme(theme: 'light' | 'dark'): void {
+    this.currentTheme = theme;
+    localStorage.setItem(this.themeStorageKey, theme);
+
+    document.body.classList.remove('app-theme-light', 'app-theme-dark');
+    document.body.classList.add(theme === 'dark' ? 'app-theme-dark' : 'app-theme-light');
   }
 
 

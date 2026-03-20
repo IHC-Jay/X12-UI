@@ -48,3 +48,104 @@
   display: table-row;
   width: 100%
 }
+
+/* Transaction Details dark-mode styling */
+:host-context(body.app-theme-dark) .flex-container {
+  border-color: #4b5563 !important;
+  background-color: #1f2937 !important;
+}
+
+:host-context(body.app-theme-dark) .flex-container > div {
+  border-bottom-color: #4b5563 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .form-label {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .custom-text-truncate {
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+
+:host-context(body.app-theme-dark) table {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .mat-mdc-header-cell,
+:host-context(body.app-theme-dark) .mat-mdc-cell {
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .mat-header-cell {
+  color: #ffffff !important;
+  font-weight: bolder !important;
+}
+
+:host-context(body.app-theme-dark) button.btn,
+:host-context(body.app-theme-dark) button.btn-primary,
+:host-context(body.app-theme-dark) button.btn-secondary {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  border-color: #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) button.btn:hover,
+:host-context(body.app-theme-dark) button.btn-primary:hover,
+:host-context(body.app-theme-dark) button.btn-secondary:hover,
+:host-context(body.app-theme-dark) button.btn:active,
+:host-context(body.app-theme-dark) button.btn-primary:active,
+:host-context(body.app-theme-dark) button.btn-secondary:active {
+  background-color: #d1d5db !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-button,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-raised-button,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-flat-button,
+:host-context(body.app-theme-dark) ::ng-deep button[mat-flat-button],
+:host-context(body.app-theme-dark) ::ng-deep button[mat-raised-button],
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-button-base {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-button:hover,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-raised-button:hover,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-flat-button:hover,
+:host-context(body.app-theme-dark) ::ng-deep button[mat-flat-button]:hover,
+:host-context(body.app-theme-dark) ::ng-deep button[mat-raised-button]:hover {
+  background-color: #d1d5db !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep [color="primary"] {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep [color="primary"]:hover {
+  background-color: #d1d5db !important;
+}
+
+:host-context(body.app-theme-dark) label {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) mat-label {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) input,
+:host-context(body.app-theme-dark) textarea,
+:host-context(body.app-theme-dark) select {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) mat-select,
+:host-context(body.app-theme-dark) .mat-mdc-select-trigger {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}

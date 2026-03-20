@@ -9,6 +9,25 @@
   vertical-align: middle;
   }
 
+::ng-deep .mat-mdc-tab-header {
+  min-height: 32px !important;
+  height: 32px !important;
+}
+
+::ng-deep .mat-mdc-tab-body-content {
+  padding-top: 0 !important;
+}
+
+::ng-deep .mat-mdc-tab {
+  min-height: 32px !important;
+}
+
+::ng-deep .mat-tab-label {
+  min-width: 90px !important;
+  padding: 0 8px !important;
+  height: 32px !important;
+}
+
 a {
   color: blue;
   background-color: azure;
@@ -48,4 +67,61 @@ table {
 .tp-button-row {
   display: table-cell;
   max-width: 600px;
+}
+
+.theme-toggle-btn {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  font-size: 9pt;
+  width: 80pt !important;
+  border: 1px solid #9ca3af;
+  padding: 4px 6px;
+  border-radius: 4px;
+}
+
+.theme-toggle-btn:hover,
+.theme-toggle-btn:active {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+#logout button[type="button"] {
+  background-color: #dc2626 !important;
+  color: white !important;
+  width: 110pt !important;
+  font-size: 9pt !important;
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+}
+
+#logout button[type="button"]:hover,
+#logout button[type="button"]:active {
+  background-color: #b91c1c !important;
+  color: white !important;
+}
+
+:host-context(body.app-theme-dark) #logout button[type="button"] {
+  background-color: #dc2626 !important;
+  color: white !important;
+}
+
+:host-context(body.app-theme-dark) #logout button[type="button"]:hover,
+:host-context(body.app-theme-dark) #logout button[type="button"]:active {
+  background-color: #b91c1c !important;
+  color: white !important;
+}
+
+#logout button:not([type="button"]) {
+  background-color: #22c55e !important;
+  color: black !important;
+  width: 80pt !important;
+  font-size: 9pt !important;
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+}
+
+#logout button:not([type="button"]):hover,
+#logout button:not([type="button"]):active {
+  background-color: #16a34a !important;
+  color: black !important;
 }

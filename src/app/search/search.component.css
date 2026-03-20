@@ -56,3 +56,76 @@ mat-form-field {
   margin-left: 1pc;
   border:1px;
 }
+
+/* Search TPID dark-mode styling */
+:host-context(body.app-theme-dark) h5,
+:host-context(body.app-theme-dark) p,
+:host-context(body.app-theme-dark) label,
+:host-context(body.app-theme-dark) th,
+:host-context(body.app-theme-dark) td {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) table,
+:host-context(body.app-theme-dark) .w-95 {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .w-95 th,
+:host-context(body.app-theme-dark) .w-95 td {
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .form-control,
+:host-context(body.app-theme-dark) input[type="text"] {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+  border: 1px solid #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) .btn,
+:host-context(body.app-theme-dark) .btn-primary,
+:host-context(body.app-theme-dark) .small-btn {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  border: 1px solid #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) .btn:hover,
+:host-context(body.app-theme-dark) .btn-primary:hover,
+:host-context(body.app-theme-dark) .small-btn:hover,
+:host-context(body.app-theme-dark) .btn:active,
+:host-context(body.app-theme-dark) .btn-primary:active,
+:host-context(body.app-theme-dark) .small-btn:active {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) .mat-list-item {
+  background: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .mat-list-item:hover {
+  background: #475569 !important;
+}
+
+:host-context(body.app-theme-dark) .collapsible {
+  background-color: #1f2937 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .collapsible,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible p,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible b,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible [mat-line],
+:host-context(body.app-theme-dark) ::ng-deep .collapsible [mat-subheader],
+:host-context(body.app-theme-dark) ::ng-deep .collapsible mat-list,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible mat-list-item,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible .mat-mdc-list-item,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible mat-option,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible .mat-mdc-option,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible .mdc-list-item,
+:host-context(body.app-theme-dark) ::ng-deep .collapsible .mdc-list-item__primary-text {
+  color: #e5e7eb !important;
+}

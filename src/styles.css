@@ -6,6 +6,287 @@ body {
   margin: 0;
 }
 
+body.app-theme-light {
+  background-color: #ffffff;
+  color: #111827;
+}
+
+body.app-theme-dark {
+  background-color: #0f172a;
+  color: #e5e7eb;
+}
+
+/* Force theme backgrounds across legacy templates that still use inline styles. */
+body.app-theme-light [style*='background'],
+body.app-theme-light [style*='background-color'],
+body.app-theme-light table,
+body.app-theme-light .mat-mdc-card,
+body.app-theme-light .mat-mdc-dialog-surface,
+body.app-theme-light .mat-mdc-tab-body-content,
+body.app-theme-light .mat-mdc-form-field,
+body.app-theme-light .card,
+body.app-theme-light .page {
+  background-color: #ffffff !important;
+  color: #111827 !important;
+}
+
+body.app-theme-dark [style*='background'],
+body.app-theme-dark [style*='background-color'],
+body.app-theme-dark table,
+body.app-theme-dark .mat-mdc-card,
+body.app-theme-dark .mat-mdc-dialog-surface,
+body.app-theme-dark .mat-mdc-tab-body-content,
+body.app-theme-dark .mat-mdc-form-field,
+body.app-theme-dark .card,
+body.app-theme-dark .page {
+  background-color: #111827 !important;
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark input,
+body.app-theme-dark select,
+body.app-theme-dark textarea,
+body.app-theme-dark button,
+body.app-theme-dark .mat-mdc-select-value,
+body.app-theme-dark .mat-mdc-option,
+body.app-theme-dark .mat-mdc-button,
+body.app-theme-dark .mat-mdc-raised-button,
+body.app-theme-dark .mat-mdc-outlined-button,
+body.app-theme-dark .mat-mdc-unelevated-button {
+  color: #111827 !important;
+}
+
+body.app-theme-dark .mat-mdc-select-trigger,
+body.app-theme-dark .mat-mdc-select-value,
+body.app-theme-dark .mat-mdc-select-value-text,
+body.app-theme-dark .mat-mdc-select-min-line,
+body.app-theme-dark .mat-mdc-form-field-infix,
+body.app-theme-dark .mat-mdc-form-field-label {
+  color: #111827 !important;
+}
+
+body.app-theme-dark .mat-icon,
+body.app-theme-dark .material-icons {
+  color: #e5e7eb !important;
+}
+
+/* Icons inside our light action buttons need dark glyph color for contrast. */
+body.app-theme-dark button .mat-icon,
+body.app-theme-dark button .material-icons,
+body.app-theme-dark .btn .mat-icon,
+body.app-theme-dark .btn .material-icons,
+body.app-theme-dark .mat-mdc-button .mat-icon,
+body.app-theme-dark .mat-mdc-button .material-icons,
+body.app-theme-dark .mat-mdc-raised-button .mat-icon,
+body.app-theme-dark .mat-mdc-raised-button .material-icons,
+body.app-theme-dark .mat-mdc-flat-button .mat-icon,
+body.app-theme-dark .mat-mdc-flat-button .material-icons {
+  color: #111827 !important;
+}
+
+body.app-theme-dark .cdk-overlay-container .mat-mdc-select-panel,
+body.app-theme-dark .cdk-overlay-container .mat-mdc-option {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+body.app-theme-dark .cdk-overlay-container .mat-mdc-option .mdc-list-item__primary-text {
+  color: #111827 !important;
+}
+
+body.app-theme-dark .make-gold,
+body.app-theme-dark .make-gold tr,
+body.app-theme-dark .make-gold td,
+body.app-theme-dark tr.make-gold,
+body.app-theme-dark tr.make-gold td {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: bold !important;
+}
+
+body.app-theme-dark .selected,
+body.app-theme-dark tr.selected,
+body.app-theme-dark tr.selected td {
+  background-color: #475569 !important;
+  color: #e5e7eb !important;
+  font-weight: bold !important;
+}
+
+body.app-theme-dark .selected,
+body.app-theme-dark tr.selected,
+body.app-theme-dark tr.selected td {
+  background-color: #475569 !important;
+  color: #e5e7eb !important;
+  font-weight: bold !important;
+}
+
+body.app-theme-dark .flex-container {
+  border-color: #4b5563 !important;
+  background-color: #1f2937 !important;
+}
+
+body.app-theme-dark .form-label {
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark .custom-text-truncate {
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark .rTableRow {
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark .mat-mdc-button,
+body.app-theme-dark .mat-mdc-raised-button,
+body.app-theme-dark .mat-mdc-flat-button,
+body.app-theme-dark button[mat-button],
+body.app-theme-dark button[mat-flat-button],
+body.app-theme-dark button[mat-raised-button],
+body.app-theme-dark .mat-mdc-button-base {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+}
+
+body.app-theme-dark .mat-mdc-button:hover,
+body.app-theme-dark .mat-mdc-raised-button:hover,
+body.app-theme-dark .mat-mdc-flat-button:hover,
+body.app-theme-dark button[mat-button]:hover,
+body.app-theme-dark button[mat-flat-button]:hover,
+body.app-theme-dark button[mat-raised-button]:hover {
+  background-color: #d1d5db !important;
+}
+
+body.app-theme-dark [color="primary"] {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+}
+
+body.app-theme-dark [color="primary"]:hover {
+  background-color: #d1d5db !important;
+}
+
+body.app-theme-dark .searchLbl {
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark tr.trans-element-row {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark tr.trans-element-row:hover {
+  background-color: #374151 !important;
+}
+
+/* Global paginator readability in dark mode */
+body.app-theme-dark mat-paginator,
+body.app-theme-dark .mat-mdc-paginator,
+body.app-theme-dark .mat-mdc-paginator-container,
+body.app-theme-dark .mat-mdc-paginator-page-size,
+body.app-theme-dark .mat-mdc-paginator-range-label,
+body.app-theme-dark .mat-mdc-paginator-page-size-label {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-value,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-value-text,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-min-line,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-arrow,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-arrow svg {
+  color: #e5e7eb !important;
+  fill: #e5e7eb !important;
+}
+
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button .mat-mdc-button-persistent-ripple,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button .mat-mdc-button-touch-target,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button .mat-icon,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button .material-icons,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-paginator-icon {
+  color: #e5e7eb !important;
+  fill: #e5e7eb !important;
+}
+
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button {
+  background-color: #e5e7eb !important;
+  border: 1px solid #9ca3af !important;
+  border-radius: 4px !important;
+}
+
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button .mat-icon,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button .material-icons,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-paginator-icon {
+  color: #111827 !important;
+  fill: #111827 !important;
+}
+
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button:hover,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button:active {
+  background-color: #d1d5db !important;
+}
+
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+}
+
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] .mat-icon,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] .material-icons,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] .mat-mdc-paginator-icon {
+  color: #9ca3af !important;
+  fill: #9ca3af !important;
+}
+
+/* Hide paginator navigation controls when there is only one page. */
+.mat-mdc-paginator:has(.mat-mdc-paginator-navigation-previous[disabled]):has(.mat-mdc-paginator-navigation-next[disabled]) .mat-mdc-paginator-navigation-first,
+.mat-mdc-paginator:has(.mat-mdc-paginator-navigation-previous[disabled]):has(.mat-mdc-paginator-navigation-next[disabled]) .mat-mdc-paginator-navigation-previous,
+.mat-mdc-paginator:has(.mat-mdc-paginator-navigation-previous[disabled]):has(.mat-mdc-paginator-navigation-next[disabled]) .mat-mdc-paginator-navigation-next,
+.mat-mdc-paginator:has(.mat-mdc-paginator-navigation-previous[disabled]):has(.mat-mdc-paginator-navigation-next[disabled]) .mat-mdc-paginator-navigation-last {
+  display: none !important;
+}
+
+/* Legacy paginator class support. */
+.mat-paginator:has(.mat-paginator-navigation-previous[disabled]):has(.mat-paginator-navigation-next[disabled]) .mat-paginator-navigation-first,
+.mat-paginator:has(.mat-paginator-navigation-previous[disabled]):has(.mat-paginator-navigation-next[disabled]) .mat-paginator-navigation-previous,
+.mat-paginator:has(.mat-paginator-navigation-previous[disabled]):has(.mat-paginator-navigation-next[disabled]) .mat-paginator-navigation-next,
+.mat-paginator:has(.mat-paginator-navigation-previous[disabled]):has(.mat-paginator-navigation-next[disabled]) .mat-paginator-navigation-last {
+  display: none !important;
+}
+
+/* Browser-compatible fallback: hide disabled paginator nav buttons. */
+.mat-mdc-paginator .mat-mdc-paginator-navigation-first[disabled],
+.mat-mdc-paginator .mat-mdc-paginator-navigation-previous[disabled],
+.mat-mdc-paginator .mat-mdc-paginator-navigation-next[disabled],
+.mat-mdc-paginator .mat-mdc-paginator-navigation-last[disabled],
+.mat-paginator .mat-paginator-navigation-first[disabled],
+.mat-paginator .mat-paginator-navigation-previous[disabled],
+.mat-paginator .mat-paginator-navigation-next[disabled],
+.mat-paginator .mat-paginator-navigation-last[disabled] {
+  display: none !important;
+}
+
+/* Material may use aria-disabled/class-based disabled states depending on version/build. */
+.mat-mdc-paginator .mat-mdc-paginator-navigation-first[aria-disabled="true"],
+.mat-mdc-paginator .mat-mdc-paginator-navigation-previous[aria-disabled="true"],
+.mat-mdc-paginator .mat-mdc-paginator-navigation-next[aria-disabled="true"],
+.mat-mdc-paginator .mat-mdc-paginator-navigation-last[aria-disabled="true"],
+.mat-mdc-paginator .mat-mdc-paginator-navigation-first.mat-mdc-button-disabled,
+.mat-mdc-paginator .mat-mdc-paginator-navigation-previous.mat-mdc-button-disabled,
+.mat-mdc-paginator .mat-mdc-paginator-navigation-next.mat-mdc-button-disabled,
+.mat-mdc-paginator .mat-mdc-paginator-navigation-last.mat-mdc-button-disabled,
+.mat-paginator .mat-paginator-navigation-first[aria-disabled="true"],
+.mat-paginator .mat-paginator-navigation-previous[aria-disabled="true"],
+.mat-paginator .mat-paginator-navigation-next[aria-disabled="true"],
+.mat-paginator .mat-paginator-navigation-last[aria-disabled="true"],
+.mat-paginator .mat-paginator-navigation-first.mat-button-disabled,
+.mat-paginator .mat-paginator-navigation-previous.mat-button-disabled,
+.mat-paginator .mat-paginator-navigation-next.mat-button-disabled,
+.mat-paginator .mat-paginator-navigation-last.mat-button-disabled {
+  display: none !important;
+}
+
 .basic-container {
   padding: 30px;
 }

@@ -1,3 +1,34 @@
+.wf-history-container {
+  width: 100%;
+  height: 100%;
+  background: white;
+  color: #111827;
+}
+
+.btn {
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: 1px solid transparent;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 14px;
+  transition: background-color 0.2s ease;
+  margin-right: 10px;
+}
+
+.btn-primary {
+  background-color: #2563eb;
+  color: #ffffff;
+}
+
+.btn-primary:hover {
+  background-color: #1d4ed8;
+}
+
+.btn-primary:active {
+  background-color: #1e40af;
+}
+
 .mat-select-content{
   background-color: azure;
   font-size: 12px !important;
@@ -16,9 +47,9 @@
 
 table {
   width: 100%;
-  background-color: rgb(245, 235, 223);
-  border-color: blue;
- }
+  background-color: #ffffff;
+  border-color: #d1d5db;
+}
 
  tr.trans-row {
   height: 0;
@@ -35,26 +66,25 @@ table {
 
 
 .container {
-
-  background-color: white;
+  background-color: #ffffff;
   padding: 1px;
   font-weight: 60;
   width: 100%;
-
   position: sticky;
   position: -webkit-sticky;
   top: 0;
+  color: #111827;
 }
 .table-container {
   height: 400px;
   overflow: auto;
 }
 tr.trans-element-row:not(.tpLinks-expanded-row):hover {
-  background: rgb(233, 215, 193);
+  background: #f3f4f6 !important;
 }
 
 tr.trans-element-row:not(.tpLinks-expanded-row):active {
-  background: rgb(233, 215, 193);
+  background: #f3f4f6 !important;
 }
 
 .trans-element-row td {
@@ -66,7 +96,8 @@ tr.trans-element-row:not(.tpLinks-expanded-row):active {
   max-width: 300px;
   font-weight: bolder;
   font-size: larger;
-  color:navy ;
+  color: #111827 !important;
+  background-color: #f3f4f6 !important;
 }
 .selDiv {
   font-family: "Calibri", Calibri, serif;
@@ -98,6 +129,65 @@ tr.trans-element-row:not(.tpLinks-expanded-row):active {
   border: 1px solid blue !important;
   text-align: left!important;
   vertical-align: middle!important;
+}
+
+:host-context(body.app-theme-dark) .wf-history-container {
+  background-color: #1a1d23 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) table {
+  background-color: #1f2937 !important;
+  border-color: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) table td,
+:host-context(body.app-theme-dark) table th {
+  border-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) mat-header-cell,
+:host-context(body.app-theme-dark) .mat-header-cell {
+  color: #e5e7eb !important;
+  background-color: #1f2937 !important;
+}
+
+:host-context(body.app-theme-dark) mat-cell,
+:host-context(body.app-theme-dark) mat-row {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) tr.trans-element-row:not(.tpLinks-expanded-row):hover {
+  background: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) tr.trans-element-row:not(.tpLinks-expanded-row):active {
+  background: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) .container {
+  background-color: #111827 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-expansion-panel-body {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .btn-primary {
+  background-color: #e5e7eb;
+  color: #111827;
+  border: 1px solid #9ca3af;
+}
+
+:host-context(body.app-theme-dark) .btn-primary:hover,
+:host-context(body.app-theme-dark) .btn-primary:active {
+  background-color: #d1d5db;
+  color: #111827;
+}
   cursor: pointer!important;
   background-image: none!important;
   border-radius: 4px!important;

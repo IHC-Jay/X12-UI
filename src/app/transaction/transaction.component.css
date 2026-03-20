@@ -99,3 +99,106 @@ custom-radio-button .mat-radio-label-content {
   line-height: normal; /* Ensure text alignment is correct if changing font-size drastically */
 }
 
+/* Transaction dark-mode table styling */
+:host-context(body.app-theme-dark) table {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) table .mat-mdc-header-cell,
+:host-context(body.app-theme-dark) table .mat-mdc-cell,
+:host-context(body.app-theme-dark) table .mat-mdc-footer-cell {
+  color: #e5e7eb !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .mat-header-cell {
+  color: #ffffff !important;
+  font-weight: bolder !important;
+}
+
+:host-context(body.app-theme-dark) tr.trans-element-row {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) tr.trans-element-row:hover {
+  background-color: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) .selected {
+  background-color: #475569 !important;
+  color: #e5e7eb !important;
+  font-weight: bold !important;
+}
+
+:host-context(body.app-theme-dark) .make-gold {
+  background-color: #ef4444 !important;
+  color: #ffffff !important;
+  font-weight: bold !important;
+}
+
+:host-context(body.app-theme-dark) button.btn.btn-primary {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  border-color: #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) button.btn.btn-primary:hover,
+:host-context(body.app-theme-dark) button.btn.btn-primary:active {
+  background-color: #d1d5db !important;
+}
+
+:host-context(body.app-theme-dark) mat-select,
+:host-context(body.app-theme-dark) .mat-mdc-select-trigger {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-value,
+:host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-value-text {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) label,
+:host-context(body.app-theme-dark) .searchLbl {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) mat-label {
+  color: #e5e7eb !important;
+  background-color: transparent !important;
+}
+
+:host-context(body.app-theme-dark) .mdc-text-field__input {
+  color: #111827 !important;
+  background-color: #f3f4f6 !important;
+}
+
+:host-context(body.app-theme-dark) input[type="text"],
+:host-context(body.app-theme-dark) input[type="date"],
+:host-context(body.app-theme-dark) input[type="time"],
+:host-context(body.app-theme-dark) input[matInput] {
+  color: #111827 !important;
+  background-color: #f3f4f6 !important;
+}
+
+:host-context(body.app-theme-dark) div[style*="ghostwhite"],
+:host-context(body.app-theme-dark) [style*="background-color: ghostwhite"] {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) button.btn.btn-secondary {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  border-color: #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) button.btn.btn-secondary:hover,
+:host-context(body.app-theme-dark) button.btn.btn-secondary:active {
+  background-color: #d1d5db !important;
+}
+

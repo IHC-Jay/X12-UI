@@ -2,32 +2,32 @@
 <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 <form [formGroup]="form"  class="form-group" >
 
-  <div style="width: 100%; height: 800px; background: white; ">
+  <div class="settings-page">
 
-    <table style="width: 100%;  background-color: azure;">
-      <tr style="vertical-align: top;">
-        <td style="vertical-align: top;">
-          <table style="font-size: 10px; border-color: gray; border-style: groove;border-width: thin; background-color: azure;">
-            <tr style="vertical-align:top" >
+    <table class="settings-layout-table">
+      <tr class="row-top">
+        <td class="cell-top">
+          <table class="settings-panel-table settings-panel-table-primary">
+            <tr class="row-top" >
 
-              <td class="form-group col-2" style=" vertical-align:top;   width: 150px;">
-                <label style="font-size: 14px;text-align: center ;">Default User Configurations</label>
+              <td class="form-group col-2 default-config-cell">
+                <label class="default-config-title">Default User Configurations</label>
               </td>
 
             </tr>
 
-            <tr style="align-items: center; align-content: center;vertical-align: middle;">
-              <td style="align-items: center;align-content: center;vertical-align: middle;">
+            <tr class="row-center">
+              <td class="cell-center">
 
-                <button class="icon" style="height: 40pt; background-color: navy;  font-size: 10pt;margin-right:16px"
-                  class="btn btn-primary" (click)="saveConfig()">
+                <button class="icon btn btn-primary settings-action-btn"
+                  (click)="saveConfig()">
                   Save Configuration
                 </button>
               </td>
               <td>
 
-                <button class="icon" style=" height: 40pt; background-color: navy; font-size: 10pt; margin-left:16px"
-                  class="btn btn-primary" (click)="toTransactions()"> Return
+                <button class="icon btn btn-primary settings-action-btn settings-action-btn-left"
+                  (click)="toTransactions()"> Return
                 </button>
 
               </td>
@@ -36,16 +36,16 @@
 
 
             <tr>
-              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                <label style="font-size: 10pt; text-align: left ;">Start Tab</label>
+              <td class="form-group col-1 settings-label-cell">
+                <label class="settings-label">Start Tab</label>
               </td>
-              <td class="form-group col-1" style="vertical-align: top;">
+              <td class="form-group col-1 cell-top">
 
 
-                  <mat-select formControlName="cngfPage" style="font-size: 10px;"
+                  <mat-select formControlName="cngfPage" class="settings-select"
                     [multiple]="false" >
                     @for (rowCnt of landingPage; track rowCnt) {
-                      <mat-option [value]="rowCnt" style="font-size: 10px;">
+                      <mat-option [value]="rowCnt" class="settings-option">
                         {{rowCnt}}
                       </mat-option>
                     }
@@ -57,16 +57,16 @@
             </tr>
 
             <tr>
-              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                <label style="font-size: 10pt; text-align: left ;">Transaction</label>
+              <td class="form-group col-1 settings-label-cell">
+                <label class="settings-label">Transaction</label>
               </td>
-              <td class="form-group col-1" style="vertical-align: top;">
+              <td class="form-group col-1 cell-top">
 
 
-                  <mat-select formControlName="cngfTranType" (selectionChange)="cngfTranTypeChange($event.value)" style="font-size: 10px;"
+                  <mat-select formControlName="cngfTranType" (selectionChange)="cngfTranTypeChange($event.value)" class="settings-select"
                     [multiple]="false" >
                     @for (cfgTran of transactionTypes; track cfgTran) {
-                      <mat-option [value]="cfgTran" style="font-size: 10px;">
+                      <mat-option [value]="cfgTran" class="settings-option">
                         {{cfgTran}}
                       </mat-option>
                     }
@@ -79,14 +79,14 @@
 
             @if (showCngfMode) {
               <tr>
-                <td  class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                  <label style="font-size: 10pt; text-align: left ;">Mode</label>
+                <td  class="form-group col-1 settings-label-cell">
+                  <label class="settings-label">Mode</label>
                 </td>
-                <td class="form-group col-1" style="vertical-align: top;">
-                    <mat-select formControlName="cngfMode" style="font-size: 10px;"
+                <td class="form-group col-1 cell-top">
+                    <mat-select formControlName="cngfMode" class="settings-select"
                       [multiple]="false" >
                       @for (cfgMode of modes; track cfgMode) {
-                        <mat-option [value]="cfgMode" style="font-size: 10px;">
+                        <mat-option [value]="cfgMode" class="settings-option">
                           {{cfgMode}}
                         </mat-option>
                       }
@@ -97,16 +97,16 @@
             }
 
             <tr>
-              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                <label style="font-size: 10pt; text-align: left ;">Transmissions Search Timeframe</label>
+              <td class="form-group col-1 settings-label-cell">
+                <label class="settings-label">Transmissions Search Timeframe</label>
               </td>
-              <td class="form-group col-1" style="vertical-align: top;">
+              <td class="form-group col-1 cell-top">
 
 
-                  <mat-select formControlName="cngfBthTime" style="font-size: 10px;"
+                  <mat-select formControlName="cngfBthTime" class="settings-select"
                     [multiple]="false" >
                     @for (bthTm of searchTime; track bthTm) {
-                      <mat-option [value]="bthTm" style="font-size: 10px;">
+                      <mat-option [value]="bthTm" class="settings-option">
                         {{bthTm}}
                       </mat-option>
                     }
@@ -118,16 +118,16 @@
             </tr>
 
             <tr>
-              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                <label style="font-size: 10pt; text-align: left ;">Transactions Search Timeframe</label>
+              <td class="form-group col-1 settings-label-cell">
+                <label class="settings-label">Transactions Search Timeframe</label>
               </td>
-              <td class="form-group col-1" style="vertical-align: top;">
+              <td class="form-group col-1 cell-top">
 
 
-                  <mat-select formControlName="cngfTranTime" style="font-size: 10px;"
+                  <mat-select formControlName="cngfTranTime" class="settings-select"
                     [multiple]="false" >
                     @for (tranTm of searchTime; track tranTm) {
-                      <mat-option [value]="tranTm" style="font-size: 10px;">
+                      <mat-option [value]="tranTm" class="settings-option">
                         {{tranTm}}
                       </mat-option>
                     }
@@ -138,16 +138,16 @@
             </tr>
 
             <tr>
-              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                <label style="font-size: 10pt; text-align: left ;">Workflow Search Timeframe</label>
+              <td class="form-group col-1 settings-label-cell">
+                <label class="settings-label">Workflow Search Timeframe</label>
               </td>
-              <td class="form-group col-1" style="vertical-align: top;">
+              <td class="form-group col-1 cell-top">
 
 
-                  <mat-select formControlName="cngfWfTime" style="font-size: 10px;"
+                  <mat-select formControlName="cngfWfTime" class="settings-select"
                     [multiple]="false" >
                     @for (wfTm of searchTime; track wfTm) {
-                      <mat-option [value]="wfTm" style="font-size: 10px;">
+                      <mat-option [value]="wfTm" class="settings-option">
                         {{wfTm}}
                       </mat-option>
                     }
@@ -158,16 +158,16 @@
             </tr>
 
             <tr>
-              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                <label style="font-size: 10pt; text-align: left ;">Display Items per Page</label>
+              <td class="form-group col-1 settings-label-cell">
+                <label class="settings-label">Display Items per Page</label>
               </td>
-              <td class="form-group col-1" style="vertical-align: top;">
+              <td class="form-group col-1 cell-top">
 
 
-                  <mat-select formControlName="cngfDispCnt" style="font-size: 10px;"
+                  <mat-select formControlName="cngfDispCnt" class="settings-select"
                     [multiple]="false" >
                     @for (rowCnt of maxCount; track rowCnt) {
-                      <mat-option [value]="rowCnt" style="font-size: 10px;">
+                      <mat-option [value]="rowCnt" class="settings-option">
                         {{rowCnt}}
                       </mat-option>
                     }
@@ -178,16 +178,16 @@
             </tr>
 
             <tr>
-              <td class="form-group col-1" style="font-size: 10px; vertical-align:top ; width: 10%;">
-                <label style="font-size: 10pt; text-align: left ;">Logout timeout (in mins)</label>
+              <td class="form-group col-1 settings-label-cell">
+                <label class="settings-label">Logout timeout (in mins)</label>
               </td>
-              <td class="form-group col-1" style="vertical-align: top;">
+              <td class="form-group col-1 cell-top">
 
 
-                  <mat-select formControlName="cngfLogoff" style="font-size: 10px;"
+                  <mat-select formControlName="cngfLogoff" class="settings-select"
                     [multiple]="false" >
                     @for (lTm of logoutTime; track lTm) {
-                      <mat-option [value]="lTm" style="font-size: 10px;">
+                      <mat-option [value]="lTm" class="settings-option">
                         {{lTm}}
                       </mat-option>
                     }
@@ -202,10 +202,10 @@
         </td>
         <!-- Display Search -->
         <td>
-          <table style="font-size: 5px; border-color: gray; border-style: groove;border-width: thin; background-color: azure;">
-            <tr style="vertical-align:top" >
-              <td class="form-group col-1" style="font-size: 14px; vertical-align:top ;  width:35%">
-                <label style="font-size: 16px;text-align: center ;">Customization for <B>Transactions</B> </label>
+          <table class="settings-panel-table settings-panel-table-secondary">
+            <tr class="row-top" >
+              <td class="form-group col-1 customization-title-cell">
+                <label class="customization-title">Customization for <B>Transactions</B> </label>
 
 
               </td>
@@ -215,19 +215,19 @@
 
             </tr>
             <tr>
-              <td   class="form-group col-1" style="font-size: 10px; vertical-align:top;  width:35%"  >
-                <table style="width: 100%; background-color: azure; ">
-                  <tr style="align-items: center; align-content: center;vertical-align: middle;">
+              <td   class="form-group col-1 customization-controls-cell"  >
+                <table class="subtable-azure">
+                  <tr class="row-center">
 
                     <td>
 
 
-                      <mat-form-field appearance="fill" style="width: 80pt;" >
+                      <mat-form-field appearance="fill" class="settings-form-field-small" >
 
-                        <mat-select formControlName="dispTransType" (selectionChange)="transactionChange($event.value)" style="font-size: 10px;"
+                        <mat-select formControlName="dispTransType" (selectionChange)="transactionChange($event.value)" class="settings-select"
                           [multiple]="false" >
                           @for (transType of transactionTypes; track transType) {
-                            <mat-option [value]="transType" style="font-size: 10px;">
+                            <mat-option [value]="transType" class="settings-option">
                               {{transType}}
                             </mat-option>
                           }
@@ -235,14 +235,14 @@
                       </mat-form-field>
                     </td>
 
-                    <td style="align-items: center;align-content: center;vertical-align: middle;">
+                    <td class="cell-center">
 
                       @if (showMode) {
-                        <div style="font-size: 5px; border-color: gray; border-style: dashed; border-width: thin; width: 120px ">
+                        <div class="mode-picker-box">
                           @for (mode of modes; track mode) {
-                            <mat-radio-group formControlName="dispMode" (change)="modeChange($event.value)" style="font-size: 10px;"
+                            <mat-radio-group formControlName="dispMode" (change)="modeChange($event.value)" class="settings-radio-group"
                               [(ngModel)]="formFields.modeString">
-                              <mat-radio-button  style="font-size: 10px;" [value]="mode" style="font-size: 10px;">
+                              <mat-radio-button class="settings-radio-button" [value]="mode">
                                 {{mode}}
                               </mat-radio-button>
                             </mat-radio-group>
@@ -260,32 +260,32 @@
 
 
 
-              <td  class="form-group col-1" style="vertical-align:top; width:35%">
-                <table style="width: 100%; background-color: azure; ">
-                  <tr style="align-items: center; align-content: center;vertical-align: middle;">
-                    <td style="align-items: center;align-content: center;vertical-align: middle; padding-right: 20pt;">
-                      <button class="icon" style=" height:40pt; background-color: navy;  font-size: 10pt;margin-right:16px"
-                        class="btn btn-primary" (click)="saveSettings('Default')">
+              <td  class="form-group col-1 customization-controls-cell">
+                <table class="subtable-azure">
+                  <tr class="row-center">
+                    <td class="cell-center controls-right-padding">
+                      <button class="icon btn btn-primary settings-action-btn"
+                        (click)="saveSettings('Default')">
                         Save As Default
                       </button>
 
-                      <button class="icon" style="height:40pt; background-color: navy;  font-size: 10pt;margin-right:16px"
-                        class="btn btn-primary" (click)="saveSettings('Session')">
+                      <button class="icon btn btn-primary settings-action-btn"
+                        (click)="saveSettings('Session')">
                         Save For Session
                       </button>
 
-                      <button class="icon" style="height:40pt; font-size: 10pt; background-color: navy; margin-right:16px"
-                      class="btn btn-primary" (click)="openDialog()">Copy</button>
+                      <button class="icon btn btn-primary settings-action-btn"
+                      (click)="openDialog()">Copy</button>
 
-                      <button class="icon" style="height:40pt; font-size: 10pt; background-color: navy; margin-right:16px"
-                        class="btn btn-primary" (click)="resetSettings()">
+                      <button class="icon btn btn-primary settings-action-btn"
+                        (click)="resetSettings()">
 
                         Reset
 
                       </button>
 
-                      <button class="icon" style="height:40pt; font-size: 10pt; background-color: navy; margin-right:16px"
-                        class="btn btn-primary" (click)="toTransactions()">
+                      <button class="icon btn btn-primary settings-action-btn"
+                        (click)="toTransactions()">
 
                         Return
 
@@ -301,11 +301,11 @@
 
             <!-- Titles / Buttons -->
             <tr>
-              <td class="form-group col-2" style="font-size: small; " align="right; width:35%">
-                <label style="font-size: 14px; text-align: left ;  ">Drag and Drop Search Fields for  {{dispTransType}} {{formFields.modeString}} :</label>
+              <td class="form-group col-2 dragdrop-title-cell" align="right; width:35%">
+                <label class="dragdrop-title">Drag and Drop Search Fields for  {{dispTransType}} {{formFields.modeString}} :</label>
               </td>
-              <td class="form-group col-2" style="font-size: small; " align="right; width:35%">
-                <label style="font-size: 14px; text-align: left ;  ">Drag and Drop Display Fields for  {{dispTransType}} {{formFields.modeString}}: </label>
+              <td class="form-group col-2 dragdrop-title-cell" align="right; width:35%">
+                <label class="dragdrop-title">Drag and Drop Display Fields for  {{dispTransType}} {{formFields.modeString}}: </label>
               </td>
 
             </tr>
@@ -314,7 +314,7 @@
             <tr>
 
 
-              <td class="form-group col-1" style="vertical-align: top; margin-right: 10pt; ; width:35%">
+              <td class="form-group col-1 dragdrop-column-cell">
 
                 <table class="table table-sm table-bordered table-striped text-center;">
                   <tr>
@@ -324,7 +324,7 @@
                         <div class="transFld-container">
 
                           <div class="transFld-container">
-                            <label style="font-size: 10pt;">Selected </label>
+                            <label class="dragdrop-label">Selected </label>
 
                             <div
                               cdkDropList
@@ -337,7 +337,7 @@
                             </div>
                           </div>
 
-                          <label style="font-size: 10pt;">Available </label>
+                          <label class="dragdrop-label">Available </label>
 
                           <div
                             cdkDropList
@@ -362,7 +362,7 @@
               </td>
 
 
-              <td class="form-group col-1" style="vertical-align: top; width:35%">
+              <td class="form-group col-1 dragdrop-column-cell dragdrop-column-cell-right">
 
                 <table class="table table-sm table-bordered table-striped text-center;">
                   <tr>
@@ -372,7 +372,7 @@
                         <div class="transFld-container">
 
                           <div class="transFld-container">
-                            <label style="font-size: 10pt;">Selected </label>
+                            <label class="dragdrop-label">Selected </label>
 
                             <div
                               cdkDropList
@@ -385,7 +385,7 @@
                             </div>
                           </div>
 
-                          <label style="font-size: 10pt;">Available </label>
+                          <label class="dragdrop-label">Available </label>
 
                           <div
                             cdkDropList

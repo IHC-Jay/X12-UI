@@ -14,6 +14,224 @@
   row-gap: 2;
 }
 
+.settings-page {
+  width: 100%;
+  min-height: 800px;
+  background: white;
+}
+
+.settings-layout-table {
+  width: 100%;
+  background-color: azure;
+}
+
+.settings-panel-table {
+  border-color: gray;
+  border-style: groove;
+  border-width: thin;
+  background-color: azure;
+}
+
+.settings-panel-table-primary {
+  font-size: 10px;
+}
+
+.settings-panel-table-secondary {
+  font-size: 5px;
+}
+
+.row-top {
+  vertical-align: top;
+}
+
+.row-center {
+  align-items: center;
+  align-content: center;
+  vertical-align: middle;
+}
+
+.cell-top {
+  vertical-align: top;
+}
+
+.cell-center {
+  align-items: center;
+  align-content: center;
+  vertical-align: middle;
+}
+
+.default-config-cell {
+  vertical-align: top;
+  width: 150px;
+}
+
+.default-config-title {
+  font-size: 14px;
+  text-align: center;
+}
+
+.settings-action-btn {
+  height: 40pt;
+  background-color: navy;
+  color: #ffffff;
+  border: 1px solid navy;
+  font-size: 10pt;
+  margin-right: 16px;
+}
+
+.settings-action-btn-left {
+  margin-left: 16px;
+}
+
+.settings-label-cell {
+  font-size: 10px;
+  vertical-align: top;
+  width: 10%;
+}
+
+.settings-label {
+  font-size: 10pt;
+  text-align: left;
+}
+
+.settings-select {
+  font-size: 10px;
+}
+
+.settings-option {
+  font-size: 10px;
+}
+
+.customization-title-cell {
+  font-size: 14px;
+  vertical-align: top;
+  width: 35%;
+}
+
+.customization-title {
+  font-size: 16px;
+  text-align: center;
+}
+
+.customization-controls-cell {
+  vertical-align: top;
+  width: 35%;
+}
+
+.subtable-azure {
+  width: 100%;
+  background-color: azure;
+}
+
+.settings-form-field-small {
+  width: 80pt;
+}
+
+.mode-picker-box {
+  font-size: 5px;
+  border-color: gray;
+  border-style: dashed;
+  border-width: thin;
+  width: 120px;
+}
+
+.settings-radio-group {
+  font-size: 10px;
+}
+
+.settings-radio-button {
+  font-size: 10px;
+}
+
+.controls-right-padding {
+  padding-right: 20pt;
+}
+
+.dragdrop-title-cell {
+  font-size: small;
+}
+
+.dragdrop-title {
+  font-size: 14px;
+  text-align: left;
+}
+
+.dragdrop-column-cell {
+  vertical-align: top;
+  margin-right: 10pt;
+  width: 35%;
+}
+
+.dragdrop-column-cell-right {
+  margin-right: 0;
+}
+
+.dragdrop-label {
+  font-size: 10pt;
+}
+
+/* Settings-specific dark theme tuning */
+:host-context(body.app-theme-dark) .mode-picker-box {
+  background-color: #e5e7eb;
+  border-color: #9ca3af;
+}
+
+:host-context(body.app-theme-dark) .settings-radio-group,
+:host-context(body.app-theme-dark) .settings-radio-button,
+:host-context(body.app-theme-dark) .settings-radio-button .mdc-form-field,
+:host-context(body.app-theme-dark) .settings-radio-button .mdc-label {
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) .settings-select,
+:host-context(body.app-theme-dark) .settings-select .mat-mdc-select-value,
+:host-context(body.app-theme-dark) .settings-select .mat-mdc-select-placeholder {
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) .settings-select,
+:host-context(body.app-theme-dark) .settings-select .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) .settings-select .mat-mdc-select-value-text,
+:host-context(body.app-theme-dark) .settings-select .mat-mdc-select-min-line {
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .settings-select .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) ::ng-deep .settings-select .mat-mdc-select-value,
+:host-context(body.app-theme-dark) ::ng-deep .settings-select .mat-mdc-select-value-text,
+:host-context(body.app-theme-dark) ::ng-deep .settings-select .mat-mdc-select-min-line {
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) .settings-action-btn {
+  background-color: #e5e7eb;
+  color: #111827 !important;
+  border-color: #9ca3af;
+}
+
+:host-context(body.app-theme-dark) .settings-action-btn:hover,
+:host-context(body.app-theme-dark) .settings-action-btn:active {
+  background-color: #d1d5db;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) .settings-panel-table-primary .settings-select,
+:host-context(body.app-theme-dark) .settings-panel-table-primary .settings-select .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) .settings-panel-table-primary .settings-select .mat-mdc-select-value,
+:host-context(body.app-theme-dark) .settings-panel-table-primary .settings-select .mat-mdc-select-value-text,
+:host-context(body.app-theme-dark) .settings-panel-table-primary .settings-select .mat-mdc-select-min-line {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .settings-panel-table-primary .settings-select .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) ::ng-deep .settings-panel-table-primary .settings-select .mat-mdc-select-value,
+:host-context(body.app-theme-dark) ::ng-deep .settings-panel-table-primary .settings-select .mat-mdc-select-value-text,
+:host-context(body.app-theme-dark) ::ng-deep .settings-panel-table-primary .settings-select .mat-mdc-select-min-line {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
 table {
   width: 100%;
   background-color: rgb(245, 235, 223);

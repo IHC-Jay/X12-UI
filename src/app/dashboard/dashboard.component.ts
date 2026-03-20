@@ -1,5 +1,5 @@
 import { DateTimeUtils } from '../utils/date-time.utils';
-import { Component, OnInit, AfterViewInit, ViewChild, ElementRef } from '@angular/core';
+import { Component, OnInit, AfterViewInit, ViewChild, ElementRef, OnDestroy } from '@angular/core';
 
 import { FormBuilder, FormGroup, FormArray, FormControl, Validators, NgForm } from '@angular/forms';
 
@@ -20,7 +20,7 @@ import { MatIconModule } from '@angular/material/icon';
 import { environment } from '../../environments/environment';
 import { StorageService } from '../services/storage.service';
 import { BaseChartDirective } from 'ng2-charts';
-import { Chart, registerables, ChartOptions, ChartType, ChartDataset, LabelItem } from 'chart.js';
+import { Chart, registerables, ChartConfiguration, ChartType, ChartDataset, LabelItem, Plugin } from 'chart.js';
 
 
 @Component({
@@ -32,15 +32,80 @@ import { Chart, registerables, ChartOptions, ChartType, ChartDataset, LabelItem 
 
 
 
-export class DashBoardComponent implements OnInit {
+export class DashBoardComponent implements OnInit, AfterViewInit, OnDestroy {
   private subscriptions: any[] = [];
+  private themeObserver?: MutationObserver;
+  @ViewChild(BaseChartDirective) chart?: BaseChartDirective;
 
-  barChartOptions: ChartOptions = {
+  private readonly chartPalette = [
+    '#2563eb', '#16a34a', '#ea580c', '#9333ea', '#0891b2', '#dc2626', '#4f46e5'
+  ];
+
+  private readonly forcedGridPlugin: Plugin = {
+    id: 'forcedGridPlugin',
+    afterDraw: (chart) => {
+      const { ctx, chartArea, scales } = chart as any;
+      if (!ctx || !chartArea || !scales) {
+        return;
+      }
+
+      const gridColor = 'rgba(17, 24, 39, 0.28)';
+
+      ctx.save();
+      ctx.strokeStyle = gridColor;
+      ctx.lineWidth = 1;
+
+      const yScale = scales.y;
+      if (yScale?.ticks) {
+        for (let i = 0; i < yScale.ticks.length; i++) {
+          const y = yScale.getPixelForTick(i);
+          if (y >= chartArea.top && y <= chartArea.bottom) {
+            ctx.beginPath();
+            ctx.moveTo(chartArea.left, y);
+            ctx.lineTo(chartArea.right, y);
+            ctx.stroke();
+          }
+        }
+      }
+
+      const xScale = scales.x;
+      if (xScale?.ticks) {
+        for (let i = 0; i < xScale.ticks.length; i++) {
+          const x = xScale.getPixelForTick(i);
+          if (x >= chartArea.left && x <= chartArea.right) {
+            ctx.beginPath();
+            ctx.moveTo(x, chartArea.top);
+            ctx.lineTo(x, chartArea.bottom);
+            ctx.stroke();
+          }
+        }
+      }
+
+      ctx.restore();
+    }
+  };
+
+  barChartOptions: ChartConfiguration<'bar'>['options'] = {
     responsive: true,
     scales: {
-      x: { stacked: false },
+      x: {
+        type: 'category',
+        stacked: false,
+        ticks: { color: '#111827' },
+        grid: { color: 'rgba(17, 24, 39, 0.2)' }
+      },
       y: {
-        beginAtZero: true
+        type: 'linear',
+        beginAtZero: true,
+        ticks: { color: '#111827' },
+        grid: { color: 'rgba(17, 24, 39, 0.2)' }
+      }
+    },
+    plugins: {
+      legend: {
+        labels: {
+          color: '#111827'
+        }
       }
     }
   };
@@ -49,6 +114,7 @@ export class DashBoardComponent implements OnInit {
 
     public barChartType:ChartType = 'bar';
     public barChartLegend:boolean = true;
+    public barChartPlugins: Plugin[] = [this.forcedGridPlugin];
 
 
   public barChartData:ChartDataset[] = [];
@@ -117,7 +183,6 @@ export class DashBoardComponent implements OnInit {
       if(params !== undefined && params.dashboard !== undefined)
         {
           // Defaults to '' if no query param provided.
-
           this.currentTransType =  params['transaction'] || '';
           this.additionalsearchString = params['additionalSearch'] || '';
           this.searchTypeString = params['searchTypeString'];
@@ -135,9 +200,126 @@ export class DashBoardComponent implements OnInit {
           }
 
     });
+    this.applyChartTheme();
+    this.watchThemeChanges();
     this.onSearchDashBoard();
     this.subscriptions.push(this.sub);
 
+  }
+
+  ngAfterViewInit(): void {
+    // Ensure chart instance exists before applying theme-driven axis/grid styling.
+    setTimeout(() => {
+      this.applyChartTheme();
+    }, 0);
+  }
+
+  private applyChartTheme(): void {
+    // Chart canvas is rendered on a light background in both themes for readability.
+    const axisText = '#111827';
+    const gridColor = 'rgba(17, 24, 39, 0.28)';
+    const axisBorder = '#111827';
+
+    // Keep global chart defaults in sync with current app theme.
+    Chart.defaults.color = axisText;
+    Chart.defaults.borderColor = gridColor;
+
+    this.barChartOptions = {
+      ...this.barChartOptions,
+      scales: {
+        x: {
+          type: 'category',
+          stacked: false,
+          ticks: { color: axisText },
+          grid: {
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+            color: gridColor,
+            lineWidth: 2,
+            tickColor: axisBorder
+          },
+          border: { display: true, color: axisBorder, width: 2 }
+        } as any,
+        y: {
+          type: 'linear',
+          beginAtZero: true,
+          ticks: { color: axisText },
+          grid: {
+            display: true,
+            drawOnChartArea: true,
+            drawTicks: true,
+            color: gridColor,
+            lineWidth: 2,
+            tickColor: axisBorder
+          },
+          border: { display: true, color: axisBorder, width: 2 }
+        } as any
+      },
+      plugins: {
+        ...(this.barChartOptions.plugins || {}),
+        legend: {
+          ...((this.barChartOptions.plugins as any)?.legend || {}),
+          labels: {
+            color: axisText
+          }
+        }
+      }
+    };
+
+    // Force redraw so axis/legend/grid colors update immediately after theme toggle.
+    const chartRef = this.chart?.chart as any;
+    if (chartRef?.options?.scales) {
+      chartRef.options.scales.x = {
+        ...(chartRef.options.scales.x || {}),
+        ticks: { color: axisText },
+        grid: {
+          display: true,
+          drawOnChartArea: true,
+          drawTicks: true,
+          color: gridColor,
+          lineWidth: 2,
+          tickColor: axisBorder
+        },
+        border: { display: true, color: axisBorder, width: 2 }
+      };
+      chartRef.options.scales.y = {
+        ...(chartRef.options.scales.y || {}),
+        beginAtZero: true,
+        ticks: { color: axisText },
+        grid: {
+          display: true,
+          drawOnChartArea: true,
+          drawTicks: true,
+          color: gridColor,
+          lineWidth: 2,
+          tickColor: axisBorder
+        },
+        border: { display: true, color: axisBorder, width: 2 }
+      };
+      chartRef.options.plugins = {
+        ...(chartRef.options.plugins || {}),
+        legend: {
+          ...((chartRef.options.plugins || {}).legend || {}),
+          labels: {
+            ...(((chartRef.options.plugins || {}).legend || {}).labels || {}),
+            color: axisText
+          }
+        }
+      };
+    }
+    this.chart?.update();
+  }
+
+  private watchThemeChanges(): void {
+    this.themeObserver = new MutationObserver(() => {
+      this.applyChartTheme();
+    });
+
+    this.themeObserver.observe(document.body, {
+      attributes: true,
+      attributeFilter: ['class']
+    });
   }
 
 
@@ -212,7 +394,14 @@ export class DashBoardComponent implements OnInit {
 
                   if(transCount.length > 0)
                   {
-                    barEntries.push ( {data: transCount, label:  prevLab});
+                    const color = this.chartPalette[(barEntries.length) % this.chartPalette.length];
+                    barEntries.push({
+                      data: transCount,
+                      label: prevLab,
+                      backgroundColor: color + 'B3',
+                      borderColor: color,
+                      borderWidth: 2
+                    });
                   }
                   prevLab = lable;
                   transCount = [];
@@ -232,11 +421,19 @@ export class DashBoardComponent implements OnInit {
 
               if ( (index+1) == res.length)
               {
-                barEntries.push ( {data: transCount, label:  lable});
+                const color = this.chartPalette[(barEntries.length) % this.chartPalette.length];
+                barEntries.push({
+                  data: transCount,
+                  label: lable,
+                  backgroundColor: color + 'B3',
+                  borderColor: color,
+                  borderWidth: 2
+                });
               }
 
             });
             this.barChartData = [...barEntries];
+            this.applyChartTheme();
 
 
             this.barChartData.forEach((chartEle, index) => {
@@ -269,6 +466,8 @@ export class DashBoardComponent implements OnInit {
 
 
               this.canRenderDetails = true;
+              setTimeout(() => this.applyChartTheme(), 0);
+              setTimeout(() => this.applyChartTheme(), 120);
 
               console.info("barChartData length: " + this.barChartData.length);
               console.info("mbarChartLabels length: " + this.mbarChartLabels.length);
@@ -283,6 +482,7 @@ export class DashBoardComponent implements OnInit {
 
 
   ngOnDestroy(): void {
+    this.themeObserver?.disconnect();
     this.subscriptions.forEach(sub => {
       if (sub && typeof sub.unsubscribe === 'function') {
         sub.unsubscribe();

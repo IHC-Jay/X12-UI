@@ -1,35 +1,35 @@
 <form [formGroup]="form"  class="form-group" (ngSubmit)="onSubmit()">
 
-  <div style="width: 100%; height: 800px; background: white;">
+  <div class="workflow-page">
 
 
     <!-- USER INPUT -->
-    <table style="font-size: 5px; border-color: blue; border-style: groove;border-width: thin; align-items: center; font-size: small; background-color: azure;">
+    <table class="workflow-input-table">
 
 
       @if (!rowSelected) {
-        <tr style="font-size: 10px; vertical-align:top" >
+        <tr class="workflow-filter-row" >
 
              <td>
-                    <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">WF ID:</label>
+                    <label class="workflow-label">WF ID:</label>
 
-                    <input type="text" style="width: 100pt; font-size: 10px; text-align: left ;font-family: Arial" formControlName="wfID"
+                    <input type="text" class="workflow-text-input" formControlName="wfID"
                       (input)="inputID()">
              </td>
 
 
               <!-- Date Time -->
               @if (!rowSelected && !searchID) {
-                  <td class="form-group col-2" style="font-size: 10px; ">
-                   <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Event Start Date & Time:</label>
-                   <div  style="border-color: black;">
+                  <td class="form-group col-2 workflow-small-cell">
+                   <label class="workflow-label">Event Start Date & Time:</label>
+                   <div class="workflow-border-box">
 
-                  <input matInput  name="startDate" type="date" style="font-size: 10px;"
+                  <input matInput  name="startDate" type="date" class="workflow-date-input"
                     value="{{startDate}}"
                     placeholder="mm-dd-yyyy" required (change)="onStDateChange($event)"/>
 
 
-                    <input type="time" style="font-size: 10px;" matInput name="startTm"
+                    <input type="time" class="workflow-time-input" matInput name="startTm"
                       value="{{startTm}}" (change)="onStTimeChange($event)"
                       />
 
@@ -37,33 +37,33 @@
                   </td>
                 }
                 @if (!rowSelected && !searchID) {
-                <td class="form-group col-2" style="font-size: 10px;  ">
-                  <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Event End Date & Time:</label>
-                  <div style="border-color: black; ">
+                <td class="form-group col-2 workflow-small-cell">
+                  <label class="workflow-label">Event End Date & Time:</label>
+                  <div class="workflow-border-box">
 
-                      <input type="date" style="font-size: 10px;" matInput name="endDate"
+                      <input type="date" class="workflow-date-input" matInput name="endDate"
                         value="{{endDate}}" (change)="onEndDateChange($event)"/>
 
-                        <input type="time" style="font-size: 10px; " matInput name="endTm"
+                        <input type="time" class="workflow-time-input" matInput name="endTm"
                           value="{{endTm}}" (change)="onEndTimeChange($event)"/>
 
                       </div>
                     </td>
                   }
                   @if (!rowSelected && !searchID) {
-                    <td class="form-group col-2" style="font-size: 10px; ">
-                      <table style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                    <td class="form-group col-2 workflow-small-cell">
+                      <table class="workflow-inner-table">
                         <tr>
                           <td class="form-group col-1">
-                            <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Status:</label>
+                            <label class="workflow-label">Status:</label>
                           </td>
 
                           <td>
 
-                              <mat-select style="font-size: 10px;" formControlName="statusType" (selectionChange)="statusTypeChange($event.value)"
+                              <mat-select class="workflow-select" formControlName="statusType" (selectionChange)="statusTypeChange($event.value)"
                                 [multiple]="false">
                                 @for (statusType of statusTypes; track statusType) {
-                                  <mat-option [value]="statusType" style="font-size: 10px;">
+                                  <mat-option [value]="statusType" class="workflow-option">
                                     {{statusType}}
                                   </mat-option>
                                 }
@@ -75,15 +75,15 @@
                         @if (!showUsers) {
                           <tr>
                             <td class="form-group col-1">
-                              <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Transaction:</label>
+                              <label class="workflow-label">Transaction:</label>
                             </td>
 
                             <td>
 
-                                <mat-select formControlName="transType" style="font-size: 10px;"
+                                <mat-select formControlName="transType" class="workflow-select"
                                   [multiple]="false" (selectionChange)="transTypeChange($event.value)" >
                                   @for (transType of transactionTypes; track transType) {
-                                    <mat-option [value]="transType" style="font-size: 10px;">
+                                    <mat-option [value]="transType" class="workflow-option">
                                       {{transType}}
                                     </mat-option>
                                   }
@@ -96,16 +96,16 @@
                         } @else {
                           <tr>
                             <td class="form-group col-1">
-                              <label style="font-size: 10px; text-align: left ;font-family: Arial">User:</label>
+                              <label class="workflow-label workflow-label-normal">User:</label>
                             </td>
 
                             <td class="form-group col-2">
 
                                 <mat-select formControlName="assignedUser" (selectionChange)="updUserChange($event.value)"
-                                  style="font-size: 10px;"
+                                  class="workflow-select"
                                   [multiple]="false" >
                                   @for (assignee of irisUsers; track assignee) {
-                                    <mat-option [value]="assignee.FullName" style="font-size: 10px;">
+                                    <mat-option [value]="assignee.FullName" class="workflow-option">
                                       {{assignee.FullName}}
                                     </mat-option>
                                   }
@@ -120,10 +120,10 @@
 
                                <mat-radio-group class="custom-radio-group"  formControlName="mode" (change)="transactionChange($event.value)">
                                 <mat-radio-button class="custom-radio-button" value="RealTime">
-                                  <span style="font-size: 10px; text-align: left ;">RealTime</span>
+                                  <span class="workflow-radio-text">RealTime</span>
                                 </mat-radio-button>
                                 <mat-radio-button class="custom-radio-button" value="Batch">
-                                  <span style="font-size: 10px; text-align: left ;">Batch</span>
+                                  <span class="workflow-radio-text">Batch</span>
                                 </mat-radio-button>
                               </mat-radio-group>
 
@@ -135,30 +135,30 @@
                     </td>
                   }
                   @if (!rowSelected && !searchID) {
-                    <td class="form-group col-2" style="font-size: 10px;; ">
-                      <table style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
-                         <tr style="vertical-align: top;">
+                    <td class="form-group col-2 workflow-small-cell">
+                      <table class="workflow-inner-table">
+                         <tr class="workflow-vertical-top-row">
 
-                            <td  class="form-group col-1" style="font-size: 10px; align-self:safe;">
+                            <td  class="form-group col-1 workflow-safe-align-cell">
 
-                              <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Sender ID:</label>
+                              <label class="workflow-label">Sender ID:</label>
                             </td>
 
                            <td>
-                              <input type="text" style="width: 100pt; font-size: 10px; text-align: left ;font-family: Arial" formControlName="senderID"
+                              <input type="text" class="workflow-text-input" formControlName="senderID"
                                 >
                             </td>
 
                           </tr>
-                        <tr style="vertical-align: top;">
+                        <tr class="workflow-vertical-top-row">
 
-                            <td  class="form-group col-1" style="font-size: 10px; align-self:safe;">
+                            <td  class="form-group col-1 workflow-safe-align-cell">
 
-                              <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Receiver ID:</label>
+                              <label class="workflow-label">Receiver ID:</label>
                             </td>
 
                            <td>
-                              <input type="text" style="width: 100pt; font-size: 10px; text-align: left ;font-family: Arial" formControlName="receiverID"
+                              <input type="text" class="workflow-text-input" formControlName="receiverID"
                                 >
                             </td>
 
@@ -168,20 +168,20 @@
                     </td>
                   }
                    @if (!rowSelected && !searchID) {
-                    <td class="form-group col-2" style="font-size: 10px;; ">
-                      <table style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                    <td class="form-group col-2 workflow-small-cell">
+                      <table class="workflow-inner-table">
                         <tr>
-                          <td class="form-group col-1" style="font-size: 10px; align-self:safe;">
-                            <label style="font-size: 10px; text-align: left ;font-family: Arial; font-weight: bold;">Error Type:</label>
+                          <td class="form-group col-1 workflow-safe-align-cell">
+                            <label class="workflow-label">Error Type:</label>
                           </td>
 
                           <td class="form-group col-2">
 
-                              <mat-select formControlName="errorType" style="font-size: 10px;"
+                              <mat-select formControlName="errorType" class="workflow-select"
                                 [multiple]="false" (selectionChange)="errorTypeChange($event.value)" >
                                 @for (errorType of errorTypes; track errorType) {
                                   <mat-option [value]="errorType"
-                                    style="font-size: 10px;">
+                                    class="workflow-option">
                                     {{errorType}}
                                   </mat-option>
                                 }
@@ -198,9 +198,9 @@
                   @if (!rowSelected) {
 
 
-                        <td class="form-group col-2" style="font-size: 10px; align-self:safe;">
-                                <button class="btn btn-primary"
-                                  style="align-content: center; font-family: Arial; background-color: navy;">
+                        <td class="form-group col-2 workflow-safe-align-cell">
+                                <button class="workflow-search-btn"
+                                  (click)="onSubmit()">
                                   Search
                                 </button>
                         </td>
@@ -215,28 +215,28 @@
                     <td  class="form-group col-1">
                       @if (rowSelected && noAssignee == true) {
                         <button  class="btn btn-primary"
-                          style="font-family: Arial, Helvetica, sans-serif; background-color: green; font-size: 10px; padding: 5px;"
+                          class="workflow-assign-btn"
                           (click)="assignWF()">
                           Assign to Me
                         </button>
                       }
                     </td>
                     @if (rowSelected) {
-                      <td class="form-group col-2" style="font-size: 10px;">
-                        <table style="vertical-align: top; width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                      <td class="form-group col-2 workflow-small-cell">
+                        <table class="workflow-inner-table workflow-table-vertical-top">
                           <tr>
                             <td>
-                              <label style="font-size: 10px; text-align: left ;font-family: Arial">Update Status</label>
+                              <label class="workflow-label workflow-label-normal">Update Status</label>
                             </td>
                           </tr>
                           <tr>
                             <td>
-                              <mat-form-field appearance="fill" style="font-size: 8px; width: fit-content;" >
+                              <mat-form-field appearance="fill" class="workflow-form-field" >
                                 <mat-select formControlName="updStatusType" (selectionChange)="updStatusTypeChange($event.value)"
-                                  style="font-size: 10px;"
+                                  class="workflow-select"
                                   [multiple]="false" >
                                   @for (updStatusType of updStatusTypes; track updStatusType) {
-                                    <mat-option [value]="updStatusType" style="font-size: 10px;">
+                                    <mat-option [value]="updStatusType" class="workflow-option">
                                       {{updStatusType}}
                                     </mat-option>
                                   }
@@ -249,19 +249,19 @@
                     }
                     @if (updStatus==='Assigned') {
                       <td class="form-group col-1">
-                        <table style="vertical-align: top; width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                        <table class="workflow-inner-table workflow-table-vertical-top">
                           <tr>
                             <td>
-                              <label style="font-size: 10px; text-align: left ;font-family: Arial">User:</label>
+                              <label class="workflow-label workflow-label-normal">User:</label>
                             </td>
 
                             <td>
 
                                 <mat-select formControlName="assignee" (selectionChange)="updUserChange($event.value)"
-                                  style="font-size: 10px;"
+                                  class="workflow-select"
                                   [multiple]="false" >
                                   @for (assignee of irisUsers; track assignee) {
-                                    <mat-option [value]="assignee.FullName" style="font-size: 10px;">
+                                    <mat-option [value]="assignee.FullName" class="workflow-option">
                                       {{assignee.FullName}}
                                     </mat-option>
                                   }
@@ -273,16 +273,16 @@
                       </td>
                     }
                     @if (rowSelected) {
-                      <td class="form-group col-2" style="font-size: 10px;">
-                        <table style="vertical-align: top; width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                      <td class="form-group col-2 workflow-small-cell">
+                        <table class="workflow-inner-table workflow-table-vertical-top">
                           <tr>
                             <td>
-                              <label style="font-size: 11px; text-align: left ;font-family: Arial">Notes</label>
+                              <label class="workflow-notes-label">Notes</label>
                             </td>
                           </tr>
                           <tr>
                             <td>
-                              <input type="text" style="font-size: 11px; width: 300pt;" formControlName="notes">
+                              <input type="text" class="workflow-notes-input" formControlName="notes">
                             </td>
                           </tr>
                         </table>
@@ -291,7 +291,7 @@
                     <td class="form-group col-1">
                       @if (rowSelected) {
                         <button  class="btn btn-primary"
-                          style="font-family: Arial, Helvetica, sans-serif; background-color: blue; font-size: 10px; padding: 5px;"
+                          class="workflow-update-btn"
                           (click)="updateWF()">
                           Update
                         </button>
@@ -307,7 +307,7 @@
             <div>
               @if (canRenderDetails) {
                     <table mat-table [dataSource]="dataSource" matSort
-                      style="width: 100%; font-family: 'Courier New', Courier, monospace; font-size: small; background-color: azure;">
+                      class="workflow-data-table">
                     <!-- Checkbox Column -->
                     <ng-container matColumnDef="Select">
                       <th mat-header-cell *matHeaderCellDef>
@@ -325,76 +325,76 @@
                     </ng-container>
                     <!-- ID Column -->
                     <ng-container matColumnDef="ID">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ID </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> ID </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.ID}} </mat-cell>
                     </ng-container>
                     <!-- InterchangeSenderID Column -->
                     <ng-container matColumnDef="InterchangeSenderID">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange SenderID </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Interchange SenderID </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.InterchangeSenderID}} </mat-cell>
                     </ng-container>
                     <!-- InterchangeReceiverID Column -->
                     <ng-container matColumnDef="InterchangeReceiverID">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Interchange ReceiverID </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Interchange ReceiverID </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.InterchangeReceiverID}} </mat-cell>
                     </ng-container>
                     <!-- TransactionType Column -->
                     <ng-container matColumnDef="TransactionType">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Transaction </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Transaction </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.TransactionType}} </mat-cell>
                     </ng-container>
                     <!-- CreateDtTm Column -->
                     <ng-container matColumnDef="CreateDtTm">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Create DtTm </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Create DtTm </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.CreateDtTm}} </mat-cell>
                     </ng-container>
                     <!-- ErrorType Column -->
                     <ng-container matColumnDef="ErrorType">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> ErrorType </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> ErrorType </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.ErrorType}} </mat-cell>
                     </ng-container>
                     <ng-container matColumnDef="Resent">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Resent </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Resent </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.Resent == 1?'Yes':'No'}} </mat-cell>
                     </ng-container>
                     <!-- Error Column -->
                     <ng-container matColumnDef="Error">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Error  </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Error  </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.Error}} </mat-cell>
                     </ng-container>
                     <!-- WorkStatus Column -->
                     <ng-container matColumnDef="WorkStatus">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> WorkStatus </mat-header-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> WorkStatus </mat-header-cell>
                       <mat-cell *matCellDef="let element"> {{element.WorkStatus}} </mat-cell>
                     </ng-container>
                     <!-- AssignedUser Column -->
                     <ng-container matColumnDef="AssignedUser">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Assigned to </mat-header-cell>
-                      <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.AssignedUser}} </mat-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Assigned to </mat-header-cell>
+                      <mat-cell class="workflow-small-cell-text" *matCellDef="let element"> {{element.AssignedUser}} </mat-cell>
                     </ng-container>
                     <!-- LastmodDtTM Column -->
                     <ng-container matColumnDef="LastmodDtTM">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Last update </mat-header-cell>
-                      <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.LastmodDtTM}} </mat-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Last update </mat-header-cell>
+                      <mat-cell class="workflow-small-cell-text" *matCellDef="let element"> {{element.LastmodDtTM}} </mat-cell>
                     </ng-container>
                     <!-- AssignedUser Column -->
                     <ng-container matColumnDef="LastmodID">
-                       <mat-header-cell mat-sort-header style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Modified By </mat-header-cell>
-                      <mat-cell style="font-size: smaller;" *matCellDef="let element"> {{element.LastmodID}} </mat-cell>
+                       <mat-header-cell mat-sort-header class="workflow-header-cell" *matHeaderCellDef> Modified By </mat-header-cell>
+                      <mat-cell class="workflow-small-cell-text" *matCellDef="let element"> {{element.LastmodID}} </mat-cell>
                     </ng-container>
                     <!-- Details Column -->
                     <ng-container matColumnDef="Details">
-                      <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> Details </mat-header-cell>
-                      <mat-cell style="font-size: smaller;" *matCellDef="let element">
-                        <button style="height: 2pc; width: auto;" (click)="onDetailsClicked(element)"> Show  </button></mat-cell>
+                      <mat-header-cell class="workflow-header-cell" *matHeaderCellDef> Details </mat-header-cell>
+                      <mat-cell class="workflow-small-cell-text" *matCellDef="let element">
+                        <button class="workflow-grid-btn" (click)="onDetailsClicked(element)"> Show  </button></mat-cell>
                       </ng-container>
                       <ng-container matColumnDef="History">
-                        <mat-header-cell style="font-size: smaller;font-weight: bold;" *matHeaderCellDef> History </mat-header-cell>
-                        <mat-cell style="font-size: smaller;" *matCellDef="let element">
-                          <button style="height: 2pc; width: auto;" (click)="onHistoryClicked(element)"> History  </button></mat-cell>
+                        <mat-header-cell class="workflow-header-cell" *matHeaderCellDef> History </mat-header-cell>
+                        <mat-cell class="workflow-small-cell-text" *matCellDef="let element">
+                          <button class="workflow-grid-btn" (click)="onHistoryClicked(element)"> History  </button></mat-cell>
                         </ng-container>
                         <mat-header-row *matHeaderRowDef="displayedColumns"></mat-header-row>
-                        <mat-row style="font-size: smaller; font-family: 'Courier New', Courier, monospace;" *matRowDef="let row; columns: displayedColumns;">
+                        <mat-row class="workflow-data-row" *matRowDef="let row; columns: displayedColumns;">
                         </mat-row>
                </table>
             }

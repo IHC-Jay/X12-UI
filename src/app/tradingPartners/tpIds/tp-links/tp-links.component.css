@@ -5,6 +5,13 @@ table {
   border-color: blue;
  }
 
+.tplinks-title {
+  color: #1f2937;
+  font-size: 1.25rem;
+  line-height: 1.2;
+  margin-bottom: 10px;
+}
+
 tr.tpLinks-detail-row {
   height: 0;
 }
@@ -95,3 +102,120 @@ border-style: groove;
   width: 24px;
   vertical-align: middle;
   }
+
+/* TP Links dark-mode styling */
+:host-context(body.app-theme-dark) table,
+:host-context(body.app-theme-dark) .tpLink-paginator {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .mat-header-cell,
+:host-context(body.app-theme-dark) .mat-mdc-header-cell,
+:host-context(body.app-theme-dark) .mat-mdc-cell,
+:host-context(body.app-theme-dark) .mat-mdc-footer-cell {
+  color: #ffffff !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) tr.tpLinks-element-row {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) tr.tpLinks-element-row:not(.tpLinks-expanded-row):hover,
+:host-context(body.app-theme-dark) tr.tpLinks-element-row:not(.tpLinks-expanded-row):active {
+  background: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) .tpLinks-element-detail {
+  background-color: #374151 !important;
+  box-shadow: inset 2px 3px 8px #1f2937;
+  color: #e5e7eb !important;
+  border: 1px solid #4b5563;
+}
+
+:host-context(body.app-theme-dark) .tpLinks-element-tpId,
+:host-context(body.app-theme-dark) .tpLinks-element-tpId i,
+:host-context(body.app-theme-dark) .tpLinks-element-tpId [mat-line],
+:host-context(body.app-theme-dark) .tpLinks-element-tpId [mat-subheader],
+:host-context(body.app-theme-dark) .tpLinks-element-tpId b {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .tpLinks-element-diagram {
+  border: 2px solid #9ca3af;
+}
+
+:host-context(body.app-theme-dark) .btn-act,
+:host-context(body.app-theme-dark) button {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  border: 1px solid #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) a.btn-act {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  min-height: 28px;
+  border-radius: 4px;
+  text-decoration: none;
+}
+
+:host-context(body.app-theme-dark) a.btn-act .mat-icon,
+:host-context(body.app-theme-dark) .btn-act .mat-icon,
+:host-context(body.app-theme-dark) a.btn-act .material-icons,
+:host-context(body.app-theme-dark) .btn-act .material-icons {
+  color: #111827 !important;
+  fill: #111827 !important;
+  opacity: 1 !important;
+}
+
+:host-context(body.app-theme-dark) .btn-act:hover,
+:host-context(body.app-theme-dark) button:hover,
+:host-context(body.app-theme-dark) .btn-act:active,
+:host-context(body.app-theme-dark) button:active {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) a.btn-act:hover .mat-icon,
+:host-context(body.app-theme-dark) a.btn-act:active .mat-icon {
+  color: #0f172a !important;
+  fill: #0f172a !important;
+}
+
+:host-context(body.app-theme-dark) .tplinks-title {
+  color: #ffffff !important;
+  font-size: 1.1rem;
+}
+
+/* Trading Partner title consistency */
+:host h1,
+:host h2,
+:host h3,
+:host h4,
+:host h5,
+:host h6,
+:host .tpids-title,
+:host .tplinks-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 12px 0;
+  color: #1f2937;
+}
+
+:host-context(body.app-theme-dark) h1,
+:host-context(body.app-theme-dark) h2,
+:host-context(body.app-theme-dark) h3,
+:host-context(body.app-theme-dark) h4,
+:host-context(body.app-theme-dark) h5,
+:host-context(body.app-theme-dark) h6,
+:host-context(body.app-theme-dark) .tpids-title,
+:host-context(body.app-theme-dark) .tplinks-title {
+  color: #ffffff !important;
+}

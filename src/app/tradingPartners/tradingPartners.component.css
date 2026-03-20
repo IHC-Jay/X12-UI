@@ -70,3 +70,124 @@ tr.tp-element-row:not(.tpId-expanded-row):active {
   vertical-align: middle;
   }
 
+/* Trading Partner dark-mode styling */
+:host-context(body.app-theme-dark) h4,
+:host-context(body.app-theme-dark) th,
+:host-context(body.app-theme-dark) td,
+:host-context(body.app-theme-dark) span,
+:host-context(body.app-theme-dark) label {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) table,
+:host-context(body.app-theme-dark) .table-header table {
+  background-color: #1f2937 !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) .mat-header-cell,
+:host-context(body.app-theme-dark) .mat-mdc-header-cell,
+:host-context(body.app-theme-dark) .mat-mdc-cell,
+:host-context(body.app-theme-dark) .mat-mdc-footer-cell {
+  color: #ffffff !important;
+  border-color: #4b5563 !important;
+}
+
+:host-context(body.app-theme-dark) tr.tp-element-row {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) tr.tp-element-row:not(.tpId-expanded-row):hover,
+:host-context(body.app-theme-dark) tr.tp-element-row:not(.tpId-expanded-row):active {
+  background: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) .btn-act,
+:host-context(body.app-theme-dark) button,
+:host-context(body.app-theme-dark) button.btn,
+:host-context(body.app-theme-dark) button.btn-primary,
+:host-context(body.app-theme-dark) button.btn-secondary {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
+  border: 1px solid #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) .btn-act:hover,
+:host-context(body.app-theme-dark) button:hover,
+:host-context(body.app-theme-dark) button.btn:hover,
+:host-context(body.app-theme-dark) button.btn-primary:hover,
+:host-context(body.app-theme-dark) button.btn-secondary:hover,
+:host-context(body.app-theme-dark) .btn-act:active,
+:host-context(body.app-theme-dark) button:active,
+:host-context(body.app-theme-dark) button.btn:active,
+:host-context(body.app-theme-dark) button.btn-primary:active,
+:host-context(body.app-theme-dark) button.btn-secondary:active {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) .full-width,
+:host-context(body.app-theme-dark) .form-input,
+:host-context(body.app-theme-dark) input,
+:host-context(body.app-theme-dark) textarea,
+:host-context(body.app-theme-dark) select {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-form-field,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-text-field-wrapper,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-form-field-infix,
+:host-context(body.app-theme-dark) ::ng-deep .mdc-text-field,
+:host-context(body.app-theme-dark) ::ng-deep .mdc-text-field__input {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-trigger,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-value,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-value-text,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-min-line,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-placeholder {
+  background-color: #f3f4f6 !important;
+  color: #111827 !important;
+}
+
+:host-context(body.app-theme-dark) mat-paginator,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-paginator,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-paginator-container,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-paginator-page-size,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-paginator-range-label {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+/* Trading Partner title consistency */
+:host h1,
+:host h2,
+:host h3,
+:host h4,
+:host h5,
+:host h6,
+:host .tpids-title,
+:host .tplinks-title {
+  font-family: Arial, Helvetica, sans-serif;
+  font-size: 1.15rem;
+  font-weight: 600;
+  line-height: 1.25;
+  margin: 0 0 12px 0;
+  color: #1f2937;
+}
+
+:host-context(body.app-theme-dark) h1,
+:host-context(body.app-theme-dark) h2,
+:host-context(body.app-theme-dark) h3,
+:host-context(body.app-theme-dark) h4,
+:host-context(body.app-theme-dark) h5,
+:host-context(body.app-theme-dark) h6,
+:host-context(body.app-theme-dark) .tpids-title,
+:host-context(body.app-theme-dark) .tplinks-title {
+  color: #ffffff !important;
+}
+
