@@ -5,6 +5,7 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom, TimeoutError } from 'rxjs';
 import { timeout } from 'rxjs/operators';
+import { ApiConfigService } from '../services/api-config.service';
 
 type TradingPartnersNavState = {
   rows?: Record<string, unknown>[];
@@ -78,6 +79,7 @@ export class TpTradingPartnersPageComponent {
   selectedRowIndexes = new Set<number>();
   private readonly requestTimeoutMs = 30000;
   private readonly syncRequestTimeoutMs = 300000;
+  private readonly apiBaseUrl: string;
 
   private readonly tablePathByKey: Record<TableKey, string> = {
     TradingPartner: '/api/connect',
@@ -161,8 +163,10 @@ export class TpTradingPartnersPageComponent {
   constructor(
     private readonly router: Router,
     private readonly http: HttpClient,
-    private readonly cdr: ChangeDetectorRef
+    private readonly cdr: ChangeDetectorRef,
+    private readonly apiConfig: ApiConfigService
   ) {
+    this.apiBaseUrl = this.apiConfig.getApiBaseUrl();
     const state = (this.router.getCurrentNavigation()?.extras.state ?? history.state ?? {}) as TradingPartnersNavState;
     const storedRaw = sessionStorage.getItem('tpManageSync.tradingPartners');
     const stored = storedRaw ? (JSON.parse(storedRaw) as TradingPartnersNavState) : {};
@@ -285,7 +289,7 @@ export class TpTradingPartnersPageComponent {
     const clickStartedAt = performance.now();
     try {
       const payload = await firstValueFrom(
-        this.http.post<any>(`http://localhost:3100/api/sync-last-run`, {
+        this.http.post<any>(`${this.apiBaseUrl}/sync-last-run`, {
           username: this.username,
           password: this.password,
           serverPort: this.sourceServerPort,
@@ -392,7 +396,7 @@ export class TpTradingPartnersPageComponent {
       const startedAt = performance.now();
       console.log('[TpSync][TABLE] Load start', { table, path });
       const payload = await firstValueFrom(
-        this.http.post<any>(`http://localhost:3100${path}`, {
+        this.http.post<any>(`${this.apiBaseUrl}${path}`, {
           username: this.username,
           password: this.password,
           serverPort: this.sourceServerPort,

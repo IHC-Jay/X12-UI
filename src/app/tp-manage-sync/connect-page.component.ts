@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { AuthenticationService } from '../services/authentication.service';
+import { ApiConfigService } from '../services/api-config.service';
 
 @Component({
   selector: 'app-tp-connect',
@@ -22,10 +23,15 @@ export class TpConnectPageComponent implements OnInit {
   statusType: 'idle' | 'success' | 'error' = 'idle';
   private readonly requestTimeoutMs = 30000;
 
+  private apiBaseUrl = '';
+
   constructor(
     private readonly router: Router,
-    private readonly authService: AuthenticationService
-  ) {}
+    private readonly authService: AuthenticationService,
+    private readonly apiConfig: ApiConfigService
+  ) {
+    this.apiBaseUrl = this.apiConfig.getApiBaseUrl();
+  }
 
   ngOnInit(): void {
     const currentUser = this.authService.currentUserValue;
@@ -58,7 +64,7 @@ export class TpConnectPageComponent implements OnInit {
       (async () => {
         let response: Response;
         try {
-          response = await fetch(`http://localhost:3100${path}`, {
+          response = await fetch(`${this.apiBaseUrl}${path}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify(body)
@@ -66,7 +72,7 @@ export class TpConnectPageComponent implements OnInit {
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
           console.error('[TpSync][API] Network request failed', { path, message });
-          throw new Error('API offline: cannot reach http://localhost:3100. Start the backend API and try again.');
+          throw new Error('API connection failed. Ensure the backend service is running and accessible.');
         }
 
         const payload = await response.json().catch(() => null);
