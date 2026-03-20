@@ -1,6 +1,7 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
+import { AuthenticationService } from '../services/authentication.service';
 
 @Component({
   selector: 'app-tp-connect',
@@ -9,9 +10,9 @@ import { Router } from '@angular/router';
   templateUrl: './connect-page.component.html',
   styleUrl: './connect-page.component.css'
 })
-export class TpConnectPageComponent {
-  username = '';
-  password = '';
+export class TpConnectPageComponent implements OnInit {
+  private username = '';
+  private password = '';
   sourceServerPort = 'lp-itfdevvp2:6973';
   destinationServerPort = 'lp-itfdevvp1:6972';
   destinationNamespace = 'MISC';
@@ -20,7 +21,19 @@ export class TpConnectPageComponent {
   statusType: 'idle' | 'success' | 'error' = 'idle';
   private readonly requestTimeoutMs = 30000;
 
-  constructor(private readonly router: Router) {}
+  constructor(
+    private readonly router: Router,
+    private readonly authService: AuthenticationService
+  ) {}
+
+  ngOnInit(): void {
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.username = currentUser.username;
+      this.password = currentUser.password;
+      console.log('[TpSync] Using credentials for:', this.username);
+    }
+  }
 
   private withClientTimeout<T>(promise: Promise<T>, timeoutMs: number): Promise<T> {
     let timeoutHandle: ReturnType<typeof setTimeout>;

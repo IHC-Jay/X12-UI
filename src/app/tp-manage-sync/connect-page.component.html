@@ -1,27 +1,9 @@
 <main class="page">
   <section class="card" aria-labelledby="connect-title">
     <h1 id="connect-title">TP Manage Sync</h1>
-    <p class="subtitle">Enter your credentials, source, and destination endpoints.</p>
+    <p class="subtitle">Configure source and destination endpoints.</p>
 
     <form (ngSubmit)="connect()" class="connect-form">
-      <label for="username">Username</label>
-      <input
-        id="username"
-        name="username"
-        type="text"
-        [(ngModel)]="username"
-        required
-      />
-
-      <label for="password">Password</label>
-      <input
-        id="password"
-        name="password"
-        type="password"
-        [(ngModel)]="password"
-        required
-      />
-
       <label for="sourceServerPort">Source Server:Port</label>
       <input
         id="sourceServerPort"
