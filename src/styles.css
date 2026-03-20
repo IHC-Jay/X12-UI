@@ -239,6 +239,24 @@ body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] .mat-mdc-p
   fill: #9ca3af !important;
 }
 
+/* Dark mode styling for paginator and all select dropdown panels */
+body.app-theme-dark ::ng-deep .mat-mdc-select-panel {
+  background-color: #2d3748 !important;
+}
+
+body.app-theme-dark ::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark ::ng-deep .mat-mdc-select-panel .mat-mdc-option:hover {
+  background-color: #4a5568 !important;
+}
+
+body.app-theme-dark ::ng-deep .mat-mdc-option.mat-selected {
+  background-color: #374151 !important;
+  color: #60a5fa !important;
+}
+
 /* Hide paginator navigation controls when there is only one page. */
 .mat-mdc-paginator:has(.mat-mdc-paginator-navigation-previous[disabled]):has(.mat-mdc-paginator-navigation-next[disabled]) .mat-mdc-paginator-navigation-first,
 .mat-mdc-paginator:has(.mat-mdc-paginator-navigation-previous[disabled]):has(.mat-mdc-paginator-navigation-next[disabled]) .mat-mdc-paginator-navigation-previous,
