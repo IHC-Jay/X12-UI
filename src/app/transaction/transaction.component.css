@@ -89,12 +89,12 @@ tr.trans-element-row:not(.tpLinks-expanded-row):active {
   color:navy ;
 }
 
-custom-radio-group .mat-radio-label-content {
+.custom-radio-group .mat-radio-label-content {
   font-size: 10px !important; /* Adjust the size as needed */
   line-height: normal; /* Ensure text alignment is correct if changing font-size drastically */
 }
 
-custom-radio-button .mat-radio-label-content {
+.custom-radio-button .mat-radio-label-content {
   font-size: 8px !important; /* Adjust the size as needed */
   line-height: normal; /* Ensure text alignment is correct if changing font-size drastically */
 }
@@ -118,6 +118,35 @@ custom-radio-button .mat-radio-label-content {
 }
 
 :host-context(body.app-theme-dark) tr.trans-element-row {
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) tr.trans-element-row:hover {
+  background-color: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) .selected {
+  background-color: #475569 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel {
+  background-color: #2d3748 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel .mat-mdc-option:hover {
+  background-color: #4a5568 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-option.mat-selected {
+  background-color: #374151 !important;
+  color: #60a5fa !important;
+}
   background-color: #1f2937 !important;
   color: #e5e7eb !important;
 }
@@ -160,6 +189,26 @@ custom-radio-button .mat-radio-label-content {
 :host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-value-text {
   background-color: #f3f4f6 !important;
   color: #111827 !important;
+}
+
+/* Transaction dark-mode radio button readability (Batch/RealTime) */
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-radio-button .mdc-form-field > label,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-radio-button .mdc-label,
+:host-context(body.app-theme-dark) ::ng-deep .custom-radio-button,
+:host-context(body.app-theme-dark) ::ng-deep .custom-radio-button span {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-radio-button .mdc-radio__outer-circle {
+  border-color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-radio-button .mdc-radio__inner-circle {
+  border-color: #60a5fa !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-radio-button.mat-mdc-radio-checked .mdc-radio__background {
+  --mdc-radio-selected-icon-color: #60a5fa !important;
 }
 
 :host-context(body.app-theme-dark) label,

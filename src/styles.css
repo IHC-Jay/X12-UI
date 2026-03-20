@@ -239,6 +239,14 @@ body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] .mat-mdc-p
   fill: #9ca3af !important;
 }
 
+/* Keep paginator page-size value readable in dark theme (Summary/Transaction). */
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-trigger,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-value,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-value-text,
+body.app-theme-dark .mat-mdc-paginator .mat-mdc-select-min-line {
+  color: #111827 !important;
+}
+
 /* Dark mode styling for paginator and all select dropdown panels */
 body.app-theme-dark ::ng-deep .mat-mdc-select-panel {
   background-color: #2d3748 !important;

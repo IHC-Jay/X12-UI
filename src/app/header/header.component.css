@@ -1,4 +1,38 @@
 
+/* Dark mode styling for mat-select dropdowns */
+:host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-trigger {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-value {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-value-text {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel {
+  background-color: #2d3748 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel .mat-mdc-option:hover {
+  background-color: #4a5568 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-option.mat-selected {
+  background-color: #374151 !important;
+  color: #60a5fa !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep mat-form-field .mat-mdc-form-field-hint {
+  color: #9ca3af !important;
+}
+
 
 .mat-icon {
   background-repeat: no-repeat;
@@ -35,6 +69,25 @@
 :host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header {
   background-color: #111827 !important;
   border-bottom: 1px solid #374151 !important;
+}
+
+:host-context(body.app-theme-dark) nav.navbar,
+:host-context(body.app-theme-dark) nav.navbar.navbar-default {
+  background-color: #111827 !important;
+  border-color: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) nav.navbar > button {
+  background-color: transparent !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) nav.navbar > button div {
+  color: #9ca3af !important;
+}
+
+:host-context(body.app-theme-dark) #searchInfo {
+  color: #e5e7eb !important;
 }
 
 :host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-label-content {
@@ -85,11 +138,20 @@
 }
 
 :host-context(body.app-theme-dark) ::ng-deep .mdc-tab-indicator {
-  background-color: #60a5fa !important;
+  background-color: transparent !important;
 }
 
 :host-context(body.app-theme-dark) ::ng-deep .mdc-tab-indicator__content--underline {
   border-color: #60a5fa !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab.mat-mdc-tab-active {
+  background-color: transparent !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab .mdc-tab__ripple::before,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab .mdc-tab__ripple::after {
+  background-color: transparent !important;
 }
 
 :host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header-list {

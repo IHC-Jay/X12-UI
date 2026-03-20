@@ -1,3 +1,16 @@
+
+/* Dark mode styling for mat-select dropdown panels */
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel {
+  background-color: #2d3748 !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel .mat-mdc-option {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-select-panel .mat-mdc-option:hover {
+  background-color: #4a5568 !important;
+}
 .mat-select-content{
   background-color: azure;
   font-size: 12px !important;
