@@ -1,0 +1,185 @@
+<main class="page">
+  @if (showSyncPopup) {
+    <div class="sync-popup-backdrop" (click)="closeSyncPopup()"></div>
+    <section class="sync-popup" role="dialog" aria-modal="true" aria-labelledby="sync-popup-title">
+      <h2 id="sync-popup-title">Sync Completed</h2>
+      <div class="sync-popup-body">
+        @for (line of syncPopupLines; track $index) {
+          <p>{{ line }}</p>
+        }
+      </div>
+      <div class="sync-popup-actions">
+        <button type="button" (click)="closeSyncPopup()">Close</button>
+      </div>
+    </section>
+  }
+
+  <section class="card" aria-labelledby="trading-partners-title">
+    <div class="header-row">
+      <h1 id="trading-partners-title">Sync Trading Partners Data ({{ syncDirectionLabel }})</h1>
+      <div class="header-actions">
+        <button type="button" class="logout-btn" (click)="logout()">Logout</button>
+      </div>
+    </div>
+
+    <div class="controls-row">
+      <label for="tableName">Table</label>
+      <select
+        id="tableName"
+        [value]="selectedTable"
+        (change)="onTableChange($any($event.target).value)"
+        [disabled]="isLoading"
+      >
+        @for (option of tableOptions; track option.key) {
+          <option [value]="option.key">{{ option.label }}</option>
+        }
+      </select>
+
+      <label for="pageSize">Rows per page</label>
+      <select
+        id="pageSize"
+        [value]="pageSize.toString()"
+        (change)="onPageSizeChange($any($event.target).value)"
+      >
+        @for (size of pageSizeOptions; track size) {
+          <option [value]="size.toString()">{{ size }}</option>
+        }
+      </select>
+
+      @if (selectedRowCount > 0) {
+        <fieldset class="routing-fieldset">
+          <legend>TRADELINKS Routing:</legend>
+          <label class="radio-label">
+            <input type="radio" name="routing" [value]="true" [(ngModel)]="useHardcodedRouting" />
+            Hardcode to "BitBucket"
+          </label>
+          <label class="radio-label">
+            <input type="radio" name="routing" [value]="false" [(ngModel)]="useHardcodedRouting" />
+            Copy from Source
+          </label>
+        </fieldset>
+
+        <fieldset class="migrate-fieldset">
+          <legend>Migrate</legend>
+          <label class="radio-label" title="From Prod: HT000015-001 -> HT000015-004">
+            <input type="radio" name="migrateDirection" value="fromProd" [checked]="migrateDirection === 'fromProd'" (change)="migrateDirection = 'fromProd'" />
+            From Prod
+          </label>
+          <label class="radio-label" title="To Prod: HT000015-004 -> HT000015-001">
+            <input type="radio" name="migrateDirection" value="toProd" [checked]="migrateDirection === 'toProd'" (change)="migrateDirection = 'toProd'" />
+            To Prod
+          </label>
+        </fieldset>
+
+        <button type="button" class="sync-btn" (click)="syncSelectedTable()" [disabled]="isLoading || isSyncing">
+          {{ isSyncing ? 'Syncing...' : 'Sync' }}
+        </button>
+      }
+
+      <fieldset class="filter-fieldset">
+        <legend>Since Filter:</legend>
+        <label class="radio-label">
+          <input type="radio" name="sinceFilterMode" value="created"
+            [checked]="sinceFilterMode === 'created'" (change)="onSinceFilterModeChange('created')" />
+          Created only
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="sinceFilterMode" value="lastmod"
+            [checked]="sinceFilterMode === 'lastmod'" (change)="onSinceFilterModeChange('lastmod')" />
+          Lastmod only
+        </label>
+        <label class="radio-label">
+          <input type="radio" name="sinceFilterMode" value="both"
+            [checked]="sinceFilterMode === 'both'" (change)="onSinceFilterModeChange('both')" />
+          Created OR Lastmod
+        </label>
+      </fieldset>
+    </div>
+
+    @if (loadError) {
+      <p class="error">{{ loadError }}</p>
+    }
+
+    @if (syncStatus) {
+      <p class="sync-status">{{ syncStatus }}</p>
+    }
+
+    @if (isLoading) {
+      <p class="empty">Loading {{ selectedTable }}...</p>
+    }
+
+    @if (!isLoading && rows.length === 0) {
+      <p class="empty">
+        No rows available.
+        @if (sqlWhereClauseText) {
+          WHERE clause used: {{ sqlWhereClauseText }}
+        } @else {
+          Connect again to load data.
+        }
+      </p>
+    } @else {
+      @if (hasSqlUsed) {
+        <p class="table-label">SQL: {{ resultLabel }}</p>
+      } @else {
+        <p class="table-label">SQL: not returned by API yet. Restart backend and reload data.</p>
+      }
+      <div class="legend" aria-label="Row color legend">
+        <span class="legend-item">
+          <span class="legend-swatch legend-created" aria-hidden="true"></span>
+          >= CreatedDtTM
+        </span>
+        <span class="legend-item">
+          <span class="legend-swatch legend-lastmod" aria-hidden="true"></span>
+          >= LastmodDtTM
+        </span>
+        <span class="legend-item">
+          <span class="legend-swatch legend-both" aria-hidden="true"></span>
+          >= CreatedDtTM and >= LastmodDtTM
+        </span>
+      </div>
+      <div class="table-wrap">
+        <table>
+          <thead>
+            <tr>
+              <th class="select-col">
+                <input
+                  type="checkbox"
+                  aria-label="Select all rows on current page"
+                  [checked]="areAllPagedRowsSelected()"
+                  (change)="toggleSelectAllPagedRows($any($event.target).checked)"
+                />
+              </th>
+              @for (column of columns; track column) {
+                <th>{{ column }}</th>
+              }
+            </tr>
+          </thead>
+          <tbody>
+            @for (row of pagedRows; track $index; let pageIndex = $index) {
+              <tr [ngClass]="[getRowMatchClass(row), isPagedRowSelected(pageIndex) ? 'row-selected' : '']">
+                <td class="select-col">
+                  <input
+                    type="checkbox"
+                    aria-label="Select row"
+                    [checked]="isPagedRowSelected(pageIndex)"
+                    (change)="togglePagedRowSelection(pageIndex, $any($event.target).checked)"
+                  />
+                </td>
+                @for (column of columns; track column) {
+                  <td>{{ row[column] }}</td>
+                }
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+
+      <div class="pagination-row">
+        <span>Showing {{ pageStart }}-{{ pageEnd }} of {{ rows.length }}</span>
+        <button type="button" (click)="previousPage()" [disabled]="currentPage <= 1">Previous</button>
+        <span>Page {{ currentPage }} / {{ totalPages }}</span>
+        <button type="button" (click)="nextPage()" [disabled]="currentPage >= totalPages">Next</button>
+      </div>
+    }
+  </section>
+</main>

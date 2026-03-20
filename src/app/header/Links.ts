@@ -19,7 +19,8 @@ export const tabLinks: Link[] = [
       {name:'Dashboard', link:"/dashboard"},
       {name:'X12 Viewer', link:"/x12-viewer"},
       {name:'X12 Compare', link:"/x12-compare"},
-      {name:'X12 Specs', link:"/pdf-reader"}
+      {name:'X12 Specs', link:"/pdf-reader"},
+      {name:'TP Sync', link:"/tp-manage-sync"}
     ]
   }
 ];
