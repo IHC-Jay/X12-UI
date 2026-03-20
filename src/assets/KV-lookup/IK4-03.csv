@@ -1,0 +1,19 @@
+"ID(String)","Name(String)"
+1,Required Data Element Missing
+2,Conditional Required Data Element Missing
+3,Too Many Data Elements
+4,Data Element Too Short
+5,Data Element Too Long
+6,Invalid Character in Data Element
+7,Invalid Code Value
+8,Invalid Date
+9,Invalid Time
+10,Exclusion Condition Violated
+12,Too Many Repetitions
+13,Too Many Components
+I10,Implementation "Not Used" Data Element Present
+I11,Implementation Too Few Repetitions
+I12,Implementation Pattern Match Failure
+I13,Implementation Dependent "Not Used" Data Element Present
+I6,Code Value Not Used in Implementation
+I9,Implementation Dependent Data Element Missing

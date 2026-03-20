@@ -1,0 +1,14 @@
+"ID(String)","Name(String)"
+1,Unrecognized Segment ID
+2,Unexpected Segment
+3,Required Segment Missing
+4,Loop Occurs Over Maximum Times
+5,Segment Exceeds Maximum Use
+6,Segment Not in Defined Transaction Set
+7,Segment Not in Proper Sequence
+8,Segment Has Data Element Errors
+I4,Implementation "Not Used" Segment Present
+I6,Implementation Dependent Segment Missing
+I7,Implementation Loop Occurs Under Minimum Times
+I8,Implementation Segment Below Minimum Use
+I9,Implementation Dependent "Not Used" Segment Present

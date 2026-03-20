@@ -1,0 +1,12 @@
+"ID(String)","Name(String)"
+270,Eligibility Benefit Inquiry
+271,Eligibility Benefit Information
+276,Health Care Claim Status Request
+277,Health Care Claim Status Notification
+278,Health Care Services Review Request/Response
+820,Payment Order/Remittance Advice
+824,Application Advice
+834,Benefit Enrollment and Maintenance
+835,Health Care Claim Payment/Advice
+837,Health Care Claim
+999,Implementation Acknowledgment

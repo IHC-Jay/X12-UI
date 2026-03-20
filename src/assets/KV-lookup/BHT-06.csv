@@ -1,0 +1,6 @@
+"ID(String)","Name(String)"
+DG,Response (Health Care Claim Status Request and Response)
+NO,Notice (Health Care Payer Unsolicited Claim Status)
+RQ,Request (Health Care Claim Request for Additional Information)
+TH,Receipt Acknowledgment Advice (Health Care Claim Acknowledgment)
+31,Subrogation Demand

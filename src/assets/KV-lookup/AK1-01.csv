@@ -1,0 +1,10 @@
+"ID(String)","Name(String)"
+BE,Benefit Enrollment and Maintenance Functional Group
+FA,Functional Acknowledgment and Implementation Acknowledgment Functional Group
+HC,Health Care Claim Functional Group
+HI,Health Care Services Review Functional Group
+HN,Health Care Claim Status Notification Functional Group
+HP,Health Care Claim Payment/Advice Functional Group
+HR,Health Care Claim Status Request/Response Functional Group
+HS,Health Care Eligibility Benefit Inquiry and Response Functional Group
+RA,Payment Order/Remittance Advice Functional Group
