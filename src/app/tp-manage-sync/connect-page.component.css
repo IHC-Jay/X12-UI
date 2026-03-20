@@ -7,7 +7,7 @@
   min-height: 100vh;
   margin: 0;
   display: grid;
-  place-items: center;
+  place-items: start center;
   background: linear-gradient(135deg, #f3f4f6, #e5e7eb);
   padding: 1rem;
 }
