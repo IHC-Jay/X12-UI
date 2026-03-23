@@ -136,8 +136,6 @@ tr.trans-element-row:not(.tpLinks-expanded-row):active {
   background-color: #374151 !important;
   color: #60a5fa !important;
 }
-  font-weight: bold !important;
-}
 
 :host-context(body.app-theme-dark) .make-gold {
   background-color: #ef4444 !important;

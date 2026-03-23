@@ -46,7 +46,6 @@ body.app-theme-dark .page {
 body.app-theme-dark input,
 body.app-theme-dark select,
 body.app-theme-dark textarea,
-body.app-theme-dark button,
 body.app-theme-dark .mat-mdc-select-value,
 body.app-theme-dark .mat-mdc-option,
 body.app-theme-dark .mat-mdc-button,
@@ -54,6 +53,27 @@ body.app-theme-dark .mat-mdc-raised-button,
 body.app-theme-dark .mat-mdc-outlined-button,
 body.app-theme-dark .mat-mdc-unelevated-button {
   color: #111827 !important;
+}
+
+/* Nav tab labels — explicitly white so they are visible on dark navbar */
+body.app-theme-dark .mdc-tab,
+body.app-theme-dark .mdc-tab__text-label,
+body.app-theme-dark .mdc-tab__content,
+body.app-theme-dark .mat-mdc-tab,
+body.app-theme-dark .mat-mdc-tab-label-content {
+  color: #ffffff !important;
+}
+
+body.app-theme-dark .mdc-tab--active .mdc-tab__text-label,
+body.app-theme-dark .mat-mdc-tab.mat-mdc-tab-active .mdc-tab__text-label {
+  color: #93c5fd !important;
+}
+
+/* Utility submenu items */
+body.app-theme-dark .utility-submenu button,
+body.app-theme-dark .utility-submenu .mdc-button__label,
+body.app-theme-dark .utility-submenu span {
+  color: #e5e7eb !important;
 }
 
 body.app-theme-dark .mat-mdc-select-trigger,
@@ -142,8 +162,7 @@ body.app-theme-dark .mat-mdc-raised-button,
 body.app-theme-dark .mat-mdc-flat-button,
 body.app-theme-dark button[mat-button],
 body.app-theme-dark button[mat-flat-button],
-body.app-theme-dark button[mat-raised-button],
-body.app-theme-dark .mat-mdc-button-base {
+body.app-theme-dark button[mat-raised-button] {
   background-color: #e5e7eb !important;
   color: #111827 !important;
 }
@@ -237,6 +256,46 @@ body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] .material-
 body.app-theme-dark .mat-mdc-paginator .mat-mdc-icon-button[disabled] .mat-mdc-paginator-icon {
   color: #9ca3af !important;
   fill: #9ca3af !important;
+}
+
+/* ===== NAV TAB LABEL COLORS — must be last to win over all button/base rules above ===== */
+body.app-theme-dark .mat-mdc-tab.mdc-tab .mdc-tab__text-label,
+body.app-theme-dark .mat-mdc-tab.mdc-tab .mat-mdc-tab-label-content,
+body.app-theme-dark .mat-mdc-tab.mdc-tab .mdc-tab__content,
+body.app-theme-dark .mat-mdc-tab.mdc-tab span {
+  color: #ffffff !important;
+  background-color: transparent !important;
+}
+
+body.app-theme-light .mat-mdc-tab.mdc-tab .mdc-tab__text-label,
+body.app-theme-light .mat-mdc-tab.mdc-tab .mat-mdc-tab-label-content,
+body.app-theme-light .mat-mdc-tab.mdc-tab .mdc-tab__content,
+body.app-theme-light .mat-mdc-tab.mdc-tab span {
+  color: #111827 !important;
+  background-color: transparent !important;
+}
+
+/* Keep Utilities submenu readable in dark mode (overrides broad global button/background rules). */
+body.app-theme-dark .utility-submenu,
+body.app-theme-dark .utility-submenu[style*='background'],
+body.app-theme-dark .utility-submenu[style*='background-color'] {
+  background-color: #2d3748 !important;
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark .utility-submenu button,
+body.app-theme-dark .utility-submenu .mat-mdc-button,
+body.app-theme-dark .utility-submenu .mdc-button,
+body.app-theme-dark .utility-submenu .mdc-button__label,
+body.app-theme-dark .utility-submenu span {
+  background-color: transparent !important;
+  color: #e5e7eb !important;
+}
+
+body.app-theme-dark .utility-submenu button:hover,
+body.app-theme-dark .utility-submenu .mat-mdc-button:hover {
+  background-color: #4a5568 !important;
+  color: #ffffff !important;
 }
 
 /* Keep paginator page-size value readable in dark theme (Summary/Transaction). */

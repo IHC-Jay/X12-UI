@@ -4,8 +4,8 @@
     <title>TP Login</title>
   </head>
 
-  <body style="padding: 1px;">
-  <nav class="navbar navbar-default">
+  <body style="padding: 1px; background-color: #111827;">
+  <nav class="navbar navbar-default" style="background-color: #111827; border-color: #374151; margin-bottom: 0;">
 
           <ng-template [ngIf]="isLogin" [ngIfElse]="loggedOut">
           <button style="border-spacing: 0pc; padding: 0pc; display:flex; flex-direction:column; align-items:center; gap:4px;" on-click="onHome()" >
@@ -21,23 +21,40 @@
 
       <div style="align-items: start;">
         <mat-tab-group #tabGrp [selectedIndex]="selectedLnkIndex.value" *ngIf=isLogin mat-stretch-tabs="false" mat-align-tabs="start"
-         (selectedTabChange)="onTabChanged($event)">
+         (selectedTabChange)="onTabChanged($event)"
+         [ngStyle]="{'--tab-label-color': currentTheme === 'dark' ? '#ffffff' : '#111827'}">
 
 
         <ng-container *ngFor="let lnk of links; let i = index">
           <!-- If the link has children, render as a dropdown menu with a unique menu reference -->
-            <mat-tab *ngIf="!lnk.children" style="font-weight: bolder; font-size: large;" label={{lnk.name}}>
-            </mat-tab>
-            <mat-tab *ngIf="lnk.name === 'Utilities' && lnk.children && lnk.children.length > 0" style="font-weight: bolder; font-size: large; position: relative;">
+            <mat-tab *ngIf="!lnk.children">
               <ng-template mat-tab-label>
-                <span style="font-weight: bolder; font-size: large; cursor: pointer;" (click)="onUtilityTabClick(i, $event)">
+                <span [style.color]="currentTheme === 'dark' ? '#ffffff' : '#111827'">{{lnk.name}}</span>
+              </ng-template>
+            </mat-tab>
+            <mat-tab *ngIf="lnk.name === 'Utilities' && lnk.children && lnk.children.length > 0" style="position: relative;">
+              <ng-template mat-tab-label>
+                <span style="cursor: pointer;"
+                      [style.color]="currentTheme === 'dark' ? '#ffffff' : '#111827'"
+                      (click)="onUtilityTabClick(i, $event)">
                   {{lnk.name}}
                   <mat-icon>arrow_drop_down</mat-icon>
                 </span>
               </ng-template>
-              <div *ngIf="utilitySubmenuVisible" style="display: flex; flex-direction: column; align-items: center; background: #f5f5f5; border-radius: 4px; margin-top: 4px; padding: 4px; width: 160px; min-width: 120px; max-width: 200px;" class="utility-submenu">
-                <button type="button" mat-button *ngFor="let child of lnk.children" (click)="navigateTo(child)" style="text-align: left; margin-bottom: 2px;">
-                  {{child.name}}
+              <div
+                *ngIf="utilitySubmenuVisible"
+                style="display: flex; flex-direction: column; align-items: center; border-radius: 4px; margin-top: 4px; padding: 4px; width: 160px; min-width: 120px; max-width: 200px;"
+                class="utility-submenu"
+                [style.background-color]="currentTheme === 'dark' ? '#2d3748' : '#f5f5f5'">
+                <button
+                  type="button"
+                  mat-button
+                  class="utility-submenu-item"
+                  *ngFor="let child of lnk.children"
+                  (click)="navigateTo(child)"
+                  style="text-align: left; margin-bottom: 2px;"
+                  [style.color]="currentTheme === 'dark' ? '#e5e7eb' : '#111827'">
+                  <span [style.color]="currentTheme === 'dark' ? '#e5e7eb' : '#111827'">{{child.name}}</span>
                 </button>
               </div>
             </mat-tab>
@@ -61,7 +78,7 @@
         </ng-template>
         <ng-template #loggedOut>
           <img [border]="1" width="100" alt="My image name" src="{{logo}}">
-          <div style="font-size: 18px; align-self: center;"> Trading Partner Management</div>
+          <div class="tpm-title" style="font-size: 18px; align-self: center;"> Trading Partner Management</div>
           <button type="button" class="theme-toggle-btn" (click)="toggleTheme()">
             Theme: {{ currentTheme === 'dark' ? 'Dark' : 'Light' }}
           </button>
@@ -71,64 +88,74 @@
   </nav>
 
   <div class="col-md-6 offset-md-3 mt-5" *ngIf=!isLogin>
-    <div class="alert alert-info">
-      {{displayHelp}}
-    </div>
-    <div class="card">
-        <h4 class="card-header">Login</h4>
-        <div class="card-body">
-            <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
-                <div class="form-group">
-                    <label for="username">Username</label>
-                    <input type="text" formControlName="username" class="form-control" />
-                     <div *ngIf="loginForm.get('username')?.errors?.['required']" style="color: red; font-size: small; font-style: italic;">Username is required</div>
-
-                </div>
-                <div class="form-group">
-                    <label for="password">Password</label>
-                    <input type="password" formControlName="password" class="form-control"
-                    [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
-                    <div *ngIf="loginForm.get('password')?.errors?.['required']" style="color: red; font-size: small; font-style: italic;">Password is required</div>
-                </div>
-                <div class="form-group" style="color: azure; align-items: center;">
-                  <table style="font-size: 5px;
-                  border-color: black; border-style: dashed;border-width: thin; background-color: azure; align-items: center;">
-                  <tr style="align-items: center;">
-                    <td style="align-items: center;">
-
-                <mat-form-field style="background-color: azure;">
-                  <mat-label>Environment</mat-label>
-                  <mat-select formControlName="env" class="form-control">
-                   @for (env of allowedEnvironments; track env) {
-                          <mat-option [value]="env" style="font-size: 10px;">
-                            {{env}}
-                          </mat-option>
-                        }
-                  </mat-select>
-                </mat-form-field>
-
-              </td>
-              <td style="align-items: center;">
-
-                <mat-form-field>
-                  <mat-label>Auto Logout (in min)</mat-label>
-                  <mat-select formControlName="logoutTime" class="form-control">
-                    <mat-option value="15">15</mat-option>
-                    <mat-option value="30">30</mat-option>
-                    <mat-option value="60">60</mat-option>
-                    <mat-option value="120">120</mat-option>
-                  </mat-select>
-                </mat-form-field>
-
-              </td></tr></table>
-              </div>
-                <button class="btn btn-primary"
-                        style="align-content: center; font-family: Arial; background-color: navy;">
-                        Login
-                </button>
-                <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
-            </form>
+    <div style="background: #111827; border: 1px solid #374151; padding: 12px;">
+      <div style="background-color: #111827; font-size: 13px; color: #e5e7eb; margin-bottom: 10px;">
+        {{displayHelp}}
+      </div>
+      <div style="background-color: #111827; border: 1px solid #374151;">
+        <div style="background-color: #111827; padding: 6px 10px; font-size: 13px; font-weight: bold; color: #e5e7eb; border-bottom: 1px solid #374151;">
+          Login
         </div>
+        <div style="background-color: #111827; padding: 12px;">
+          <form [formGroup]="loginForm" (ngSubmit)="onLogin()">
+            <table style="font-size: 10px; background-color: #111827; width: 100%;">
+              <tr>
+                <td style="font-size: 10px; padding: 4px 4px 8px 4px; vertical-align: top;">
+                  <label style="font-size: 10px; font-weight: bold; color: navy;">Username</label><br/>
+                  <input type="text" formControlName="username"
+                    style="font-size: 11px; width: 100%; background-color: #1f2937; color: #e5e7eb; border: 1px solid #4b5563; padding: 3px 6px;" />
+                  <div *ngIf="loginForm.get('username')?.errors?.['required']" style="color: red; font-size: small; font-style: italic;">Username is required</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-size: 10px; padding: 4px 4px 8px 4px; vertical-align: top;">
+                  <label style="font-size: 10px; font-weight: bold; color: navy;">Password</label><br/>
+                  <input type="password" formControlName="password"
+                    style="font-size: 11px; width: 100%; background-color: #1f2937; color: #e5e7eb; border: 1px solid #4b5563; padding: 3px 6px;"
+                    [ngClass]="{ 'is-invalid': submitted && f.password.errors }" />
+                  <div *ngIf="loginForm.get('password')?.errors?.['required']" style="color: red; font-size: small; font-style: italic;">Password is required</div>
+                </td>
+              </tr>
+              <tr>
+                <td style="font-size: 10px; padding: 4px; vertical-align: top;">
+                  <table style="font-size: 10px; background-color: #111827; border: 1px solid #374151;">
+                    <tr>
+                      <td style="font-size: 10px; padding: 4px; vertical-align: top;">
+                        <label style="font-size: 10px; font-weight: bold; color: navy;">Environment:</label>
+                        <mat-select style="font-size: 10px; background-color: #1f2937; color: #e5e7eb; border: 1px solid #4b5563; padding: 2px 4px; width: 100%;"
+                          formControlName="env">
+                          @for (env of allowedEnvironments; track env) {
+                            <mat-option [value]="env" style="font-size: 10px;">{{env}}</mat-option>
+                          }
+                        </mat-select>
+                      </td>
+                      <td style="font-size: 10px; padding: 4px; vertical-align: top;">
+                        <label style="font-size: 10px; font-weight: bold; color: navy;">Auto Logout (in min):</label>
+                        <mat-select style="font-size: 10px; background-color: #1f2937; color: #e5e7eb; border: 1px solid #4b5563; padding: 2px 4px; width: 100%;"
+                          formControlName="logoutTime">
+                          <mat-option value="15">15</mat-option>
+                          <mat-option value="30">30</mat-option>
+                          <mat-option value="60">60</mat-option>
+                          <mat-option value="120">120</mat-option>
+                        </mat-select>
+                      </td>
+                    </tr>
+                  </table>
+                </td>
+              </tr>
+              <tr>
+                <td style="padding: 8px 4px 4px 4px;">
+                  <button class="btn btn-primary"
+                    style="font-family: Arial; background-color: navy; font-size: 11px;">
+                    Login
+                  </button>
+                  <div *ngIf="error" class="alert alert-danger mt-3 mb-0">{{error}}</div>
+                </td>
+              </tr>
+            </table>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
 </body>

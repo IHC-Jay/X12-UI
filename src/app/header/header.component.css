@@ -1,4 +1,17 @@
 
+:host {
+  display: block;
+  background-color: #111827;
+}
+
+.tpm-title {
+  color: navy;
+}
+
+:host-context(body.app-theme-dark) .tpm-title {
+  color: #ffffff !important;
+}
+
 /* Dark mode styling for mat-select dropdowns */
 :host-context(body.app-theme-dark) ::ng-deep mat-select .mat-mdc-select-trigger {
   color: #e5e7eb !important;
@@ -48,6 +61,7 @@
   height: 32px !important;
 }
 
+
 ::ng-deep .mat-mdc-tab-body-content {
   padding-top: 0 !important;
 }
@@ -71,6 +85,24 @@
   border-bottom: 1px solid #374151 !important;
 }
 
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab,
+:host-context(body.app-theme-dark) ::ng-deep .mdc-tab {
+  background-color: #111827 !important;
+  color: #ffffff !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab.mat-mdc-tab-active,
+:host-context(body.app-theme-dark) ::ng-deep .mdc-tab--active {
+  background-color: #1f2937 !important;
+  color: #ffffff !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mdc-tab__text-label,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-label-content,
+:host-context(body.app-theme-dark) ::ng-deep .mdc-tab__content {
+  color: #ffffff !important;
+}
+
 :host-context(body.app-theme-dark) nav.navbar,
 :host-context(body.app-theme-dark) nav.navbar.navbar-default {
   background-color: #111827 !important;
@@ -92,6 +124,18 @@
 
 :host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-label-content {
   color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header .mat-mdc-tab,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header .mdc-tab,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header .mdc-tab__content,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header .mdc-tab__text-label {
+  color: #ffffff !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header .mat-mdc-tab.mdc-tab--active .mdc-tab__text-label,
+:host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab-header .mat-mdc-tab.mat-mdc-tab-active .mdc-tab__text-label {
+  color: #93c5fd !important;
 }
 
 :host-context(body.app-theme-dark) ::ng-deep .mat-mdc-tab {
@@ -124,11 +168,38 @@
   background-color: #f5f5f5;
 }
 
+.utility-submenu-item {
+  color: #111827 !important;
+}
+
 :host-context(body.app-theme-dark) .utility-submenu {
   background-color: #2d3748 !important;
 }
 
 :host-context(body.app-theme-dark) .utility-submenu button {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .utility-submenu .utility-submenu-item,
+:host-context(body.app-theme-dark) .utility-submenu .utility-submenu-item * {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .utility-submenu .mat-mdc-button,
+:host-context(body.app-theme-dark) .utility-submenu .mat-mdc-button .mdc-button__label,
+:host-context(body.app-theme-dark) .utility-submenu button span {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) ::ng-deep .utility-submenu .mat-mdc-button,
+:host-context(body.app-theme-dark) ::ng-deep .utility-submenu .mdc-button,
+:host-context(body.app-theme-dark) ::ng-deep .utility-submenu .mdc-button__label {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .utility-submenu .utility-submenu-item:hover,
+:host-context(body.app-theme-dark) .utility-submenu .utility-submenu-item:active {
+  background-color: #374151 !important;
   color: #e5e7eb !important;
 }
 
@@ -258,4 +329,33 @@ table {
 #logout button:not([type="button"]):active {
   background-color: #16a34a !important;
   color: black !important;
+}
+
+/* Login form dark mode */
+:host-context(body.app-theme-dark) .col-md-6 [style*="background: azure"],
+:host-context(body.app-theme-dark) .col-md-6 [style*="background-color: azure"] {
+  background: #1f2937 !important;
+  background-color: #1f2937 !important;
+  color: #e5e7eb !important;
+  border-color: #374151 !important;
+}
+
+:host-context(body.app-theme-dark) .col-md-6 input[type="text"],
+:host-context(body.app-theme-dark) .col-md-6 input[type="password"] {
+  background-color: #374151 !important;
+  border-color: #4b5563 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .col-md-6 label {
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .col-md-6 ::ng-deep mat-select {
+  background-color: #374151 !important;
+  color: #e5e7eb !important;
+}
+
+:host-context(body.app-theme-dark) .col-md-6 ::ng-deep .mat-mdc-select-value-text {
+  color: #e5e7eb !important;
 }

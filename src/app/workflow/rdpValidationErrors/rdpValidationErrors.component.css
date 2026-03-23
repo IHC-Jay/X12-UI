@@ -247,7 +247,6 @@ tr.trans-element-row:not(.tpLinks-expanded-row):active {
 :host-context(body.app-theme-dark) .scr-container {
   background-color: #0f172a !important;
 }
-}
 .searchLbl {
   font-family: "Calibri", Calibri, serif;
   font-size: 12px;

@@ -188,10 +188,6 @@ tr.trans-element-row:not(.tpLinks-expanded-row):active {
   background-color: #d1d5db;
   color: #111827;
 }
-  cursor: pointer!important;
-  background-image: none!important;
-  border-radius: 4px!important;
-}
 .searchLbl {
   font-family: "Calibri", Calibri, serif;
   font-size: 12px;
