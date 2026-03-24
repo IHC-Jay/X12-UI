@@ -29,13 +29,18 @@
           <!-- If the link has children, render as a dropdown menu with a unique menu reference -->
             <mat-tab *ngIf="!lnk.children">
               <ng-template mat-tab-label>
-                <span [style.color]="currentTheme === 'dark' ? '#ffffff' : '#111827'">{{lnk.name}}</span>
+                <span
+                  [style.color]="i === selectedLnkIndex.value ? (currentTheme === 'dark' ? '#93c5fd' : '#1d4ed8') : (currentTheme === 'dark' ? '#ffffff' : '#111827')"
+                  [style.font-weight]="i === selectedLnkIndex.value ? '700' : '500'">
+                  {{lnk.name}}
+                </span>
               </ng-template>
             </mat-tab>
             <mat-tab *ngIf="lnk.name === 'Utilities' && lnk.children && lnk.children.length > 0" style="position: relative;">
               <ng-template mat-tab-label>
                 <span style="cursor: pointer;"
-                      [style.color]="currentTheme === 'dark' ? '#ffffff' : '#111827'"
+                      [style.color]="i === selectedLnkIndex.value ? (currentTheme === 'dark' ? '#93c5fd' : '#1d4ed8') : (currentTheme === 'dark' ? '#ffffff' : '#111827')"
+                      [style.font-weight]="i === selectedLnkIndex.value ? '700' : '500'"
                       (click)="onUtilityTabClick(i, $event)">
                   {{lnk.name}}
                   <mat-icon>arrow_drop_down</mat-icon>

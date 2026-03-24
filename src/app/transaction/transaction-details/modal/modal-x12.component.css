@@ -16,3 +16,13 @@ div {
   max-height: 70vh;
   font-family: courier, Helvetica, sans-serif;
 }
+
+:host-context(body.app-theme-dark) .mat-dialog-content,
+:host-context(body.app-theme-dark) .mat-dialog-content .custom-text-truncate,
+:host-context(body.app-theme-dark) .x12-content,
+:host-context(body.app-theme-dark) .mat-dialog-actions,
+:host-context(body.app-theme-dark) .mat-dialog-actions label,
+:host-context(body.app-theme-dark) .mat-dialog-actions button,
+:host-context(body.app-theme-dark) .mat-dialog-actions input {
+  color: #fff !important;
+}

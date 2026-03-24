@@ -120,7 +120,10 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   searchColumns= this.transactionsFields.slice();
 
   sub: Subscription | undefined;
+  private formValueChangesSub: Subscription | undefined;
   private openDetailsRedirectHandled = false;
+  private requestId = '';
+  private enableUserEditReset = false;
 
   selDropdownList = [];
 
@@ -189,6 +192,59 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     // Call handleCustomFieldsAndSearch after all fields are initialized
     // This ensures additionalSearch filename filter is applied
     this.handleCustomFieldsAndSearch();
+
+    this.setupUserEditResetHandlers();
+    this.enableUserEditReset = true;
+  }
+
+  private setupUserEditResetHandlers() {
+    this.formValueChangesSub = this.form.valueChanges.subscribe(() => {
+      if (!this.enableUserEditReset) {
+        return;
+      }
+      this.resetQueryParamSearchValues('form value changed');
+    });
+  }
+
+  private resetQueryParamSearchValues(reason: string) {
+    const hadQuerySearchValues =
+      (this.requestId && this.requestId.trim().length > 0) ||
+      (this.additionalSearchStr && this.additionalSearchStr.trim().length > 0) ||
+      (this.fileName && this.fileName.trim().length > 0);
+
+    if (!hadQuerySearchValues) {
+      return;
+    }
+
+    console.info('Reset query-param search values due to user change: ' + reason, {
+      requestId: this.requestId,
+      additionalSearchStr: this.additionalSearchStr,
+      fileName: this.fileName
+    });
+
+    this.requestId = '';
+    this.additionalSearchStr = '';
+    this.fileName = '';
+    this.staticSearchStr = '';
+
+    this.clearQueryParamsFromUrl(reason);
+  }
+
+  private clearQueryParamsFromUrl(reason: string) {
+    const hasQueryParams = this.route.snapshot.queryParamMap.keys.length > 0;
+    if (!hasQueryParams) {
+      return;
+    }
+
+    console.info('Clearing URL query params due to user change: ' + reason, {
+      queryParams: this.route.snapshot.queryParams
+    });
+
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: {},
+      replaceUrl: true
+    });
   }
 
   // =====================
@@ -282,6 +338,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         }
 
         if(params !== undefined) {
+          this.requestId = params['ID'] || '';
           let jsonString = params['transConfig'];
 
           // If transConfig not in URL params, try to get from localStorage
@@ -300,10 +357,12 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
           if(jsonString !== undefined && jsonString !== null) {
             console.info("TransConfig from parent or sessionStorage: " + jsonString);
             this.formFields = JSON.parse(jsonString);
+            this.setEndTimeToNow();
             console.info('Parsed Object:', this.formFields);
           } else {
             this.formFields.currentTransType =  params['transaction'] || '';
             this.transUserFlds = params['transUserFlds'];
+            this.setEndTimeToNow();
           }
           this.additionalSearchStr = params['additionalSearch'] || '';
           console.info("Query params, additionalSearchStr: " + this.additionalSearchStr +", " + this.formFields.currentTransType +", " + this.transUserFlds)
@@ -339,11 +398,12 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initFromUserConfig() {
-    let stDt = 1;
     console.info("Initialize from session UserConfig if available");
-    if (this.formFields.currentTransType === '') {
-      const parsedObject = JSON.parse(this.storageService.getItem<any>('UserConfig') || '{}' ) ;
-      if (parsedObject) {
+    const parsedObject = JSON.parse(this.storageService.getItem<any>('UserConfig') || '{}') ;
+    if (parsedObject && Object.keys(parsedObject).length > 0) {
+      let stDt = 1;
+
+      if (this.formFields.currentTransType === '') {
         console.info("Init from session UserConfig: " + parsedObject.TranType + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
         this.formFields.currentTransType = parsedObject.TranType;
         this.formFields.mode = parsedObject.Mode;
@@ -352,11 +412,12 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         this.form.controls.rowCnt.setValue(this.formFields.rowCnt);
         this.form.controls.mode.setValue(this.formFields.mode);
         this.pageSize = parsedObject.DispCnt;
-        let stDtStr = parsedObject.TranTime;
+      }
 
+      if (parsedObject.TranTime) {
+        const stDtStr = parsedObject.TranTime;
         stDt = parseDays(parsedObject.TranTime);
-
-        console.info("Init from UserConfig: " + this.formFields.currentTransType + ", Search from " + stDt + " days. " + stDtStr);
+        console.info("Init date range from UserConfig TranTime: Search from " + stDt + " days. " + stDtStr);
       }
 
       const dtObj = DateTimeUtils.GetStartEndDtTm(stDt);
@@ -447,6 +508,9 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.sub) {
       this.sub.unsubscribe();
     }
+    if (this.formValueChangesSub) {
+      this.formValueChangesSub.unsubscribe();
+    }
   }
 
   get f() { return this.form.controls; }
@@ -481,6 +545,9 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     this.paramsList.push("status::" + this.form.controls.disposition.value);
     this.paramsList.push("startDtTm::" + this.formFields.startDate + " " + this.formFields.startTm);
     this.paramsList.push("endDtTm::" + this.formFields.endDate + " " + this.formFields.endTm);
+    if (this.requestId && String(this.requestId).trim().length > 0) {
+      this.paramsList.push("ID::" + this.requestId);
+    }
     this.paramsList.push("count::" + this.form.controls.rowCnt.value);
   }
 
@@ -694,6 +761,7 @@ resetCustomFields(): void {
   this.additionalSearchStr = '';
   this.staticSearchStr = '';
   this.fileName = '';
+  this.requestId = '';
 }
 
 private updateCustomFlds() {
@@ -933,6 +1001,7 @@ onStDateChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.startDate = newValue;
+  this.resetQueryParamSearchValues('start date changed');
   console.log('Input value changed:', newValue +", " + this.formFields.startDate);
 }
 
@@ -943,6 +1012,7 @@ onStTimeChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.startTm = newValue;
+  this.resetQueryParamSearchValues('start time changed');
   console.log('Input value changed:', newValue +", " + this.formFields.startTm);
 }
 
@@ -953,6 +1023,7 @@ onEndDateChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.endDate = newValue;
+  this.resetQueryParamSearchValues('end date changed');
   console.log('Input value changed:', newValue +", " + this.formFields.endDate);
 }
 
@@ -963,6 +1034,7 @@ onEndTimeChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.endTm = newValue;
+  this.resetQueryParamSearchValues('end time changed');
   console.log('Input value changed:', newValue +", " + this.formFields.endTm);
 }
 

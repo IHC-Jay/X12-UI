@@ -10,6 +10,7 @@ import { MatDialog } from '@angular/material/dialog';
 import { Modalx12Component } from './modal/modal-x12.component';
 import { DialogRef } from '@angular/cdk/dialog';
 import { StorageService } from '../../services/storage.service';
+import e from 'express';
 
 @Component({
     selector: 'app-transaction-details',
@@ -69,7 +70,18 @@ export class TransactionDetailComponent implements OnDestroy {
       if (this.mode != "" && this.searchTypeString.indexOf("Batch") > 0) {
         this.mode = "Batch";
       }
+      else {
+        this.mode = "RealTime";
+      }
       this.prevWindow = (this.searchTypeString.indexOf("sameWindow::true") > 1);
+    });
+    console.info('[TransactionDetail] Calling fetchTransactionFields', {
+      mode: this.mode,
+      transaction: this.transaction,
+      ID: this.ID,
+      sessionID: this.sessionID,
+      status: this.status,
+      searchTypeString: this.searchTypeString
     });
     this.TransactionService.fetchTransactionFields().subscribe((res: any) => {
       this.displayedColumns = [];
@@ -86,6 +98,11 @@ export class TransactionDetailComponent implements OnDestroy {
       let paramsList: string[] = [];
       paramsList.push("ID::" + this.ID);
       paramsList.push("count::" + 1);
+      console.info('[TransactionDetail] Before fetchTransactionDetailData', {
+        transaction: this.transaction,
+        mode: this.mode,
+        paramsList
+      });
       this.fetchTransactionDetailData(this.transaction, this.mode, paramsList);
     });
   }
@@ -107,6 +124,11 @@ export class TransactionDetailComponent implements OnDestroy {
 
   // --- Refactored fetch logic for ngOnInit ---
   private fetchTransactionDetailData(transaction: string, mode: string, paramsList: string[]) {
+    console.info('[TransactionDetail] Dispatching service call', {
+      transaction,
+      mode,
+      paramsList
+    });
     const setResult = (res: any) => {
       this.canRenderDetails = true;
       this.dataSource.data = res;

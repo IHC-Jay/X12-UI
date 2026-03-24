@@ -7,7 +7,9 @@
     "build": "ng build",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
-    "serve:ssr:TP-X12": "node dist/TP-X12/server/server.mjs"
+    "serve:ssr:TP-X12": "node dist/TP-X12/server/server.mjs",
+    "publish:all": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Configuration production",
+    "publish:all:dev": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Configuration development"
   },
   "prettier": {
     "printWidth": 100,
