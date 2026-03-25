@@ -198,6 +198,125 @@ body.app-theme-dark tr.trans-element-row:hover {
   background-color: #374151 !important;
 }
 
+/* ─── tp-manage-sync: always light theme ───────────────────────────────────────
+   These components (Sync Trading Partners / Connect) are not optimised for dark
+   mode. Pin them to light colours regardless of the active app theme so they
+   always look correct.  Do NOT remove this block — there is no dark-mode CSS
+   written for these components.
+   Selectors: app-tp-trading-partners, app-tp-connect
+   ──────────────────────────────────────────────────────────────────────────── */
+body.app-theme-dark app-tp-trading-partners,
+body.app-theme-dark app-tp-connect {
+  color: #1f2937 !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .page,
+body.app-theme-dark app-tp-connect .page {
+  background: linear-gradient(135deg, #f3f4f6, #e5e7eb) !important;
+  color: #1f2937 !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .card,
+body.app-theme-dark app-tp-connect .card {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+}
+
+body.app-theme-dark app-tp-trading-partners table {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+body.app-theme-dark app-tp-trading-partners th {
+  background-color: #f9fafb !important;
+  color: #111827 !important;
+  border-color: #e5e7eb !important;
+}
+
+body.app-theme-dark app-tp-trading-partners td {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  border-color: #e5e7eb !important;
+}
+
+/* Preserve row-highlight colours in light mode */
+body.app-theme-dark app-tp-trading-partners tr.row-match-created td { background-color: #fef08a !important; }
+body.app-theme-dark app-tp-trading-partners tr.row-match-lastmod td  { background-color: #dbeafe !important; }
+body.app-theme-dark app-tp-trading-partners tr.row-match-both td     { background-color: #d1d5db !important; }
+body.app-theme-dark app-tp-trading-partners tr.row-selected td       { box-shadow: inset 0 0 0 2px #2563eb !important; }
+
+body.app-theme-dark app-tp-trading-partners input,
+body.app-theme-dark app-tp-trading-partners select,
+body.app-theme-dark app-tp-connect input,
+body.app-theme-dark app-tp-connect select {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+  border-color: #9ca3af !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .sync-popup,
+body.app-theme-dark app-tp-trading-partners .sync-popup * {
+  background-color: #ffffff !important;
+  color: #1f2937 !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .routing-fieldset,
+body.app-theme-dark app-tp-trading-partners .filter-fieldset,
+body.app-theme-dark app-tp-trading-partners .migrate-fieldset {
+  background-color: #f9fafb !important;
+  color: #1f2937 !important;
+  border-color: #d1d5db !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .sync-btn,
+body.app-theme-dark app-tp-trading-partners .logout-btn,
+body.app-theme-dark app-tp-connect button[type="submit"] {
+  background-color: #ffffff !important;
+  border-color: #d1d5db !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .logout-btn {
+  color: #dc2626 !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .sync-status {
+  background-color: #eff6ff !important;
+  color: #1e3a8a !important;
+  border-color: #bfdbfe !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .message {
+  background-color: #ecfdf3 !important;
+  color: #166534 !important;
+  border-color: #86efac !important;
+}
+
+body.app-theme-dark app-tp-trading-partners .error {
+  background-color: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+
+body.app-theme-dark app-tp-connect .status {
+  background-color: #eff6ff !important;
+  color: #1e40af !important;
+  border-color: #bfdbfe !important;
+}
+
+body.app-theme-dark app-tp-connect .status.success {
+  background-color: #f0fdf4 !important;
+  color: #166534 !important;
+  border-color: #86efac !important;
+}
+
+body.app-theme-dark app-tp-connect .status.error {
+  background-color: #fef2f2 !important;
+  color: #991b1b !important;
+  border-color: #fecaca !important;
+}
+/* ─────────────────────────────────────────────────────────────────────────── */
+
 /* Global paginator readability in dark mode */
 body.app-theme-dark mat-paginator,
 body.app-theme-dark .mat-mdc-paginator,
