@@ -270,10 +270,15 @@ body.app-theme-dark app-tp-trading-partners .migrate-fieldset {
 }
 
 body.app-theme-dark app-tp-trading-partners .sync-btn,
-body.app-theme-dark app-tp-trading-partners .logout-btn,
-body.app-theme-dark app-tp-connect button[type="submit"] {
+body.app-theme-dark app-tp-trading-partners .logout-btn {
   background-color: #ffffff !important;
   border-color: #d1d5db !important;
+}
+
+/* Keep the Connect submit button with its original indigo styling — it already has white text */
+body.app-theme-dark app-tp-connect button[type="submit"] {
+  background-color: #4f46e5 !important;
+  color: #ffffff !important;
 }
 
 body.app-theme-dark app-tp-trading-partners .logout-btn {
