@@ -184,6 +184,7 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
     console.log( "ID: " + this.ID +", Transaction ID: "  + searchParams['TransId'] || '');
     this.sessionID = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'] || '';
     this.TransactionType = searchParams['TransactionType'];
+    this.searchParams = searchParams['searchParams'] || '';
     this.wfStatus = searchParams['Status'] || searchParams['status'] || this.wfStatus;
     if (this.form?.controls?.statusType && this.wfStatus) {
       this.form.controls.statusType.setValue(this.wfStatus);
@@ -582,7 +583,12 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
       this.router.navigate(["/workflow/"],
 
       {
-        queryParams: {'searchParams': this.searchParams }
+        queryParams: {
+          'searchParams': this.searchParams,
+          'mode': this.wfMode,
+          'TransactionType': (this.transTypeStr || this.TransactionType || ''),
+          'Status': this.wfStatus
+        }
     }
 
        );

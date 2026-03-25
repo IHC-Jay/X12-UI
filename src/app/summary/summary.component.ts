@@ -891,7 +891,7 @@ onContextMenu(event: MouseEvent, row:any, ind: number) {
 
   this.contextMenuPosition.x = event.clientX + 'px';
   this.contextMenuPosition.y = event.clientY + 'px';
-  let item: Item ={rowId: row.ID, FileName: row.FileName, sessionId: row.SessionID, status: row.Status};
+  let item: Item ={rowId: row.ID, FileName: row.FileName, sessionId: row.SessionID, status: row.Status, transactionType: row.TransactionType};
   this.contextMenu.menuData = { 'item': item };
   this.contextMenu.menu.focusFirstItem('mouse');
   this.contextMenu.openMenu();
@@ -909,11 +909,25 @@ handleContextMenu(item: Item, menu: string)  {
       const baseHref = document.querySelector('base')?.getAttribute('href') || '/';
       const normalizedBase = baseHref.endsWith('/') ? baseHref.slice(0, -1) : baseHref;
       const query = new URLSearchParams();
-      query.set('TransId', String(item.rowId));
+      const modeValue = this.form.controls?.mode?.value || this.formFields.mode || 'RealTime';
+      const sourceTransactionType = item.transactionType || this.formFields.currentTransType || '';
+      const transactionType = this.normalizeWorkflowTransactionType(sourceTransactionType, modeValue);
+      const workflowStatus = (item.status === 'Processed' || item.status === 'Rejected' || item.status === 'Validation failed')
+        ? 'New'
+        : (item.status || 'New');
+      const searchParams =
+        'errorType::All;' +
+        'transaction::' + transactionType + ';' +
+        'mode::' + modeValue + ';' +
+        'status::' + workflowStatus + ';' +
+        'wfStartDtTm::' + this.formFields.startDate + ' ' + this.formFields.startTm + ';' +
+        'wfEndDtTm::' + this.formFields.endDate + ' ' + this.formFields.endTm + ';';
+
       query.set('sessionID', item.sessionId || '');
-      query.set('Status', item.status || '');
-      query.set('mode', this.formFields.mode || '');
-      query.set('TransactionType', this.formFields.currentTransType || '');
+      query.set('Status', workflowStatus);
+      query.set('mode', modeValue);
+      query.set('TransactionType', transactionType);
+      query.set('searchParams', searchParams);
       const url = `${normalizedBase}/workflow/rdpValidationErrors?${query.toString()}`;
       console.log("Open in new tab URL: " + url);
           const newTab = window.open(url, '_blank');
@@ -932,6 +946,17 @@ handleContextMenu(item: Item, menu: string)  {
    else{
     this.onContextMenuNew(item)
    }
+}
+
+private normalizeWorkflowTransactionType(transactionType: string, mode: string): string {
+  const value = (transactionType || '').trim();
+  if (!value) {
+    return mode === 'Batch' ? 'All Batch' : 'All RT';
+  }
+  if (value === '837I' || value === '837P' || value === '837D') {
+    return '837';
+  }
+  return value;
 }
 
 private openInX12Viewer(fileName: string, sessionId?: string, status?: string, x12DataId?: string): void {
@@ -1084,6 +1109,7 @@ export interface Item {
   rowId: number;
   sessionId: string;
   status?: string;
+  transactionType?: string;
 }
 
 export interface customSearchStruct {

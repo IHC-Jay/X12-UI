@@ -134,10 +134,31 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
     await this.getUsersAsync();
 
     let wfItems = 0;
-    let stDt = 30;
-    let mode = 'RealTime';
 
-    if (this.hasSessionConfig('wfConfig')) {
+    const modeFromQuery = this.route.snapshot.queryParamMap.get('mode');
+    const transactionFromQuery = this.route.snapshot.queryParamMap.get('TransactionType');
+    const statusFromQuery = this.route.snapshot.queryParamMap.get('Status');
+
+    const searchParamsFromQuery = this.route.snapshot.queryParamMap.get('searchParams');
+    if (searchParamsFromQuery) {
+      this.storageService.setItem('wfConfig', searchParamsFromQuery);
+      wfItems = this.initFromSessionConfig();
+    }
+
+    if (modeFromQuery) {
+      this.form.controls.mode.setValue(modeFromQuery);
+    }
+    if (transactionFromQuery) {
+      this.transTypeStr = transactionFromQuery;
+      this.form.controls.transType.setValue(transactionFromQuery);
+      this.showMode = !(this.transTypeStr.startsWith('83') || this.transTypeStr.indexOf('277CA') === 0 || this.transTypeStr.indexOf('All') >= 0);
+    }
+    if (statusFromQuery) {
+      this.statusTypeString = statusFromQuery;
+      this.form.controls.statusType.setValue(statusFromQuery);
+    }
+
+    if (wfItems !== 1 && this.hasSessionConfig('wfConfig')) {
       wfItems = this.initFromSessionConfig();
     }
     if (wfItems !== 1 && this.hasSessionConfig('UserConfig')) {

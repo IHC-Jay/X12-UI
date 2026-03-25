@@ -523,7 +523,12 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
       }
 
       const currentPath = (this.router.url || '').split('?')[0];
-      if (selectedLink.link && currentPath === selectedLink.link) {
+      // IMPORTANT: Must use startsWith to cover sub-routes (e.g. /workflow/rdpValidationErrors).
+      // Using exact match only (===) causes the header to re-navigate to the tab's root URL
+      // whenever a sub-route is active, breaking pages like rdpValidationErrors when called
+      // from Summary. Do NOT simplify this back to an exact match — see commits b2b12bf (fix)
+      // and 80c7cce (regression) for history.
+      if (selectedLink.link && (currentPath === selectedLink.link || currentPath.startsWith(selectedLink.link + '/'))) {
         this.prevLnkIndex = this.selectedLnkIndex.value;
         return;
       }
