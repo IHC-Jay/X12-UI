@@ -543,9 +543,13 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     this.paramsList.push("mode::" + this.form.controls.mode.value);
     this.paramsList.push("transaction::" + this.form.controls.transType.value);
     this.paramsList.push("status::" + this.form.controls.disposition.value);
-    this.paramsList.push("startDtTm::" + this.formFields.startDate + " " + this.formFields.startTm);
+    const fileNameFilter = this.getEffectiveFileNameFilter();
+    const hasFileNameFilter = fileNameFilter.length > 0;
+    if (!hasFileNameFilter) {
+      this.paramsList.push("startDtTm::" + this.formFields.startDate + " " + this.formFields.startTm);
+    }
     this.paramsList.push("endDtTm::" + this.formFields.endDate + " " + this.formFields.endTm);
-    if (this.requestId && String(this.requestId).trim().length > 0) {
+    if (!hasFileNameFilter && this.requestId && String(this.requestId).trim().length > 0) {
       this.paramsList.push("ID::" + this.requestId);
     }
     this.paramsList.push("count::" + this.form.controls.rowCnt.value);
@@ -609,7 +613,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         ) {
           let usrVal = this.staticSearchStr.substring(this.staticSearchStr.indexOf("=") + 1);
           console.info('handleAdditionalSearchStr: Set: ' + val.transactionCode + ", " + val.key + " = '" + usrVal + "', " + val.label);
-          fGrp.controls.newFldValue.setValue(usrVal.replaceAll("'", ""));
+          fGrp.controls.newFldValue.setValue(usrVal.replaceAll("'", ""), { emitEvent: false });
           break;
         }
       }
@@ -618,7 +622,20 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handleSqlParam() {
+    const fileNameFilter = this.getEffectiveFileNameFilter();
+    const hasFileNameFilter = fileNameFilter.length > 0;
+    if (hasFileNameFilter && (!this.staticSearchStr || this.staticSearchStr.trim().length === 0)) {
+      const escapedFileName = fileNameFilter.replaceAll("'", "''");
+      this.staticSearchStr = "FileName='" + escapedFileName + "'";
+    }
+
     console.info('handleSqlParam: staticSearchStr = "' + this.staticSearchStr + '", length = ' + this.staticSearchStr.length);
+    const isFileNameOnlySql = this.isFileNameOnlyFilter(this.staticSearchStr);
+    if (hasFileNameFilter && isFileNameOnlySql) {
+      console.info('handleSqlParam: Skipping sql::FileName to avoid duplicate with addSql::FileName');
+      return;
+    }
+
     if (this.staticSearchStr.length > 3) {
       this.staticSearchStr = this.staticSearchStr.replace('AND', '');
       this.staticSearchStr = this.staticSearchStr.replaceAll('%', '%25');
@@ -642,6 +659,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   private fetchTransactionData() {
     const transType = this.form.controls.transType.value;
     const mode = this.form.controls.mode.value;
+    this.appendFileNameAddSqlIfNeeded(transType);
     if (transType === '270') {
       this.TransactionService.fetchEligibilityRequests(mode, this.paramsList).subscribe((res: any) => {
         this.handleFetchResult(res);
@@ -661,17 +679,17 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
       });
     } else if (transType === '837P') {
       console.info("837P search: " + this.staticSearchStr);
-      this.paramsList.push("addSql::" + "VersionReleaseIndustryIdenti='005010X222A1' ");
+      this.paramsList.push(this.buildClaimVersionAddSql("005010X222A1"));
       this.TransactionService.fetchClaims(mode, this.paramsList).subscribe((res: any) => {
         this.handleFetchResult(res);
       });
     } else if (transType === '837I') {
-      this.paramsList.push("addSql::" + "VersionReleaseIndustryIdenti='005010X223A2' ");
+      this.paramsList.push(this.buildClaimVersionAddSql("005010X223A2"));
       this.TransactionService.fetchClaims(mode, this.paramsList).subscribe((res: any) => {
         this.handleFetchResult(res);
       });
     } else if (transType === '837D') {
-      this.paramsList.push("addSql::" + "VersionReleaseIndustryIdenti='005010X224A2' ");
+      this.paramsList.push(this.buildClaimVersionAddSql("005010X224A2"));
       this.TransactionService.fetchClaims(mode, this.paramsList).subscribe((res: any) => {
         this.handleFetchResult(res);
       });
@@ -704,6 +722,77 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.loading = false;
       console.info("NotImplementd array: " + this.dataSource.data.length);
     }
+  }
+
+  private buildClaimVersionAddSql(versionId: string): string {
+    let sql = "VersionReleaseIndustryIdenti='" + versionId + "'";
+    const fileNameFilter = this.getEffectiveFileNameFilter();
+    if (fileNameFilter.length > 0) {
+      const escapedFileName = fileNameFilter.replaceAll("'", "''");
+      sql += "::FileName='" + escapedFileName + "'";
+    }
+    return "addSql::" + sql;
+  }
+
+  private appendFileNameAddSqlIfNeeded(transType: string): void {
+    if (transType === '837P' || transType === '837I' || transType === '837D') {
+      return;
+    }
+    const fileNameFilter = this.getEffectiveFileNameFilter();
+    if (fileNameFilter.length > 0) {
+      const escapedFileName = fileNameFilter.replaceAll("'", "''");
+      this.paramsList.push("addSql::FileName='" + escapedFileName + "'");
+    }
+  }
+
+  private getEffectiveFileNameFilter(): string {
+    const fromAdditionalSearch = this.extractFileNameFromAdditionalSearch(this.additionalSearchStr || '');
+    if (fromAdditionalSearch.length > 0) {
+      return fromAdditionalSearch;
+    }
+
+    const fromStaticSearch = this.extractFileNameFromAdditionalSearch(this.staticSearchStr || '');
+    if (fromStaticSearch.length > 0) {
+      return fromStaticSearch;
+    }
+
+    return this.normalizeFileNameFilterValue(this.fileName || '');
+  }
+
+  private extractFileNameFromAdditionalSearch(search: string): string {
+    if (!search) return '';
+
+    const quotedMatch = search.match(/FileName\s*=\s*'([^']+)'/i);
+    if (quotedMatch && quotedMatch[1]) {
+      return this.normalizeFileNameFilterValue(quotedMatch[1]);
+    }
+
+    const unquotedMatch = search.match(/FileName\s*=\s*([^;\s]+)/i);
+    if (unquotedMatch && unquotedMatch[1]) {
+      return this.normalizeFileNameFilterValue(unquotedMatch[1]);
+    }
+
+    return '';
+  }
+
+  private normalizeFileNameFilterValue(raw: string): string {
+    let value = (raw || '').trim();
+    if (!value) return '';
+
+    if (value.startsWith("'")) value = value.substring(1);
+    if (value.endsWith("'")) value = value.substring(0, value.length - 1);
+    return value.trim();
+  }
+
+  private isFileNameOnlyFilter(search: string): boolean {
+    const value = (search || '').trim();
+    if (!value) return false;
+
+    if (value.indexOf(' AND ') >= 0 || value.indexOf(';') >= 0) {
+      return false;
+    }
+
+    return /^FileName\s*=\s*'[^']+'$/i.test(value);
   }
 
   private handleFetchResult(res: any) {
