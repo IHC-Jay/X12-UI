@@ -15,13 +15,6 @@
             (click)="toWorkFlow()">
             Back to Workflow
           </button>
-          @if(tpCreate)
-          {
-          <button style="font-size: 12px; margin-right: 10px; margin-top: 5px;" class="btn btn-primary"
-            (click)="toTpCreate()">
-            Trading Partner Setup
-          </button>
-         }
         </td>
         <td style="width: 70%;">
 
@@ -130,6 +123,15 @@
               showFirstLastButtons>
             </mat-paginator>
           }
+
+          <!-- Trading Partner Setup Button -->
+          @if(tpCreate)
+          {
+          <button style="font-size: 12px; margin-right: 10px; margin-top: 10px;" class="btn btn-primary"
+            (click)="toTpCreate()">
+            Trading Partner Setup
+          </button>
+         }
 
 
 
