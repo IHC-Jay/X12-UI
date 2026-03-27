@@ -88,7 +88,8 @@
         <td style="vertical-align: top; width: 30%;">
 
           <!-- ERRORS -->
-          @if (canRenderDetails && errorDataSource.data.length > 0) {
+          <!-- Display parsed data errors in table format (Data Error payload) -->
+          @if (canRenderDetails && isDataErrorPayload && errorDataSource.data.length > 0) {
             <table mat-table [dataSource]="errorDataSource"  id="errorTable"  multiTemplateDataRows matSort
                style="font-size: small; font-family:sans-serif; border-style: groove;border-width: thin; font-size:
 			           small; background-color: azure; "
@@ -111,14 +112,18 @@
             </table>
           }
 
-          <mat-paginator #errorPaginator
-            [pageSize]="errPageSize"
-            [pageIndex]="errPageIndex"
-            [length]="totalErrRecords"
-            [pageSizeOptions]="[5, 10, 20]"
-            (page)="onErrPaginateChange($event)"
-            showFirstLastButtons>
-          </mat-paginator>
+          <!-- Error information is already displayed at line 35 above, no duplication needed -->
+
+          @if (isDataErrorPayload) {
+            <mat-paginator #errorPaginator
+              [pageSize]="errPageSize"
+              [pageIndex]="errPageIndex"
+              [length]="totalErrRecords"
+              [pageSizeOptions]="[5, 10, 20]"
+              (page)="onErrPaginateChange($event)"
+              showFirstLastButtons>
+            </mat-paginator>
+          }
 
 
 

@@ -76,6 +76,8 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
   checked = false;
   wfInfo:string = "";
   errorStr:string = "";
+  isDataErrorPayload: boolean = false;
+  nonDataErrorMessage: string = "";
 
   errorSegmentText:string = "";
 
@@ -279,16 +281,24 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
     
     // Parse X12 data and error info
     const x12DataLns = x12String.split(String(res[0].X12).substr(105, 1));
-    const isDataErrorPayload =
+    // Determine if this is a Data Error payload (configurable)
+    this.isDataErrorPayload =
       Array.isArray(res) &&
       res.length > 2 &&
       String(res[0]?.Error || '').trim().toLowerCase() === 'data error';
-    const dataErrorLookup = isDataErrorPayload
+    const dataErrorLookup = this.isDataErrorPayload
       ? this.buildDataErrorLookup(res, x12DataLns)
       : new Map<number, { num: string; segment: string; element: string; error: string }>();
     this.separator = res[0].X12.substr(3, 1);
     console.log("Sep: " + this.separator);
     const wfErr = String(res[0].Error).replaceAll(";", "\n");
+    // Store non-data error message for display in error table area
+    if (!this.isDataErrorPayload) {
+      this.nonDataErrorMessage = wfErr;
+      console.info("Non-Data Error message: " + this.nonDataErrorMessage);
+    } else {
+      this.nonDataErrorMessage = "";
+    }
     this.handleTPNotFound(wfErr);
     this.x12Array.splice(0, this.x12Array.length);
     this.errArray.splice(0, this.errArray.length);
@@ -301,7 +311,7 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
       let err = '';
       let ind = 1;
       segEle = '';
-      if (isDataErrorPayload) {
+      if (this.isDataErrorPayload) {
         const mappedError = dataErrorLookup.get(lenNum);
         if (mappedError) {
           segEle = "Loop: -, " + mappedError.segment + "/" + mappedError.element;
@@ -326,7 +336,7 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
       }
       if (item !== '') {
         if (err !== '') {
-          const mappedError = isDataErrorPayload ? dataErrorLookup.get(lenNum) : null;
+          const mappedError = this.isDataErrorPayload ? dataErrorLookup.get(lenNum) : null;
           this.errArray.push({
             'Num': '' + ind,
             'LineNum': '' + lenNum,
