@@ -486,10 +486,20 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
     }
     if (this.fileName == undefined || this.fileName == null || this.fileName == '') {
       this.wfInfo = "Workflow ID: " + this.ID + ", Filename:" + res[0].Filename;
-      this.errorStr += wfErr + ", WF Status: " + this.wfStatus;
+      // Only append wfErr to errorStr for Data Error payloads (avoid duplication with nonDataErrorMessage)
+      if (this.isDataErrorPayload) {
+        this.errorStr += wfErr + ", WF Status: " + this.wfStatus;
+      } else {
+        this.errorStr += "WF Status: " + this.wfStatus;
+      }
     } else {
       this.wfInfo = "Workflow ID: " + this.ID + ", Filename:" + this.fileName;
-      this.errorStr += wfErr + ", WF Status: " + this.wfStatus;
+      // Only append wfErr to errorStr for Data Error payloads (avoid duplication with nonDataErrorMessage)
+      if (this.isDataErrorPayload) {
+        this.errorStr += wfErr + ", WF Status: " + this.wfStatus;
+      } else {
+        this.errorStr += "WF Status: " + this.wfStatus;
+      }
     }
   }
 
