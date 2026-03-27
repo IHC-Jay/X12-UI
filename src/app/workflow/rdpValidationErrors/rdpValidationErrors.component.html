@@ -39,7 +39,7 @@
               <tr>
                 <td>
                   <mat-select formControlName="statusType" (selectionChange)="statusTypeChange($event.value)"
-                    style="font-size: 10px;" [multiple]="false">
+                    style="font-size: 10px; min-width: 150px;" [multiple]="false">
                     @for (statusType of statusTypes; track statusType) {
                       <mat-option [value]="statusType" style="font-size: 10px;">
                         {{statusType}}
@@ -60,7 +60,7 @@
         </td>
 
 
-        <td class="form-group col-2">
+        <td class="form-group col-2" style="text-align: right;">
 
           <button style="font-size: 12px;" class="btn btn-primary"
                     (click)="exportX12()">
