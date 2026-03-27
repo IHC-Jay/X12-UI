@@ -112,7 +112,13 @@
             </table>
           }
 
-          <!-- Error information is already displayed at line 35 above, no duplication needed -->
+          <!-- Display raw error message for non-data errors in error table space -->
+          @if (canRenderDetails && !isDataErrorPayload && nonDataErrorMessage) {
+            <div class="error-details">
+              <strong>Error Details:</strong>
+              <div style="margin-top: 5px;">{{nonDataErrorMessage}}</div>
+            </div>
+          }
 
           @if (isDataErrorPayload) {
             <mat-paginator #errorPaginator
