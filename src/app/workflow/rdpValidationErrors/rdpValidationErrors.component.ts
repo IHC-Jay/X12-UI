@@ -257,6 +257,12 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
    * Process the response from fetchRdpCrytalEntries and update component state.
    */
   private processX12Response(res: any) {
+    // Update Workflow ID if available in fetch response
+    if (res && res[0] && res[0].WfId) {
+      this.ID = res[0].WfId;
+      console.info("Updated Workflow ID from fetch response: " + res[0].WfId);
+    }
+    
     if (!res || !res[0] || !res[0].X12) {
       this.canRenderDetails = true;
       return;
