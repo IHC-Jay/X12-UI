@@ -25,3 +25,25 @@
 .help-section p {
   margin-bottom: 6px;
 }
+
+.help-build {
+  margin-top: 16px;
+  padding-top: 8px;
+  border-top: 1px solid #e0e0e0;
+  font-size: 10pt;
+  font-weight: bold;
+  color: #888;
+  text-align: right;
+}
+
+.help-header .btn {
+  color: #111;
+  background-color: #e5e7eb;
+  border: 1px solid #ccc;
+}
+
+:host-context(body.app-theme-dark) .help-header .btn {
+  color: #f1f5f9;
+  background-color: #374151;
+  border-color: #555;
+}

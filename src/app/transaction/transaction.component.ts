@@ -1032,6 +1032,24 @@ resetCustomFields(): void {
   this.requestId = '';
 }
 
+hasCustomFieldContent(): boolean {
+  const formArr = this.form.get('additional') as FormArray;
+
+  if (!formArr || formArr.length === 0) {
+    return false;
+  }
+
+  for (let i = 0; i < formArr.length; i++) {
+    const fGrp = formArr.at(i) as FormGroup;
+    const fieldValue = fGrp.controls.newFldValue.value;
+    if (fieldValue && String(fieldValue).trim() !== '') {
+      return true;
+    }
+  }
+
+  return false;
+}
+
 private updateCustomFlds() {
 
   const formArr = this.form.get('additional') as FormArray

@@ -22,4 +22,8 @@
       <li *ngFor="let tip of data.tips">{{ tip }}</li>
     </ul>
   </div>
+
+  <div *ngIf="data.appVersion" class="help-build">
+    Build: {{ data.appVersion }}
+  </div>
 </div>

@@ -132,6 +132,15 @@
                     Search  </button>
             </td>
 
+            <td class="form-group col-1" style="font-size: 10px;" >
+              @if (hasCustomFieldContent()) {
+                <button class="btn btn-secondary" style="font-size: 12px; width: 75px;"
+                  type="button" (click)="resetCustomFields()">
+                  Clear
+                </button>
+              }
+            </td>
+
             <td class="form-group col-2" style="font-size: 10px;" >
                     @if (canRenderDetails && dataSource.data.length > 0) {
                       <div>
@@ -169,10 +178,6 @@
                   type="text" matInput formControlName="newFldValue" placeholder="Value for {{newFld.get('fld').value}}">
               </td>
             }
-
-            <td style="vertical-align: bottom;">
-              <button class="btn btn-secondary" type="button" style="font-size: 12px;" (click)="resetCustomFields()">Reset</button>
-            </td>
 
           </tr>
         </div>

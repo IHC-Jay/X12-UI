@@ -3,6 +3,7 @@ export interface HelpContent {
   overview: string;
   quickSteps: string[];
   tips: string[];
+  appVersion?: string;
 }
 
 export const DEFAULT_HELP_CONTENT: HelpContent = {

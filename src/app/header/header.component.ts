@@ -224,7 +224,7 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
       this.dialog.open(HelpDialogComponent, {
         width: '700px',
         maxWidth: '95vw',
-        data: helpContent
+        data: { ...helpContent, appVersion: this.appVersion }
       });
     }
 

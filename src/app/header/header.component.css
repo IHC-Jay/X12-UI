@@ -290,45 +290,69 @@ table {
   color: #111827 !important;
 }
 
-#logout button[type="button"] {
-  background-color: #dc2626 !important;
-  color: white !important;
-  width: 110pt !important;
+#logout .header-theme-btn {
+  background-color: #e5e7eb !important;
+  color: #111827 !important;
   font-size: 9pt !important;
+  width: 110pt !important;
+  height: 30px;
+  border: 1px solid #9ca3af !important;
   padding: 4px 6px !important;
   border-radius: 4px !important;
+  cursor: pointer;
+  font-weight: 500;
 }
 
-#logout button[type="button"]:hover,
-#logout button[type="button"]:active {
-  background-color: #b91c1c !important;
-  color: white !important;
+#logout .header-theme-btn:hover,
+#logout .header-theme-btn:active {
+  background-color: #d1d5db !important;
+  color: #111827 !important;
 }
 
-:host-context(body.app-theme-dark) #logout button[type="button"] {
+#logout .header-logout-btn {
   background-color: #dc2626 !important;
   color: white !important;
+  font-size: 9pt !important;
+  width: 110pt !important;
+  height: 30px;
+  border: none !important;
+  padding: 4px 6px !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  font-weight: bold;
 }
 
-:host-context(body.app-theme-dark) #logout button[type="button"]:hover,
-:host-context(body.app-theme-dark) #logout button[type="button"]:active {
+#logout .header-logout-btn:hover,
+#logout .header-logout-btn:active {
   background-color: #b91c1c !important;
   color: white !important;
 }
 
-#logout button:not([type="button"]) {
+#logout .header-help-btn {
   background-color: #22c55e !important;
   color: black !important;
-  width: 80pt !important;
-  font-size: 9pt !important;
-  padding: 4px 6px !important;
-  border-radius: 4px !important;
+  width: 32px;
+  height: 32px;
+  border: none !important;
+  border-radius: 50% !important;
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 2px;
 }
 
-#logout button:not([type="button"]):hover,
-#logout button:not([type="button"]):active {
+#logout .header-help-btn:hover,
+#logout .header-help-btn:active {
   background-color: #16a34a !important;
   color: black !important;
+}
+
+#logout .header-help-icon {
+  font-size: 18px;
+  width: 18px;
+  height: 18px;
+  line-height: 18px;
 }
 
 /* Login form dark mode */

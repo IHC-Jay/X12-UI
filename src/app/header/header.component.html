@@ -10,7 +10,7 @@
           <ng-template [ngIf]="isLogin" [ngIfElse]="loggedOut">
           <button style="border-spacing: 0pc; padding: 0pc; display:flex; flex-direction:column; align-items:center; gap:4px;" on-click="onHome()" >
             <img width="100%" src="{{logo}}" >
-            <div style="font-size: 8pt; color: #666; white-space: nowrap;">Build: {{appVersion}}</div>
+            <div style="font-size: 8pt; color: #666; white-space: nowrap; display: none;">Build: {{appVersion}}</div>
           </button>
 
           <div style="align-items: start;">
@@ -71,14 +71,19 @@
       </div>
 
 
-                  <div id="logout" *ngIf=isLogin style="display:flex; flex-direction:column; align-items:flex-end; justify-content:flex-start; margin-left:auto; gap:2px; text-align:right;">
-                    <div style="display:flex; gap:4px; align-items:center;">
-                      <button type="button" style="background-color: #e5e7eb !important; color: #111827 !important; font-size: 9pt; width: 80pt; border: 1px solid #9ca3af; padding: 4px 6px; border-radius: 4px; cursor: pointer; font-weight: 500;" class="theme-toggle-btn" (click)="toggleTheme()">
-                        Theme: {{ currentTheme === 'dark' ? 'Dark' : 'Light' }}
-                      </button>
-                      <button style="background-color: #22c55e !important; color: black !important; font-size: 9pt; width: 80pt; font-weight: bold; border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer;" (click)="openHelp()">Help</button>
-                    </div>
-                    <button style="background-color: #dc2626 !important; color: white !important; font-size: 9pt; width: 110pt; font-weight: bold; border: none; padding: 4px 6px; border-radius: 4px; cursor: pointer; margin-top:2px;" (click)="logout()">{{currentUser.username}} &#64; {{currentUser.environment}} Logout</button>
+                  <div id="logout" *ngIf=isLogin style="display:flex; flex-direction:row; align-items:center; justify-content:flex-end; margin-left:auto; gap:4px; text-align:right;">
+                    <button
+                      type="button"
+                      class="header-help-btn"
+                      (click)="openHelp()"
+                      title="Help"
+                      aria-label="Help">
+                      <mat-icon class="header-help-icon">help_outline</mat-icon>
+                    </button>
+                    <button type="button" class="theme-toggle-btn header-theme-btn" (click)="toggleTheme()">
+                      Theme: {{ currentTheme === 'dark' ? 'Dark' : 'Light' }}
+                    </button>
+                    <button type="button" class="header-logout-btn" (click)="logout()" title="Logout" aria-label="Logout">{{currentUser.username}} &#64; {{currentUser.environment}}</button>
           </div>
         </ng-template>
         <ng-template #loggedOut>
@@ -87,7 +92,7 @@
           <button type="button" class="theme-toggle-btn" (click)="toggleTheme()">
             Theme: {{ currentTheme === 'dark' ? 'Dark' : 'Light' }}
           </button>
-          <div style="font-size: 8pt; color: #666; align-self: center;">Build: {{appVersion}}</div>
+          <div style="font-size: 8pt; color: #666; align-self: center; display: none;">Build: {{appVersion}}</div>
         </ng-template>
 
   </nav>
