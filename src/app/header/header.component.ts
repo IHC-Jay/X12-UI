@@ -404,6 +404,11 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
           console.info('from  authenticationService.login : ' + this.firstPage);
           this.isLogin = true;
 
+          // Reset transaction-specific persisted search state for a fresh login session.
+          // This ensures Transactions initializes from UserConfig instead of stale tab state.
+          this.storage.removeItem('transConfig');
+          this.storage.removeItem('transUserFlds');
+
           this.TransactionService.deleteDisplayColumns('Session','','').subscribe((res: any) => {
 
               console.info("Delete Display: " + res);
@@ -528,7 +533,12 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
       // whenever a sub-route is active, breaking pages like rdpValidationErrors when called
       // from Summary. Do NOT simplify this back to an exact match — see commits b2b12bf (fix)
       // and 80c7cce (regression) for history.
-      if (selectedLink.link && (currentPath === selectedLink.link || currentPath.startsWith(selectedLink.link + '/'))) {
+      const isWorkflowChildRoute =
+        selectedLink.name === 'Work Flow' &&
+        !!selectedLink.link &&
+        currentPath.startsWith(selectedLink.link + '/');
+
+      if (selectedLink.link && (currentPath === selectedLink.link || isWorkflowChildRoute)) {
         this.prevLnkIndex = this.selectedLnkIndex.value;
         return;
       }

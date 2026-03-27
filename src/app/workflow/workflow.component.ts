@@ -243,10 +243,40 @@ export class WorkflowComponent implements OnInit, AfterViewInit, OnDestroy {
       this.statusTypeString = statusType;
       this.form.controls.statusType.setValue(this.statusTypeString);
     }
+
+    const assignedUser = this.extractSessionValue(searchParams, "assignedUser::");
+    if (this.statusTypeString === this.statusTypes[2]) {
+      this.showUsers = true;
+      if (assignedUser !== '') {
+        this.form.controls.assignedUser.setValue(assignedUser);
+      } else if (this.irisUsers.length > 0) {
+        this.form.controls.assignedUser.setValue(this.irisUsers[0].FullName);
+      }
+    } else {
+      this.showUsers = false;
+    }
+
     const mode = this.extractSessionValue(searchParams, "mode::");
     this.form.controls.mode.setValue(mode);
     this.showMode = !(this.transTypeStr.startsWith('83') || this.transTypeStr.indexOf('277CA') === 0 || this.transTypeStr.indexOf('All') >= 0);
     console.log("mode: " + mode);
+
+    const wfId = this.extractSessionValue(searchParams, "wfID::");
+    if (wfId !== '') {
+      this.form.controls.wfID.setValue(wfId);
+      this.searchID = true;
+    }
+
+    const senderId = this.extractSessionValue(searchParams, "senderID::");
+    if (senderId !== '') {
+      this.form.controls.senderID.setValue(senderId.replaceAll('%25', '%'));
+    }
+
+    const receiverId = this.extractSessionValue(searchParams, "receiverID::");
+    if (receiverId !== '') {
+      this.form.controls.receiverID.setValue(receiverId.replaceAll('%25', '%'));
+    }
+
     this.startDate = this.extractSessionDate(searchParams, "wfStartDtTm::");
     this.startTm = this.extractSessionTime(searchParams, "wfStartDtTm::");
     this.endDate = this.extractSessionDate(searchParams, "wfEndDtTm::");
@@ -398,10 +428,17 @@ onSubmit()
 
   console.info("WfService.fetchWorkFlowItems, params: " + paramsList.toString())
 
+  const serializedSenderId = (this.form.controls.senderID.value || '').replaceAll('%', '%25');
+  const serializedReceiverId = (this.form.controls.receiverID.value || '').replaceAll('%', '%25');
+
     this.storageService.setItem("wfConfig", "errorType::" + this.form.controls.errorType.value +";" +
       "transaction::"+this.form.controls.transType.value +";" +
       "mode::"+ this.form.controls.mode.value +";" +
       "status::"+this.form.controls.statusType.value +";" +
+      "assignedUser::" + (this.form.controls.assignedUser.value || '') + ";" +
+      "wfID::" + (this.form.controls.wfID.value || '') + ";" +
+      "senderID::" + serializedSenderId + ";" +
+      "receiverID::" + serializedReceiverId + ";" +
       "wfStartDtTm::" + this.startDate +" "+ this.startTm +";" +
       "wfEndDtTm::" + this.endDate+" " +this.endTm +";" );
 

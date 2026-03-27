@@ -127,6 +127,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
   };
 
   sumUserFlds = "";
+  restoredSummarySearchValues: { [key: string]: string } = {};
   sub: Subscription | undefined;
   ngOnDestroy(): void {
     if (this.sub) {
@@ -217,6 +218,9 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.formFields = this.storage.getItem<any>('sumConfig');
       this.setEndTimeToNow();
     }
+
+    this.restoreSearchStateFromSessionStorage();
+
     if (this.formFields.currentTransType === '') {
       this.formFields.currentTransType = this.transactionTypes[0];
       this.formFields.disposition = this.dispositions[0];
@@ -232,6 +236,104 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
 
       }
       this.setStartAndEndDateTimes(stDt);
+    }
+  }
+
+  private restoreSearchStateFromSessionStorage() {
+    const hasQueryParams = this.route.snapshot.queryParamMap.keys.length > 0;
+    if (hasQueryParams) {
+      return;
+    }
+
+    const savedSearchTypeString = this.storage.getItem<any>('sumUserFlds') || '';
+    if (!savedSearchTypeString || savedSearchTypeString.trim().length === 0) {
+      return;
+    }
+
+    this.sumUserFlds = savedSearchTypeString;
+    const entries = savedSearchTypeString
+      .split(';')
+      .map(value => (value || '').trim())
+      .filter(value => value.length > 0);
+
+    for (const entry of entries) {
+      if (entry.startsWith('mode::')) {
+        this.formFields.mode = entry.substring('mode::'.length).trim();
+      } else if (entry.startsWith('transaction::')) {
+        this.formFields.currentTransType = entry.substring('transaction::'.length).trim();
+      } else if (entry.startsWith('status::')) {
+        this.formFields.disposition = entry.substring('status::'.length).trim();
+      } else if (entry.startsWith('count::')) {
+        this.formFields.rowCnt = entry.substring('count::'.length).trim();
+      } else if (entry.startsWith('startDtTm::')) {
+        const startDtTm = entry.substring('startDtTm::'.length).trim();
+        const splitIndex = startDtTm.lastIndexOf(' ');
+        if (splitIndex > 0) {
+          this.formFields.startDate = startDtTm.substring(0, splitIndex).trim();
+          this.formFields.startTm = startDtTm.substring(splitIndex + 1).trim();
+        }
+      } else if (entry.startsWith('endDtTm::')) {
+        const endDtTm = entry.substring('endDtTm::'.length).trim();
+        const splitIndex = endDtTm.lastIndexOf(' ');
+        if (splitIndex > 0) {
+          this.formFields.endDate = endDtTm.substring(0, splitIndex).trim();
+          this.formFields.endTm = endDtTm.substring(splitIndex + 1).trim();
+        }
+      } else if (entry.startsWith('sql::')) {
+        this.restoredSummarySearchValues = this.parseSqlSearchValues(
+          entry.substring('sql::'.length).trim()
+        );
+      }
+    }
+
+    console.info('Restored summary search state from session storage', {
+      transType: this.formFields.currentTransType,
+      mode: this.formFields.mode,
+      disposition: this.formFields.disposition,
+      rowCnt: this.formFields.rowCnt,
+      restoredCustomKeys: Object.keys(this.restoredSummarySearchValues)
+    });
+  }
+
+  private parseSqlSearchValues(searchSql: string): { [key: string]: string } {
+    const result: { [key: string]: string } = {};
+    if (!searchSql || searchSql.trim().length === 0) {
+      return result;
+    }
+
+    const normalizedSql = searchSql.replaceAll('%25', '%');
+    const matcher = /([A-Za-z0-9_]+)\s*(?:=|LIKE)\s*'([^']*)'/gi;
+    let match = matcher.exec(normalizedSql);
+    while (match !== null) {
+      const key = (match[1] || '').trim();
+      const value = (match[2] || '').trim();
+      if (key.length > 0) {
+        result[key] = value;
+      }
+      match = matcher.exec(normalizedSql);
+    }
+
+    return result;
+  }
+
+  private applyRestoredCustomFieldValues(formArr: FormArray) {
+    if (!this.restoredSummarySearchValues || Object.keys(this.restoredSummarySearchValues).length === 0) {
+      return;
+    }
+
+    for (let i = 0; i < formArr.length; i++) {
+      const fGrp = formArr.at(i) as FormGroup;
+      const selectedLabel = fGrp.controls.fld.value;
+
+      for (const val of this.transSearchStructArr) {
+        if (val.label === selectedLabel && val.transactionCode === this.form.controls.transType.value) {
+          const restoredValue = this.restoredSummarySearchValues[val.key];
+          if (restoredValue !== undefined) {
+            fGrp.controls.newFldValue.setValue(restoredValue, { emitEvent: false });
+          }
+          break;
+        }
+      }
     }
   }
 
@@ -749,6 +851,8 @@ transactionChange(evt: any)
   const formArr = this.form.get('additional') as FormArray
 
 
+  this.transSearchStructArr = [];
+
 
   this.usrSearchColumns.forEach(element => {
     if(element.TransactionCode === this.form.controls.transType.value && element.Mode === this.form.controls.mode.value)
@@ -769,6 +873,8 @@ transactionChange(evt: any)
       }
     }
   });
+
+  this.applyRestoredCustomFieldValues(formArr);
   this.onSearchSummary();
 
 
