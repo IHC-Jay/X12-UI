@@ -20,7 +20,7 @@
 
 
       <div style="align-items: start;">
-        <mat-tab-group #tabGrp [selectedIndex]="selectedLnkIndex.value" *ngIf=isLogin mat-stretch-tabs="false" mat-align-tabs="start"
+        <mat-tab-group #tabGrp [selectedIndex]="selectedLnkIndex.value" *ngIf="isLogin && searchStr === ''" mat-stretch-tabs="false" mat-align-tabs="start"
          (selectedTabChange)="onTabChanged($event)"
          [ngStyle]="{'--tab-label-color': currentTheme === 'dark' ? '#ffffff' : '#111827'}">
 

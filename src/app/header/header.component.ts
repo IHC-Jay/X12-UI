@@ -297,11 +297,6 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
             if (this.paramsObject.transaction !== undefined)
             {
               this.searchStr = "Transaction: " + this.paramsObject.transaction
-              let element = document.getElementById('tabGrp') as HTMLElement | null;
-              if (element) {
-                element.setAttribute('hidden', 'true');
-                console.log("Disable: " + element);
-              }
             }
 
 

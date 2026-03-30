@@ -284,7 +284,12 @@
                 </div>
                 <div class="form-group col-3">
                   <label>RuleFile</label>
-                  <input type="text" formControlName="ValidationRuleFile" class="form-control" />
+                  <mat-select formControlName="ValidationRuleFile" class="form-control">
+                    <mat-option value="L1" style="font-size: 10px;">L1</mat-option>
+                    <mat-option value="L1-L2" style="font-size: 10px;">L1-L2</mat-option>
+                    <mat-option value="L1-AllowNoAdmitDate" style="font-size: 10px;">L1-AllowNoAdmitDate</mat-option>
+                    <mat-option value="L1-L2-SDS" style="font-size: 10px;">L1-L2-SDS</mat-option>
+                  </mat-select>
                 </div>
                 <div class="form-group col-1" style="text-align: center;">
                   <label >Unique Id</label>
