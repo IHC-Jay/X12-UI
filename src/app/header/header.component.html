@@ -36,33 +36,28 @@
                 </span>
               </ng-template>
             </mat-tab>
-            <mat-tab *ngIf="lnk.name === 'Utilities' && lnk.children && lnk.children.length > 0" style="position: relative;">
+            <mat-tab *ngIf="lnk.name === 'Utilities' && lnk.children && lnk.children.length > 0">
               <ng-template mat-tab-label>
                 <span style="cursor: pointer;"
                       [style.color]="i === selectedLnkIndex.value ? (currentTheme === 'dark' ? '#93c5fd' : '#1d4ed8') : (currentTheme === 'dark' ? '#ffffff' : '#111827')"
                       [style.font-weight]="i === selectedLnkIndex.value ? '700' : '500'"
+                      [matMenuTriggerFor]="utilitiesMenu"
                       (click)="onUtilityTabClick(i, $event)">
                   {{lnk.name}}
                   <mat-icon>arrow_drop_down</mat-icon>
                 </span>
               </ng-template>
-              <div
-                *ngIf="utilitySubmenuVisible"
-                style="display: flex; flex-direction: column; align-items: center; border-radius: 4px; margin-top: 4px; padding: 4px; width: 160px; min-width: 120px; max-width: 200px;"
-                class="utility-submenu"
-                [style.background-color]="currentTheme === 'dark' ? '#2d3748' : '#f5f5f5'">
-                <button
-                  type="button"
-                  mat-button
-                  class="utility-submenu-item"
-                  *ngFor="let child of lnk.children"
-                  (click)="navigateTo(child)"
-                  style="text-align: left; margin-bottom: 2px;"
-                  [style.color]="currentTheme === 'dark' ? '#e5e7eb' : '#111827'">
-                  <span [style.color]="currentTheme === 'dark' ? '#e5e7eb' : '#111827'">{{child.name}}</span>
-                </button>
-              </div>
             </mat-tab>
+            <mat-menu #utilitiesMenu="matMenu" [panelClass]="currentTheme === 'dark' ? 'utility-menu-dark' : 'utility-menu-light'">
+              <button
+                type="button"
+                mat-menu-item
+                *ngFor="let child of lnk.children"
+                style="color: #111827"
+                (click)="navigateTo(child)">
+                {{child.name}}
+              </button>
+            </mat-menu>
         </ng-container>
 
 

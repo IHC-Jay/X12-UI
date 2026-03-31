@@ -504,3 +504,11 @@ body.app-theme-dark ::ng-deep .mat-mdc-option.mat-selected {
   font-size: 8pt;
   float: right;
 }
+
+/* Utility submenu mat-menu panel theming */
+.utility-menu-light .mat-mdc-menu-item .mdc-list-item__primary-text,
+.utility-menu-light .mat-mdc-menu-item,
+.utility-menu-dark .mat-mdc-menu-item .mdc-list-item__primary-text,
+.utility-menu-dark .mat-mdc-menu-item {
+  color: #111827 !important;
+}
