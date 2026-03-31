@@ -1,6 +1,6 @@
 
 <div class="container">
-  <h4>X12 Viewer{{ hideActions() ? '' : ' and Validator' }} <span *ngIf="!hideActions()" class="muted" style="font-size: 14px; font-weight: 400;">— Open an X12 file and click <b>Validate</b> to run the RDPCrystal validator via REST API.</span></h4>
+  <h4>X12 Viewer{{ hideActions() ? '' : ' and Validator' }} <span *ngIf="!hideActions()" class="muted" style="font-size: 14px; font-weight: 400;">— Open an X12 file and click <b>RDP Validate</b> to run the RDPCrystal validator via REST API.</span></h4>
 
   <div class="panel" style="margin:16px 0;">
     <div class="row" style="gap:16px;">
@@ -8,7 +8,9 @@
       <input class="search" placeholder="Search tag or text (e.g., ISA, GS, ST, NM1, EQ)"
        [(ngModel)]="filterValue" [disabled]="!x12()" />
       <button class="btn" *ngIf="hideActions() && x12()" (click)="downloadX12()">Download X12</button>
-      <button class="btn" *ngIf="x12() && !hideActions()" (click)="validate()" [disabled]="validating()">{{ validating() ? 'Validating…' : 'Validate' }}</button>
+      <div style="margin-left:auto;">
+        <button class="btn" *ngIf="x12() && !hideActions()" (click)="validate()" [disabled]="validating()" title="Validate with RDPCrystal" aria-label="Validate with RDPCrystal">{{ validating() ? 'RDP Validating…' : 'RDP Validate' }}</button>
+      </div>
     </div>
     <div style="margin-top:12px;">
       <div class="x12-load-status" *ngIf="x12LoadInProgress()">{{ x12LoadStatus() || 'Loading X12...' }}</div>
@@ -98,12 +100,24 @@
           class="search"
           style="width:120px"
           type="text"
-          placeholder="Claim ID"
+          placeholder="Patient Account"
           [ngModel]="claimIdJumpTarget()"
           (ngModelChange)="claimIdJumpTarget.set(($event ?? '').toString())"
           (keydown.enter)="jumpToClaimId()"
         />
-        <button class="btn" style="padding:8px 10px;" (click)="jumpToClaimId()">Go To ID</button>
+        <button class="btn" style="padding:8px 10px;" (click)="jumpToClaimId()">Go</button>
+        </ng-container>
+        <ng-container *ngIf="isClearingHouseTraceSupported">
+          <input
+            class="search"
+            style="width:190px"
+            type="text"
+            placeholder="Clearing house trace #"
+            [ngModel]="clearingHouseTraceTarget()"
+            (ngModelChange)="clearingHouseTraceTarget.set(($event ?? '').toString())"
+            (keydown.enter)="jumpToClearingHouseTrace()"
+          />
+          <button class="btn" style="padding:8px 10px;" (click)="jumpToClearingHouseTrace()">Go</button>
         </ng-container>
 
       <div class="row" style="margin-left:auto; gap:8px; min-width:0; flex:0 1 auto;">

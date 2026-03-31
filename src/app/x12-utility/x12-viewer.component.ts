@@ -78,6 +78,7 @@ export class X12ViewerComponent {
   highlightedLine = signal<number | null>(null);
   claimJumpTarget = signal<string>('');
   claimIdJumpTarget = signal<string>('');
+  clearingHouseTraceTarget = signal<string>('');
   claimJumpMessage = signal<string>('');
 
   private readonly commonLoopDescriptions: Record<string, string> = {
@@ -199,6 +200,11 @@ export class X12ViewerComponent {
   get isClaimJumpSupported(): boolean {
     const tx = this.detectedTransactionType.toUpperCase();
     return tx === '835' || tx.startsWith('837');
+  }
+
+  get isClearingHouseTraceSupported(): boolean {
+    const tx = this.detectedTransactionType.toUpperCase();
+    return tx.startsWith('837') || tx.startsWith('277');
   }
 
   get claimSegmentTag(): string {
@@ -339,6 +345,7 @@ export class X12ViewerComponent {
     this.page.set(1);
     this.claimJumpTarget.set('');
     this.claimIdJumpTarget.set('');
+    this.clearingHouseTraceTarget.set('');
     this.claimJumpMessage.set('');
 
     this.fileName.set(fileName || 'Transmission-X12.txt');
@@ -586,6 +593,25 @@ export class X12ViewerComponent {
         };
       })
       .filter((entry) => !!entry.claimId);
+  });
+
+  clearingHouseTraceEntries = computed(() => {
+    const data = this.x12();
+    if (!data || !this.isClearingHouseTraceSupported) {
+      return [] as Array<{ line: number; traceValue: string }>;
+    }
+
+    return data.segments
+      .filter((segment) => {
+        if (segment.tag !== 'REF') return false;
+        const refQualifier = String(segment.elements?.[0] || '').trim().toUpperCase();
+        return refQualifier === 'D9';
+      })
+      .map((segment) => ({
+        line: segment.index + 1,
+        traceValue: String(segment.elements?.[1] || '').trim()
+      }))
+      .filter((entry) => !!entry.traceValue);
   });
 
   pagedFiltered = computed(() => {
@@ -841,6 +867,36 @@ export class X12ViewerComponent {
     }
   }
 
+  jumpToClearingHouseTrace(): void {
+    this.claimJumpMessage.set('');
+
+    if (!this.isClearingHouseTraceSupported) return;
+
+    const targetTrace = this.clearingHouseTraceTarget().trim();
+    if (!targetTrace) {
+      this.claimJumpMessage.set('Enter a clearing house trace value.');
+      return;
+    }
+
+    const normalizedTarget = targetTrace.toUpperCase();
+    const entries = this.clearingHouseTraceEntries();
+    const exactMatches = entries.filter((entry) => entry.traceValue.toUpperCase() === normalizedTarget);
+    const matches = exactMatches.length > 0
+      ? exactMatches
+      : entries.filter((entry) => entry.traceValue.toUpperCase().includes(normalizedTarget));
+
+    if (matches.length === 0) {
+      this.claimJumpMessage.set(`Clearing house trace not found: ${targetTrace}`);
+      return;
+    }
+
+    this.focusLine(matches[0].line);
+
+    if (matches.length > 1) {
+      this.claimJumpMessage.set(`Multiple matches for ${targetTrace}; jumped to first.`);
+    }
+  }
+
   get selectedFieldLabel(): string {
     const segmentTag = this.selectedSegmentTag();
     const elementPosition = this.selectedElementPosition();
@@ -1037,6 +1093,7 @@ export class X12ViewerComponent {
     this.highlightedLine.set(null);
     this.claimJumpTarget.set('');
     this.claimIdJumpTarget.set('');
+    this.clearingHouseTraceTarget.set('');
     this.claimJumpMessage.set('');
     this.filter.set('');
     this.fileSizeBytes.set(0);
@@ -1058,6 +1115,7 @@ export class X12ViewerComponent {
     this.highlightedLine.set(null);
     this.claimJumpTarget.set('');
     this.claimIdJumpTarget.set('');
+    this.clearingHouseTraceTarget.set('');
     this.claimJumpMessage.set('');
     const file = input.files[0];
     this.fileName.set(file.name);
@@ -1076,6 +1134,7 @@ export class X12ViewerComponent {
       this.selectedElementName.set('');
       this.selectedLoop.set('');
       this.claimIdJumpTarget.set('');
+      this.clearingHouseTraceTarget.set('');
     };
     reader.readAsText(file);
   }
