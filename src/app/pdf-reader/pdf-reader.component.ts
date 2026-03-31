@@ -324,6 +324,7 @@ export class PdfReaderComponent implements OnInit, AfterViewInit {
 				console.warn('Could not read page count', e);
 				this.selectedFilePages = null;
 			}
+			this.buildPageTextCache();
 			await this.renderToCanvas();
 		} finally {
 			this.isLoading = false;

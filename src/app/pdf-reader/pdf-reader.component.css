@@ -1,6 +1,6 @@
 .pdf-reader { font-family: Arial, Helvetica, sans-serif; max-width: calc(100vw - 40px); margin: 12px auto; }
 .controls { margin: 8px 0; }
-.viewer { border: 1px solid #ddd; margin-bottom: 8px; max-height: calc(100vh - 240px); overflow: auto; }
+.viewer { border: 1px solid #ddd; margin-bottom: 8px; max-height: calc(100vh - 360px); overflow: auto; }
 .viewer canvas { display: block; width: auto; height: auto; max-width: 100%; }
 .extracted { background: #f8f8ff; padding: 8px; white-space: pre-wrap; }
 
