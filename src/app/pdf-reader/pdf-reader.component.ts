@@ -119,7 +119,10 @@ export class PdfReaderComponent implements OnInit, AfterViewInit {
 	}
 
 	async loadAssetGuideManifest() {
-		const candidates = ['/assets/X12-Guides/manifest.json', '/assets/X12-Guilds/manifest.json'];
+		const candidates = [
+			new URL('assets/X12-Guides/manifest.json', document.baseURI).toString(),
+			new URL('assets/X12-Guilds/manifest.json', document.baseURI).toString()
+		];
 		for (const url of candidates) {
 			try {
 				const resp = await fetch(url);
@@ -297,7 +300,11 @@ export class PdfReaderComponent implements OnInit, AfterViewInit {
 		this.startProgressTimer();
 		try {
 			this.errorMessage = null;
-			const url = `/assets/${encodeURIComponent(assetFileName)}`;
+			const encodedAssetPath = assetFileName
+				.split('/')
+				.map((segment) => encodeURIComponent(segment))
+				.join('/');
+			const url = new URL(`assets/${encodedAssetPath}`, document.baseURI).toString();
 			const resp = await fetch(url);
 			if (!resp.ok) throw new Error('Failed to fetch asset: ' + url);
 			const buf = await resp.arrayBuffer();
