@@ -127,7 +127,7 @@
                     <tr>
                       <td style="font-size: 10px; padding: 4px; vertical-align: top;">
                         <label style="font-size: 10px; font-weight: bold; color: navy;">Environment:</label>
-                        <mat-select style="font-size: 10px; background-color: #1f2937; color: #e5e7eb; border: 1px solid #4b5563; padding: 2px 4px; width: 100%;"
+                        <mat-select style="font-size: 10px; background-color: #1f2937; border: 1px solid #4b5563; padding: 2px 4px; width: 100%;"
                           formControlName="env">
                           @for (env of allowedEnvironments; track env) {
                             <mat-option [value]="env" style="font-size: 10px;">{{env}}</mat-option>
@@ -136,7 +136,7 @@
                       </td>
                       <td style="font-size: 10px; padding: 4px; vertical-align: top;">
                         <label style="font-size: 10px; font-weight: bold; color: navy;">Auto Logout (in min):</label>
-                        <mat-select style="font-size: 10px; background-color: #1f2937; color: #e5e7eb; border: 1px solid #4b5563; padding: 2px 4px; width: 100%;"
+                        <mat-select style="font-size: 10px; background-color: #1f2937; border: 1px solid #4b5563; padding: 2px 4px; width: 100%;"
                           formControlName="logoutTime">
                           <mat-option value="15">15</mat-option>
                           <mat-option value="30">30</mat-option>

@@ -85,6 +85,14 @@ body.app-theme-dark .mat-mdc-form-field-label {
   color: #111827 !important;
 }
 
+/* Login screen dropdown selected text should remain light in dark theme. */
+body.app-theme-dark .col-md-6 .mat-mdc-select-trigger,
+body.app-theme-dark .col-md-6 .mat-mdc-select-value,
+body.app-theme-dark .col-md-6 .mat-mdc-select-value-text,
+body.app-theme-dark .col-md-6 .mat-mdc-select-min-line {
+  color: #e5e7eb !important;
+}
+
 body.app-theme-dark .mat-icon,
 body.app-theme-dark .material-icons {
   color: #e5e7eb !important;
