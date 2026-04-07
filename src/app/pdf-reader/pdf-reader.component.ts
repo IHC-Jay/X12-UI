@@ -121,7 +121,7 @@ export class PdfReaderComponent implements OnInit, AfterViewInit {
 	async loadAssetGuideManifest() {
 		const candidates = [
 			new URL('assets/X12-Guides/manifest.json', document.baseURI).toString(),
-			new URL('assets/X12-Guilds/manifest.json', document.baseURI).toString()
+			new URL('assets/X12-Guides/manifest.json', document.baseURI).toString()
 		];
 		for (const url of candidates) {
 			try {
