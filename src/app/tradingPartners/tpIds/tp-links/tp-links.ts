@@ -1,7 +1,7 @@
 
 export class tpLinks
 {
-id: string;
+ID: string;
 Link:string;
 IsaSenderId:string;
 IsaReceiverId:string;

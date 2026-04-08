@@ -181,6 +181,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   async ngOnInit() {
     console.info("ngOnInit Transactions for " + this.org );
+    this.initSessionTab();
     this.initTransactionTypes();
     this.initForm();
     this.handleQueryParamsSessionStorage();
@@ -251,6 +252,13 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   // =====================
   // ngOnInit Refactor Helpers
   // =====================
+  private initSessionTab() {
+    this.storageService.removeItem("currentTab");
+    this.storageService.setItem("currentTab", "Transactions");
+    // Set endTm to current time when tab is selected
+    this.setEndTimeToNow();
+  }
+
   private initTransactionTypes() {
     if (this.org == 'SH') {
       this.transactionTypes = ["270", "271","276", "277", "277CA", "835", "837I", "837P", "837D", "999", "TA1"];
@@ -258,8 +266,6 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
       this.transactionTypes = [ "835", "837I", "837P", "837D", "999", "277CA", "TA1"];
     }
     this.formFields.currentTransType = '';
-    this.storageService.removeItem("currentTab");
-    this.storageService.setItem("currentTab", "Transactions");
   }
 
 

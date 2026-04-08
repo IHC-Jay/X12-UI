@@ -140,6 +140,7 @@ public initializeData()
     private initForm() {
       this.form = this.formBuilder.group({
         ParentTpId: [''],
+        ID: [''],
         Link: ['', Validators.required],
         TransType: ['', Validators.required],
         TransactionSetId: [''],
@@ -238,7 +239,10 @@ public initializeData()
                 this.form.controls.TransType.setValue(ttype);
                 this.setTransactionSetId();
               }
-              if (key === 'Mode') {
+              if (key === 'ID') {
+                this.form.controls['ID'].setValue(x[key].toString());
+              }
+              else if (key === 'Mode') {
                 this.form.controls['Mode'].setValue(x[key].toString());
               }
               else if (key === 'ISAAck') {

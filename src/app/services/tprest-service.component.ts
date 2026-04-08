@@ -313,7 +313,7 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
                 console.info( tpid + ": TPlinks # " + Object.keys(responseData).length);
                 if(responseData[key].Link !== undefined)
                 {
-                  TpLinksArray.push({ ...responseData[key], id: key });
+                  TpLinksArray.push({ ...responseData[key], ID: key });
                 }
               }
             }
@@ -370,7 +370,7 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
 
   addUpdateTpLink(link: tpLinks, add: boolean) {
 
-    console.log('add tpLinks: ' + link.Link);
+    console.log('add tpLinks: ' + link.ID + ", " + link.Link);
 
     let url = ''
 

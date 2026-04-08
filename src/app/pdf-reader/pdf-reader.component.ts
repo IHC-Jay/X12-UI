@@ -123,21 +123,29 @@ export class PdfReaderComponent implements OnInit, AfterViewInit {
 			new URL('assets/X12-Guides/manifest.json', document.baseURI).toString(),
 			new URL('assets/X12-Guides/manifest.json', document.baseURI).toString()
 		];
+		console.debug('[PdfReader] Attempting to load manifest from candidates:', candidates);
 		for (const url of candidates) {
 			try {
+				console.debug('[PdfReader] Fetching manifest:', url);
 				const resp = await fetch(url);
-				if (!resp.ok) continue;
+				console.debug('[PdfReader] Manifest response status:', resp.status, 'headers:', resp.headers);
+				if (!resp.ok) {
+					console.debug('[PdfReader] Response not ok, skipping');
+					continue;
+				}
 				const list = await resp.json();
+				console.debug('[PdfReader] Parsed manifest:', list);
 				if (Array.isArray(list) && list.length) {
 					this.assetGuideFiles = list.map((s: any) => s.toString());
 					this.selectedAssetGuideFile = this.assetGuideFiles[0];
-					console.debug('Loaded X12 guides manifest from', url);
+					console.info('[PdfReader] Loaded X12 guides manifest from', url, '- found', this.assetGuideFiles.length, 'guides');
 					return;
 				}
 			} catch (err) {
-				console.debug('Failed to load manifest at', url, err);
+				console.error('[PdfReader] Failed to load manifest at', url, err);
 			}
 		}
+		console.warn('[PdfReader] No manifest loaded from any candidate');
 	}
 
 	onFileSelected(event: Event) {
