@@ -144,7 +144,8 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
       startDate : "2023-01-12",
       endDate :"2023-01-12",
       startTm : "13:30",
-      endTm: "13:30"
+      endTm: "13:30",
+      dateTimeChangedByUser: false
   }
 
   staticSearchStr = "";
@@ -381,13 +382,18 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
           if(jsonString !== undefined && jsonString !== null) {
             console.info("TransConfig from parent or sessionStorage: " + jsonString);
-            this.formFields = JSON.parse(jsonString);
-            this.setEndTimeToNow();
+            const parsedConfig = JSON.parse(jsonString);
+            this.formFields = { ...this.formFields, ...parsedConfig };
+            if (!this.hasUserEditedDateTime(parsedConfig)) {
+              const parsedObject = JSON.parse(this.storageService.getItem<any>('UserConfig') || '{}');
+              this.applyDateTimeFromUserConfig(parsedObject);
+            }
             console.info('Parsed Object:', this.formFields);
           } else {
             this.formFields.currentTransType =  params['transaction'] || '';
             this.transUserFlds = params['transUserFlds'];
-            this.setEndTimeToNow();
+            const parsedObject = JSON.parse(this.storageService.getItem<any>('UserConfig') || '{}');
+            this.applyDateTimeFromUserConfig(parsedObject);
           }
           this.additionalSearchStr = params['additionalSearch'] || '';
           console.info("Query params, additionalSearchStr: " + this.additionalSearchStr +", " + this.formFields.currentTransType +", " + this.transUserFlds)
@@ -405,7 +411,13 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         let jsonString = this.storageService.getItem<any>('transConfig') ;
         console.info('Fetched transConfig from session storage: ' + jsonString);
         if (jsonString) {
-          this.formFields = JSON.parse(jsonString) ;
+          const parsedConfig = JSON.parse(jsonString);
+          this.formFields = { ...this.formFields, ...parsedConfig };
+
+          if (!this.hasUserEditedDateTime(parsedConfig)) {
+            const parsedObject = JSON.parse(this.storageService.getItem<any>('UserConfig') || '{}');
+            this.applyDateTimeFromUserConfig(parsedObject);
+          }
           console.info("Start Time: " + this.formFields.startDate + ", " + this.formFields.startTm);
       }
     }
@@ -430,6 +442,8 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
       .map(value => (value || '').trim())
       .filter(value => value.length > 0);
 
+    const shouldRestoreStoredDateTime = this.formFields.dateTimeChangedByUser === true;
+
     let restoredSql = '';
     let restoredFileName = '';
 
@@ -445,6 +459,9 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
       } else if (entry.startsWith('ID::')) {
         this.requestId = entry.substring('ID::'.length).trim();
       } else if (entry.startsWith('startDtTm::')) {
+        if (!shouldRestoreStoredDateTime) {
+          continue;
+        }
         const startDtTm = entry.substring('startDtTm::'.length).trim();
         const splitIndex = startDtTm.lastIndexOf(' ');
         if (splitIndex > 0) {
@@ -452,6 +469,9 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
           this.formFields.startTm = startDtTm.substring(splitIndex + 1).trim();
         }
       } else if (entry.startsWith('endDtTm::')) {
+        if (!shouldRestoreStoredDateTime) {
+          continue;
+        }
         const endDtTm = entry.substring('endDtTm::'.length).trim();
         const splitIndex = endDtTm.lastIndexOf(' ');
         if (splitIndex > 0) {
@@ -548,19 +568,60 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     }
   }
 
+  private hasUserEditedDateTime(config: any): boolean {
+    return !!(config && config.dateTimeChangedByUser === true);
+  }
+
+  private getStartDayOffsetFromUserConfig(parsedObject: any): number {
+    if (parsedObject && parsedObject.TranTime) {
+      const stDtStr = parsedObject.TranTime;
+      const stDt = parseDays(stDtStr);
+      console.info("Init date range from UserConfig TranTime: Search from " + stDt + " days. " + stDtStr);
+      return stDt;
+    }
+    return 1;
+  }
+
+  private applyDateTimeFromUserConfig(parsedObject: any) {
+    const stDt = this.getStartDayOffsetFromUserConfig(parsedObject);
+    const dtObj = DateTimeUtils.GetStartEndDtTm(stDt);
+    this.formFields.startDate = dtObj.startDt;
+    this.formFields.startTm = dtObj.startTm;
+    this.formFields.endDate = dtObj.endDt;
+    this.formFields.endTm = dtObj.endTm;
+    this.formFields.dateTimeChangedByUser = false;
+
+    console.info("Start Time: " + this.formFields.startDate + ", " + this.formFields.startTm);
+  }
+
+  private hasUserEditedDateTimeInStoredConfig(): boolean {
+    const jsonString = this.storageService.getItem<any>('transConfig');
+    if (!jsonString) {
+      return false;
+    }
+
+    try {
+      const parsed = JSON.parse(jsonString);
+      return this.hasUserEditedDateTime(parsed);
+    } catch {
+      return false;
+    }
+  }
+
   private initFromUserConfig() {
     console.info("Initialize from session UserConfig if available");
     const parsedObject = JSON.parse(this.storageService.getItem<any>('UserConfig') || '{}') ;
     if (parsedObject && Object.keys(parsedObject).length > 0) {
-      let stDt = 1;
       const hasTransactionQueryContext =
         this.route.snapshot.queryParamMap.has('transaction') ||
         this.route.snapshot.queryParamMap.has('transConfig') ||
         this.route.snapshot.queryParamMap.has('ID');
-      const hasTransactionSessionContext =
-        !!(this.storageService.getItem<any>('transConfig')) ||
-        !!(this.storageService.getItem<any>('transUserFlds'));
+      const hasPersistedTransConfig = !!(this.storageService.getItem<any>('transConfig'));
+      const hasPersistedUserFields = !!(this.storageService.getItem<any>('transUserFlds'));
+      const hasTransactionSessionContext = hasPersistedTransConfig || hasPersistedUserFields;
       const shouldApplyUserConfigDefaults = !hasTransactionQueryContext && !hasTransactionSessionContext;
+      const shouldUseStoredDateTime = hasPersistedTransConfig && this.hasUserEditedDateTimeInStoredConfig();
+      const shouldApplyDateTimeFromUserConfig = !hasTransactionQueryContext && !shouldUseStoredDateTime;
 
       if (shouldApplyUserConfigDefaults && parsedObject.TranType) {
         console.info("Init from session UserConfig: " + parsedObject.TranType + ", " + parsedObject.DispCnt + ", " + parsedObject.Mode);
@@ -579,24 +640,13 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         });
       }
 
-      if (shouldApplyUserConfigDefaults && parsedObject.TranTime) {
-        const stDtStr = parsedObject.TranTime;
-        stDt = parseDays(parsedObject.TranTime);
-        console.info("Init date range from UserConfig TranTime: Search from " + stDt + " days. " + stDtStr);
-      }
-
-      if (shouldApplyUserConfigDefaults) {
-        const dtObj = DateTimeUtils.GetStartEndDtTm(stDt);
-        this.formFields.startDate = dtObj.startDt;
-        this.formFields.startTm = dtObj.startTm;
-        this.formFields.endDate = dtObj.endDt;
-        this.formFields.endTm = dtObj.endTm;
-
-        console.info("Start Time: " + this.formFields.startDate + ", " + this.formFields.startTm);
+      if (shouldApplyDateTimeFromUserConfig) {
+        this.applyDateTimeFromUserConfig(parsedObject);
       } else {
-        console.info('Skipping UserConfig date range override due to transaction session/query context', {
+        console.info('Using stored date/time because user modified it previously', {
           hasTransactionQueryContext,
           hasTransactionSessionContext,
+          shouldUseStoredDateTime,
           startDate: this.formFields.startDate,
           startTm: this.formFields.startTm,
           endDate: this.formFields.endDate,
@@ -1293,6 +1343,7 @@ onStDateChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.startDate = newValue;
+  this.formFields.dateTimeChangedByUser = true;
   this.resetQueryParamSearchValues('start date changed');
   console.log('Input value changed:', newValue +", " + this.formFields.startDate);
 }
@@ -1304,6 +1355,7 @@ onStTimeChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.startTm = newValue;
+  this.formFields.dateTimeChangedByUser = true;
   this.resetQueryParamSearchValues('start time changed');
   console.log('Input value changed:', newValue +", " + this.formFields.startTm);
 }
@@ -1315,6 +1367,7 @@ onEndDateChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.endDate = newValue;
+  this.formFields.dateTimeChangedByUser = true;
   this.resetQueryParamSearchValues('end date changed');
   console.log('Input value changed:', newValue +", " + this.formFields.endDate);
 }
@@ -1326,6 +1379,7 @@ onEndTimeChange(event: Event)
   const newValue = (event.target as HTMLInputElement).value;
   // Perform actions based on the new value
   this.formFields.endTm = newValue;
+  this.formFields.dateTimeChangedByUser = true;
   this.resetQueryParamSearchValues('end time changed');
   console.log('Input value changed:', newValue +", " + this.formFields.endTm);
 }
