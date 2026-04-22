@@ -56,6 +56,11 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
     this.rtTransUrl = `${environment.rtUatTransUrl}`;
     this.batchTransUrl = `${environment.batchUatTransUrl}`;
   }
+  else if(env == 'PROD')
+  {
+    this.rtTransUrl = `${environment.rtProdTransUrl}`;
+    this.batchTransUrl = `${environment.batchProdTransUrl}`;
+  }
 }
 
 

@@ -24,9 +24,15 @@ export const environment = {
   batchUatWFUrl:'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/WorkFlow/',
   rtUatWFUrl:'',
 
+  tpProdUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/TpManage/',
+  rtProdTransUrl: '',
+  batchProdTransUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/BatchTransactions/',
+  batchProdWFUrl:'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/WorkFlow/',
+  rtProdWFUrl:'',
+
   tpType: 'Payer',
   logo:'assets/ih-rco.jpg',
-  appVersion: 'RCO-2026.04.07.1',
+  appVersion: 'RCO-2026.04.22.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
   allowedEnvironments: [ 'DEV', 'QA','UAT'],
   rtRoutes: ["NA"],

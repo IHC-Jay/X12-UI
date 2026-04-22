@@ -25,9 +25,15 @@ export const environment = {
   batchUatWFUrl:'',
   rtUatWFUrl:'',
 
+  tpProdUrl:'TradingPartner',
+  rtProdTransUrl:'Transaction',
+  batchProdTransUrl:'',
+  batchProdWFUrl:'',
+  rtProdWFUrl:'',
+
   tpType:'',
   logo:'',
-  appVersion: 'local-2026.04.07.1',
+  appVersion: 'local-2026.04.22.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
   allowedEnvironments: [],
   rtRoutes:[],

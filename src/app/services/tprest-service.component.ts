@@ -69,6 +69,10 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
     {
       this.tpUrl = `${environment.tpUatUrl}` ;
     }
+    else if( env == 'PROD')
+    {
+      this.tpUrl = `${environment.tpProdUrl}` ;
+    }
 
     url = this.tpUrl + 'ping';
 

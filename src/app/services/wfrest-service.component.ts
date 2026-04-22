@@ -53,6 +53,13 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
     this.batchWfUrl =  `${environment.batchUatWFUrl}`;
     this.rtWfUrl = "";
   }
+  else if(env == 'PROD')
+  {
+    this.rtTransUrl = `${environment.rtProdTransUrl}`;
+    this.batchTransUrl = `${environment.batchProdTransUrl}`;
+    this.batchWfUrl =  `${environment.batchProdWFUrl}`;
+    this.rtWfUrl = `${environment.rtProdWFUrl}`;
+  }
   console.log(this.batchWfUrl);
 }
 
