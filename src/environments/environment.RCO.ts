@@ -24,10 +24,10 @@ export const environment = {
   batchUatWFUrl:'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/WorkFlow/',
   rtUatWFUrl:'',
 
-  tpProdUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/TpManage/',
+  tpProdUrl: 'https://itf-webapache-prod.co.ihc.com:8443/EdiRestProv/TpManage/',
   rtProdTransUrl: '',
-  batchProdTransUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/BatchTransactions/',
-  batchProdWFUrl:'https://itf-webapache-test.co.ihc.com:8443/EdiRestProv/WorkFlow/',
+  batchProdTransUrl: 'https://itf-webapache-prod.co.ihc.com:8443/EdiRestProv/BatchTransactions/',
+  batchProdWFUrl:'https://itf-webapache-prod.co.ihc.com:8443/EdiRestProv/WorkFlow/',
   rtProdWFUrl:'',
 
   tpType: 'Payer',
