@@ -34,8 +34,8 @@ export const environment = {
   logo: 'assets/sh_logo.jpg',
   appVersion: 'SH-2026.04.30.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
-  rtRoutes: ["UhinRT","IntermountainHealthcare", "BitBucket", "NA"],
-  batchRoutes: ["UhinBatch","StLukesBatch","UMRBatch","IntermountainHealthcare", "BitBucket", "NA"],
+  rtRoutes: ["UhinRT","IntermountainHealthcare", "BitBucket", "SDS", "NA"],
+  batchRoutes: ["UhinBatch","StLukesBatch","UMRBatch","IntermountainHealthcare", "BitBucket", "SDS", "NA"],
 
   allowedEnvironments: ['DEV', 'QA']
 
