@@ -32,7 +32,7 @@ export const environment = {
 
   tpType: 'Payer',
   logo:'assets/ih-rco.jpg',
-  appVersion: 'RCO-2026.04.22.1',
+  appVersion: 'RCO-2026.04.30.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
   allowedEnvironments: [ 'DEV', 'QA','UAT'],
   rtRoutes: ["NA"],

@@ -462,18 +462,21 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
    * Handle TP Not found and Relation Not found errors.
    */
   private handleTPNotFound(wfErr: string) {
-    let tpInd = wfErr.indexOf("TP Not found:");
+    const tpNotFoundLabel = "TP Not found:";
+    const relationNotFoundLabel = "Relation Not found:";
+
+    let tpInd = wfErr.indexOf(tpNotFoundLabel);
     if (tpInd >= 0) {
       this.tpCreate = true;
-      this.tpId = wfErr.substring(tpInd + "TP Not found:".length).trim();
-      if (this.tpId.indexOf("TP Not found:") >= 0) {
-        this.tpId = this.tpId.substring(0, this.tpId.indexOf("TP Not found:")).trim();
+      this.tpId = wfErr.substring(tpInd + tpNotFoundLabel.length).trim();
+      if (this.tpId.indexOf(tpNotFoundLabel) >= 0) {
+        this.tpId = this.tpId.substring(0, this.tpId.indexOf(tpNotFoundLabel)).trim();
       }
     }
-    tpInd = wfErr.indexOf("Relation Not found:");
+    tpInd = wfErr.indexOf(relationNotFoundLabel);
     if (tpInd >= 0) {
       this.tpCreate = true;
-      this.tpRelId = wfErr.substring(tpInd + "TRelation Not found:".length).trim();
+      this.tpRelId = wfErr.substring(tpInd + relationNotFoundLabel.length).trim();
     }
   }
 

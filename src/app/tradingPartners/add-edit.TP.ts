@@ -124,7 +124,16 @@ public initializeData()
      */
     private handleSessionTpId() {
       if (sessionStorage.getItem("NewTpId") !== null) {
-        this.tpId = sessionStorage.getItem("NewTpId") || '';
+        const stripWrapQuotes = (value: string) => {
+          const trimmed = (value || '').trim();
+          if ((trimmed.startsWith('"') && trimmed.endsWith('"')) ||
+              (trimmed.startsWith("'") && trimmed.endsWith("'"))) {
+            return trimmed.substring(1, trimmed.length - 1).trim();
+          }
+          return trimmed;
+        };
+
+        this.tpId = stripWrapQuotes(sessionStorage.getItem("NewTpId") || '');
         this.form.controls['TpId'].setValue(this.tpId);
         console.info('Set TPID: ' + this.tpId);
         if (sessionStorage.getItem("TpOperation")?.indexOf("tpLink-add") >= 0) {

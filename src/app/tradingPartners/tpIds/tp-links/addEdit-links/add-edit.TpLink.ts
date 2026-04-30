@@ -65,6 +65,7 @@ export class AddEditTpLink implements OnInit {
     ownerTpIds = [];
     canRender = false;
     transaction: string = "";
+    workflowMode: string = "";
     sub:any;
     customProp: KVP[] = [];
 
@@ -178,18 +179,53 @@ public initializeData()
     private handleSessionWorkflow() {
       let inpStr = sessionStorage.getItem("NewTpRelId") || '';
       console.info('Set TPID: ' + inpStr);
-      this.parentTpId = inpStr.substring(0, inpStr.indexOf('->'));
-      let receiverId = inpStr.substring(inpStr.indexOf('->') + 2, inpStr.indexOf(', Version:'));
-      this.tpLinkNm = "";
-      this.transaction = inpStr.substring(inpStr.indexOf('Version:') + 9, inpStr.indexOf(', Mode:')).trim();
-      console.info('TPIDs: ' + this.parentTpId + ", " + receiverId + ", Transaction: " + this.transaction);
-      this.isAddMode = true;
-      this.form.controls.IsaReceiverId.setValue(receiverId);
-      this.form.controls.GsSenderId.setValue(this.parentTpId);
-      this.form.controls.IsaSenderId.setValue(this.parentTpId);
-      this.form.controls.GsReceiverId.setValue(receiverId);
-      this.ownerTpIds.push(receiverId);
-      this.ownerTpIds.push(this.parentTpId);
+
+      const stripWrapQuotes = (value: string) => {
+        return (value || '').trim().replace(/^["']+|["']+$/g, '').trim();
+      };
+
+      const normalizeToken = (value: string) => {
+        return stripWrapQuotes(value).replace(/[\s,.;]+$/g, '').trim();
+      };
+
+      try {
+        const relationPattern = /^\s*["']?\s*(.+?)\s*->\s*(.+?)\s*,\s*Version:\s*(.+?)\s*,\s*Mode:\s*([^,\.\r\n]+)\s*(?:,|\.|$)/i;
+        const match = relationPattern.exec(inpStr);
+
+        if (!match) {
+          throw new Error('Invalid NewTpRelId format');
+        }
+
+        const parentPart = match[1];
+        const receiverPart = match[2];
+        const transactionPart = match[3];
+        const modePart = match[4];
+
+        this.parentTpId = normalizeToken(parentPart);
+        let receiverId = normalizeToken(receiverPart);
+        this.tpLinkNm = "";
+        this.transaction = normalizeToken(transactionPart);
+        this.workflowMode = normalizeToken(modePart);
+
+        if (this.parentTpId === '' || receiverId === '' || this.transaction === '' || this.workflowMode === '') {
+          throw new Error('Workflow parameters missing after parsing');
+        }
+
+        console.info('TPIDs: ' + this.parentTpId + ", " + receiverId + ", Transaction: " + this.transaction);
+        this.isAddMode = true;
+        this.form.controls.IsaReceiverId.setValue(receiverId);
+        this.form.controls.GsSenderId.setValue(this.parentTpId);
+        this.form.controls.IsaSenderId.setValue(this.parentTpId);
+        this.form.controls.GsReceiverId.setValue(receiverId);
+        this.form.controls.Mode.setValue(this.workflowMode);
+        this.ownerTpIds.push(receiverId);
+        this.ownerTpIds.push(this.parentTpId);
+      } catch (error) {
+        console.error('Unable to parse NewTpRelId from workflow:', error, inpStr);
+        alert('Unable to parse workflow link details. Please reopen from Workflow and try again.');
+        sessionStorage.removeItem("NewTpRelId");
+        this.handleRouteParams();
+      }
     }
 
     private handleRouteParams() {
@@ -331,6 +367,10 @@ public initializeData()
                 this.form.controls.TransType.setValue(item.NAME);
                 console.log("Set transaction type: " + item.NAME + ' , input: ' + this.transaction);
                 this.setTransactionSetId();
+                if (this.workflowMode !== '') {
+                  this.form.controls.Mode.setValue(this.workflowMode);
+                  this.setRtBatch();
+                }
               }
             });
           }
