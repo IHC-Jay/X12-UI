@@ -75,8 +75,9 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
  transactionTypes: string[] ;
 
    pageLength= 25;
-   pageIndex = 1;
+   pageIndex = 0;
    pageSize = 25;
+   currentPageIndex = 0;
    @ViewChild('dataPaginator') dataPaginator: MatPaginator;
 
 
@@ -265,6 +266,16 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
         this.formFields.disposition = entry.substring('status::'.length).trim();
       } else if (entry.startsWith('count::')) {
         this.formFields.rowCnt = entry.substring('count::'.length).trim();
+      } else if (entry.startsWith('pageIndex::')) {
+        const parsedPageIndex = Number(entry.substring('pageIndex::'.length).trim());
+        this.currentPageIndex = Number.isNaN(parsedPageIndex) ? 0 : Math.max(0, parsedPageIndex);
+        this.pageIndex = this.currentPageIndex;
+      } else if (entry.startsWith('pageSize::')) {
+        const parsedPageSize = entry.substring('pageSize::'.length).trim();
+        if (parsedPageSize.length > 0) {
+          this.formFields.rowCnt = parsedPageSize;
+          this.pageSize = Number(parsedPageSize);
+        }
       } else if (entry.startsWith('startDtTm::')) {
         const startDtTm = entry.substring('startDtTm::'.length).trim();
         const splitIndex = startDtTm.lastIndexOf(' ');
@@ -393,14 +404,20 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
     // this.dataSource.sort = this.sort;
 
   }
   get f() { return this.form.controls; }
 
-  onSearchSummary()
+  onSearchSummary(resetPage: boolean = true)
     {
+      if (resetPage) {
+        this.currentPageIndex = 0;
+        this.pageIndex = 0;
+        if (this.dataPaginator) {
+          this.dataPaginator.pageIndex = 0;
+        }
+      }
       this.canRenderDetails = false;
       this.paramsList = [];
       this.paramsList.push("mode::" + this.form.controls.mode.value);
@@ -410,7 +427,8 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.paramsList.push("startDtTm::" + this.formFields.startDate +" "+ this.formFields.startTm);
 
       this.paramsList.push("endDtTm::" + this.formFields.endDate+" " +this.formFields.endTm );
-      this.paramsList.push("count::" + this.form.controls.rowCnt.value);
+  this.paramsList.push("pageIndex::" + this.currentPageIndex);
+  this.paramsList.push("pageSize::" + this.form.controls.rowCnt.value);
 
 
       console.info("onSearchSummary count: " +this.form.controls.rowCnt.value)
@@ -491,14 +509,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
 
             this.SummaryService.fetchEligibilityRequests(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
 
-            this.dataSource.data = res;
-            this.dataSource.sort = this.sort;
-            this.canRenderDetails = true;
-
-            console.info("Data rows array: " + this.dataSource.data.length);
-
-
-            this.loading = false;
+        this.handleFetchResult(res);
 
             }),
 
@@ -513,11 +524,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
       else if(this.form.controls.transType.value === '271'){
 
         this.SummaryService.fetchEligibilityBenefitResponses(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("EligibilityBenefitResponses array: " + this.dataSource.data.length);
+         this.handleFetchResult(res);
         });
 
       }
@@ -529,11 +536,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
 
 
         this.SummaryService.fetchClaimPayment(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("ClaimPayment array: " + this.dataSource.data.length);
+         this.handleFetchResult(res);
         });
 
       }
@@ -544,11 +547,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
           this.paramsList.push("addSql::" + "VersionReleaseIndustryIdenti='005010X222A1' ");
 
          this.SummaryService.fetchClaims(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-          this.dataSource.data = res;
-          this.dataSource.sort = this.sort;
-          this.canRenderDetails = true;
-          this.loading = false;
-          console.info("Claims array: " + this.dataSource.data.length);
+          this.handleFetchResult(res);
 
          });
 
@@ -558,11 +557,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.paramsList.push("addSql::" + "VersionReleaseIndustryIdenti='005010X223A2' ")
         this.SummaryService.fetchClaims(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("Claims array: " + this.dataSource.data.length);
+         this.handleFetchResult(res);
         });
 
       }
@@ -570,11 +565,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
 
         this.paramsList.push("addSql::" + "VersionReleaseIndustryIdenti='005010X224A2' ")
         this.SummaryService.fetchClaims(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("Claims array: " + this.dataSource.data.length);
+         this.handleFetchResult(res);
 
         });
 
@@ -582,11 +573,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
       else if(this.form.controls.transType.value === '276'){
 
         this.SummaryService.fetchClaimStatusReq(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("Claim Status  Req array: " + this.dataSource.data.length);
+         this.handleFetchResult(res);
 
         });
 
@@ -594,11 +581,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
        else if(this.form.controls.transType.value === '277'){
 
          this.SummaryService.fetchClaimStatusResp(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-          this.dataSource.data = res;
-          this.dataSource.sort = this.sort;
-          this.canRenderDetails = true;
-          this.loading = false;
-          console.info("Claim Status Resp array: " + this.dataSource.data.length);
+          this.handleFetchResult(res);
 
          });
 
@@ -606,24 +589,14 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
        else if(this.form.controls.transType.value === '277CA'){
 
         this.SummaryService.fetchClaimAcknowledgment(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("Claim Acknowledgment array: " + this.dataSource.data.length);
-         this.dataSource.sort = this.sort;
-         console.debug("Set sort after populating table")
+         this.handleFetchResult(res);
         });
 
       }
        else if(this.form.controls.transType.value === '999'){
 
         this.SummaryService.fetchImplementationAcknowledgment(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("Implementation Acknowledgment array: " + this.dataSource.data.length);
+         this.handleFetchResult(res);
 
         });
 
@@ -631,11 +604,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
       else if(this.form.controls.transType.value === 'TA1'){
 
         this.SummaryService.fetchTA1(this.form.controls.mode.value, this.paramsList).subscribe((res: any) => {
-         this.dataSource.data = res;
-         this.dataSource.sort = this.sort;
-         this.canRenderDetails = true;
-         this.loading = false;
-         console.info("Interchange TA1 array: " + this.dataSource.data.length);
+         this.handleFetchResult(res);
 
         });
 
@@ -659,7 +628,20 @@ onRowCnt()
         console.info('Set paginator.pageSize: ' + this.form.controls.rowCnt.value)
         this.paginator.pageSize = this.form.controls.rowCnt.value;
         this.formFields.rowCnt =  this.form.controls.rowCnt.value;
-        this.dataSource.paginator = this.paginator
+}
+
+private handleFetchResult(res: any) {
+  if (res && !Array.isArray(res) && res.Items !== undefined) {
+    this.dataSource.data = res.Items;
+    this.pageLength = res.totalCount ?? res.Items.length;
+  } else {
+    this.dataSource.data = Array.isArray(res) ? res : [];
+    this.pageLength = this.dataSource.data.length;
+  }
+  this.dataSource.sort = this.sort;
+  this.canRenderDetails = true;
+  this.loading = false;
+  console.info('Summary rows: ' + this.dataSource.data.length + ', totalCount: ' + this.pageLength);
 }
 
 clearSearch()
@@ -1219,10 +1201,12 @@ onPaginateChange(event: any)
   {
     console.log("onPaginateChange: " + event.pageIndex +", pageSize: " + event.pageSize );
 
-    this.dataPaginator.pageIndex =  event.pageIndex
-
-    this.pageIndex =  this.dataPaginator.pageIndex;
-    this.pageSize = this.dataPaginator.pageSize;
+    this.dataPaginator.pageIndex =  event.pageIndex;
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.currentPageIndex = event.pageIndex;
+    this.form.controls.rowCnt.setValue(String(event.pageSize), { emitEvent: false });
+    this.onSearchSummary(false);
 
   }
 

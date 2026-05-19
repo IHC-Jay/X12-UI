@@ -32,9 +32,9 @@ export const environment = {
 
   tpType: 'Payer',
   logo:'assets/ih-rco.jpg',
-  appVersion: 'RCO-2026.04.30.1',
+  appVersion: 'RCO-2026.05.19.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
-  allowedEnvironments: [ 'DEV', 'QA','UAT'],
+  allowedEnvironments: [ 'DEV', 'QA','UAT', 'PROD'  ],
   rtRoutes: ["NA"],
   batchRoutes:["R1","Assurance","UhinProvConnBatch","UhinBatch", "SelectHealth", "BitBucket", "NA"]
 

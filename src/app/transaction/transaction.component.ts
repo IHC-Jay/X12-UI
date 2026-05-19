@@ -65,8 +65,9 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   org: string = `${environment.org}`;
   transactionTypes: string[] = [];
    pageLength= 25;
-   pageIndex = 1;
+   pageIndex = 0;
    pageSize = 25;
+   currentPageIndex = 0;
    @ViewChild('dataPaginator') dataPaginator: MatPaginator;
 
 
@@ -721,7 +722,6 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   ngAfterViewInit() {
-    this.dataSource.paginator = this.paginator;
     // this.dataSource.sort = this.sort;
 
     // =====================
@@ -741,8 +741,14 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   get f() { return this.form.controls; }
 
-  onSearchTransactions() {
+  onSearchTransactions(resetPage: boolean = true) {
     this.canRenderDetails = false;
+    if (resetPage) {
+      this.currentPageIndex = 0;
+      if (this.dataPaginator) {
+        this.dataPaginator.pageIndex = 0;
+      }
+    }
     this.buildParamsList();
     this.logSearchParams();
     this.ensureTransTypeSet();
@@ -778,7 +784,8 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     if (!hasFileNameFilter && this.requestId && String(this.requestId).trim().length > 0) {
       this.paramsList.push("ID::" + this.requestId);
     }
-    this.paramsList.push("count::" + this.form.controls.rowCnt.value);
+    this.paramsList.push("pageIndex::" + this.currentPageIndex);
+    this.paramsList.push("pageSize::" + this.form.controls.rowCnt.value);
   }
 
   private logSearchParams() {
@@ -1031,18 +1038,23 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private handleFetchResult(res: any) {
-    this.dataSource.data = res;
+    if (res && !Array.isArray(res) && res.Items !== undefined) {
+      this.dataSource.data = res.Items;
+      this.pageLength = res.totalCount ?? res.Items.length;
+    } else {
+      this.dataSource.data = Array.isArray(res) ? res : [];
+      this.pageLength = this.dataSource.data.length;
+    }
     this.dataSource.sort = this.sort;
     this.canRenderDetails = true;
     this.loading = false;
-    console.info("Data rows array: " + this.dataSource.data.length);
+    console.info('Data rows: ' + this.dataSource.data.length + ', totalCount: ' + this.pageLength);
   }
 
 onRowCnt()
       {
         console.info('Set paginator.pageSize: ' + this.form.controls.rowCnt.value)
         this.paginator.pageSize = this.form.controls.rowCnt.value;
-        this.dataSource.paginator = this.paginator
 }
 
 clearSearch()
@@ -1541,12 +1553,14 @@ applyFilter(event: Event) {
 
 onPaginateChange(event: any)
   {
-    console.log("onPaginateChange: " + event.pageIndex +", pageSize: " + event.pageSize );
+    console.log('onPaginateChange: ' + event.pageIndex + ', pageSize: ' + event.pageSize);
 
-    this.dataPaginator.pageIndex =  event.pageIndex
-
-    this.pageIndex =  this.dataPaginator.pageIndex;
-    this.pageSize = this.dataPaginator.pageSize;
+    this.dataPaginator.pageIndex = event.pageIndex;
+    this.pageIndex = event.pageIndex;
+    this.pageSize = event.pageSize;
+    this.currentPageIndex = event.pageIndex;
+    this.form.controls.rowCnt.setValue(String(event.pageSize), { emitEvent: false });
+    this.onSearchTransactions(false);
 
   }
 

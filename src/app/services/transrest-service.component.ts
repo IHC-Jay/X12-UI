@@ -17,6 +17,15 @@ import { WorkFlowEntry } from '../workflow/WorkFlowEntry';
 
 
 import { formatDate } from '@angular/common';
+
+export interface PagedTransactionResponse<T> {
+  startIndex: number;
+  Transaction: string;
+  Items: T[];
+  batchCount: number;
+  totalCount: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class TransRestServiceComponent {
   // ...existing code...
@@ -36,6 +45,18 @@ export class TransRestServiceComponent {
    {
     console.log('**** TransRestServiceComponent RestServiceComponent constructor ****');
    }
+
+  private mapPagedResponse<T>(responseData: any): PagedTransactionResponse<T> {
+    const paged = responseData as PagedTransactionResponse<T>;
+    console.info('Paged response: totalCount=' + paged.totalCount + ', items=' + (paged.Items?.length ?? 0));
+    return {
+      startIndex: paged.startIndex ?? 0,
+      Transaction: paged.Transaction ?? '',
+      Items: paged.Items ?? [],
+      batchCount: paged.batchCount ?? 0,
+      totalCount: paged.totalCount ?? 0
+    };
+  }
 
  // Transactions REST
 
@@ -147,14 +168,7 @@ fetchEligibilityRequests(mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const EligibilityRequestArray: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-             EligibilityRequestArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return TP array: ' + EligibilityRequestArray.length );
-        return EligibilityRequestArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -187,14 +201,7 @@ fetchEligibilityBenefitResponses(mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const EligibilityResponseArray: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            EligibilityResponseArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Resp array: ' + EligibilityResponseArray.length );
-        return EligibilityResponseArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -210,7 +217,6 @@ fetchEligibilityBenefitResponses(mode: string, searchArr: string[]) {
 
 fetchClaims(mode: string, searchArr: string[]) {
 
-  const ClaimArray: TransactionData[] = [];
   let url = this.batchTransUrl + 'Claims?searchStr=' + searchArr;
 
   if (mode === 'RealTime')
@@ -230,13 +236,7 @@ fetchClaims(mode: string, searchArr: string[]) {
         console.info(responseData);
 
 
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            ClaimArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim array: ' + ClaimArray.length );
-        return ClaimArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -244,14 +244,13 @@ fetchClaims(mode: string, searchArr: string[]) {
       catchError(errorRes => {
         // Send to analytics server
         console.error('In fetchClaims catchError: ' + errorRes);
-        return ClaimArray;
+        return errorRes;
       })
     );
 
 }
 fetchClaimStatusReq(mode: string, searchArr: string[]) {
   console.log('Fetch Claim Status Req with Auth ' );
-  const ClaimStatusReqArray: TransactionData[] = [];
 
   let url = this.batchTransUrl + 'ClaimStatusRequest?searchStr=' + searchArr;
 
@@ -270,13 +269,7 @@ fetchClaimStatusReq(mode: string, searchArr: string[]) {
         console.info(responseData);
 
 
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            ClaimStatusReqArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Req array: ' + ClaimStatusReqArray.length );
-        return ClaimStatusReqArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -284,7 +277,7 @@ fetchClaimStatusReq(mode: string, searchArr: string[]) {
       catchError(errorRes => {
         // Send to analytics server
         console.error('In fetchClaimStatusReq catchError: ' + errorRes);
-        return ClaimStatusReqArray;
+        return errorRes;
       })
     );
 
@@ -308,14 +301,7 @@ fetchClaimStatusResp(mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const ClaimStatusRespArray: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            ClaimStatusRespArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Resp array: ' + ClaimStatusRespArray.length );
-        return ClaimStatusRespArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -350,14 +336,7 @@ fetchClaimPayment(mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const ClaimPaymentArray: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            ClaimPaymentArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Resp array: ' + ClaimPaymentArray.length );
-        return ClaimPaymentArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -390,14 +369,7 @@ fetchImplementationAcknowledgment(mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const ImplementationAcknowledgmentArray: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            ImplementationAcknowledgmentArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Resp array: ' + ImplementationAcknowledgmentArray.length );
-        return ImplementationAcknowledgmentArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -430,14 +402,7 @@ fetchTA1 (mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const TA1Array: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            TA1Array.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Resp array: ' + TA1Array.length );
-        return TA1Array;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -470,14 +435,7 @@ fetchInterchangeAcknowledgment(mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const InterchangeAcknowledgmentArray: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            InterchangeAcknowledgmentArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Resp array: ' + InterchangeAcknowledgmentArray.length );
-        return InterchangeAcknowledgmentArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
@@ -508,14 +466,7 @@ fetchClaimAcknowledgment(mode: string, searchArr: string[]) {
       map(responseData => {
         console.info(responseData);
 
-        const ClaimAcknowledgmentArray: TransactionData[] = [];
-        for (const key in responseData) {
-          if (responseData.hasOwnProperty(key)) {
-            ClaimAcknowledgmentArray.push({ ...responseData[key], value: responseData[key].value });
-          }
-        }
-        console.info('return Claim Status Resp array: ' + ClaimAcknowledgmentArray.length );
-        return ClaimAcknowledgmentArray;
+        return this.mapPagedResponse<TransactionData>(responseData);
 
 
       }),
