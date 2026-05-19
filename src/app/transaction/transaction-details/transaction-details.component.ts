@@ -97,7 +97,8 @@ export class TransactionDetailComponent implements OnDestroy {
       console.log(this.transaction + '- Display columns: ' + this.displayedColumns.length);
       let paramsList: string[] = [];
       paramsList.push("ID::" + this.ID);
-      paramsList.push("count::" + 1);
+      paramsList.push("pageIndex::0");
+      paramsList.push("pageSize::1");
       console.info('[TransactionDetail] Before fetchTransactionDetailData', {
         transaction: this.transaction,
         mode: this.mode,
@@ -130,18 +131,23 @@ export class TransactionDetailComponent implements OnDestroy {
       paramsList
     });
     const setResult = (res: any) => {
+      const rows = (res && !Array.isArray(res) && res.Items !== undefined)
+        ? (Array.isArray(res.Items) ? res.Items : [])
+        : (Array.isArray(res) ? res : []);
       this.canRenderDetails = true;
-      this.dataSource.data = res;
-      if (res && res[0]) {
-        this.X12DataParentId = res[0].X12DataParentId;
-        this.fileName = res[0].FileName.replace(/^.*[\\\/]/, '');
+      this.dataSource.data = rows;
+      if (rows.length > 0) {
+        this.X12DataParentId = rows[0].X12DataParentId;
+        this.fileName = rows[0].FileName.replace(/^.*[\\\/]/, '');
         if (transaction === '999') {
-          this.ak1CtrlNum = res[0].GroupRespControlNumber;
-          this.ak1ver = res[0].GroupRespVersion;
+          this.ak1CtrlNum = rows[0].GroupRespControlNumber;
+          this.ak1ver = rows[0].GroupRespVersion;
         }
       }
-      if (res) {
-        console.log("# of records: " + res.length + (transaction === '271' ? ", parent Id:" + res[0].X12DataParentId : ''));
+      if (rows.length > 0) {
+        console.log("# of records: " + rows.length + (transaction === '271' ? ", parent Id:" + rows[0].X12DataParentId : ''));
+      } else {
+        console.log("# of records: 0");
       }
     };
     if (transaction === '270') {
