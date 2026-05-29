@@ -93,6 +93,11 @@
                     <button mat-flat-button (click)="openRelated277CAModel()" mat-raised-button color="primary">
                       Display 277CA Transaction
                     </button>
+                                  <button mat-flat-button (click)="openRelatedKeywordModel()" mat-raised-button color="primary"
+                                    *ngIf="org === 'SH' && dataSource.data[0]?.ClearinghouseTraceNumber"
+                                    style="margin-left: 20px;">
+                                    Display Related Keyword
+                                  </button>
                     </ng-template>
 
                   </ng-template>

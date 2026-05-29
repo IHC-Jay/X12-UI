@@ -1,0 +1,106 @@
+.kwd-container {
+  width: 100%;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.kwd-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+}
+
+.kwd-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.kwd-title {
+  font-size: 16px;
+  margin: 0;
+}
+
+.kwd-close {
+  border: none;
+  background-color: #135E8A;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.kwd-related {
+  border: none;
+  background-color: #4b5563;
+  color: #fff;
+  padding: 5px 12px;
+  border-radius: 3px;
+  cursor: pointer;
+}
+
+.kwd-body {
+  overflow: auto;
+  border: 1px solid #cfd8dc;
+  padding: 8px;
+}
+
+.kwd-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+}
+
+.kwd-kwdata-table {
+  margin-bottom: 12px;
+}
+
+.kwd-grid-table {
+  table-layout: fixed;
+}
+
+.kwd-table th,
+.kwd-table td {
+  border: 1px solid #e5e7eb;
+  padding: 6px 8px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.kwd-table th {
+  position: sticky;
+  top: 0;
+  background-color: #135E8A;
+  color: white;
+  z-index: 1;
+}
+
+.kwd-key {
+  font-weight: 700;
+  width: 240px;
+  white-space: nowrap;
+}
+
+.kwd-value {
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.kwd-grid-key {
+  width: 12%;
+  font-weight: 700;
+  white-space: nowrap;
+  background-color: #f8fafc;
+}
+
+.kwd-grid-value {
+  width: 13%;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+
+.kwd-grid-empty {
+  background-color: #f9fafb;
+}

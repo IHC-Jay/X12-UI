@@ -5,11 +5,18 @@
     "ng": "ng",
     "start": "ng serve SH",
     "build": "ng build",
+    "build:sh": "ng build SH --configuration production",
+    "build:rco": "ng build RCO --configuration production",
+    "build:all": "npm run build:sh ; npm run build:rco",
     "watch": "ng build --watch --configuration development",
     "test": "ng test",
     "serve:ssr:TP-X12": "node dist/TP-X12/server/server.mjs",
+    "publish:sh": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Profile SH -Configuration production",
+    "publish:rco": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Profile RCO -Configuration production",
     "publish:all": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Configuration production",
-    "publish:all:dev": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Configuration development"
+    "publish:all:dev": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Configuration development",
+    "publish:sh:dev": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Profile SH -Configuration development",
+    "publish:rco:dev": "powershell -ExecutionPolicy Bypass -File ./scripts/publish-all.ps1 -Profile RCO -Configuration development"
   },
   "prettier": {
     "printWidth": 100,

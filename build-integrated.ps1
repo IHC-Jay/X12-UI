@@ -1,26 +1,36 @@
 # Integrated Build Script for TP Manage Sync
-# This script builds X12-UI Angular app and deploys it to the .NET backend's wwwroot
+# Builds SH or RCO Angular app and deploys to the local .NET backend wwwroot
 
 param(
+    [ValidateSet("SH", "RCO")]
+    [string]$Profile = "SH",
+
     [ValidateSet("development", "production")]
-    [string]$Configuration = "production"
+    [string]$Configuration = "production",
+
+    [string]$DotNetProjectPath = (Join-Path (Get-Location) "server")
 )
 
 $ErrorActionPreference = "Stop"
 
 $AngularProjectPath = Get-Location
-$DotNetProjectPath = "C:\CoPilot\TpDataSync\TpManageSync\server-dotnet\TpManageSync.Api"
-$wwwrootPath = "$DotNetProjectPath\wwwroot"
+$wwwrootPath = Join-Path $DotNetProjectPath "wwwroot"
+$distPath = Join-Path $AngularProjectPath "dist\$Profile\browser"
 
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host "TP Manage Sync - Integrated Build" -ForegroundColor Cyan
 Write-Host "========================================" -ForegroundColor Cyan
 Write-Host ""
+Write-Host "Profile: $Profile" -ForegroundColor Yellow
 Write-Host "Configuration: $Configuration" -ForegroundColor Yellow
 Write-Host "Angular Project: $AngularProjectPath" -ForegroundColor Yellow
 Write-Host ".NET Project: $DotNetProjectPath" -ForegroundColor Yellow
 Write-Host "wwwroot Path: $wwwrootPath" -ForegroundColor Yellow
 Write-Host ""
+
+if (-not (Test-Path $DotNetProjectPath)) {
+    Write-Error ".NET project path not found: $DotNetProjectPath"
+}
 
 # Step 1: Clean existing wwwroot
 Write-Host "Step 1: Cleaning wwwroot..." -ForegroundColor Green
@@ -31,14 +41,9 @@ if (Test-Path $wwwrootPath) {
 
 # Step 2: Build Angular app
 Write-Host ""
-Write-Host "Step 2: Building Angular app..." -ForegroundColor Green
+Write-Host "Step 2: Building Angular app ($Profile)..." -ForegroundColor Green
 
-if ($Configuration -eq "production") {
-    $buildCmd = "ng build --configuration production"
-} else {
-    $buildCmd = "ng build"
-}
-
+$buildCmd = "ng build $Profile --configuration $Configuration"
 Write-Host "Running: $buildCmd"
 Invoke-Expression $buildCmd
 
@@ -51,16 +56,17 @@ Write-Host "✓ Angular build completed" -ForegroundColor Green
 Write-Host ""
 Write-Host "Step 3: Copying Angular output to wwwroot..." -ForegroundColor Green
 
-$distPath = "$AngularProjectPath\dist\RCO"
 if (-not (Test-Path $distPath)) {
     Write-Error "Angular dist folder not found at $distPath"
 }
 
-# Create wwwroot if it doesn't exist
 New-Item -Path $wwwrootPath -ItemType Directory -Force | Out-Null
-
-# Copy all files from dist to wwwroot, excluding dist folder structure
 Copy-Item -Path "$distPath\*" -Destination $wwwrootPath -Recurse -Force
+
+if ($Profile -eq "RCO" -and (Test-Path "$wwwrootPath\index.RCO.html")) {
+    Copy-Item -Path "$wwwrootPath\index.RCO.html" -Destination "$wwwrootPath\index.html" -Force
+}
+
 Write-Host "✓ Copied Angular files to $wwwrootPath" -ForegroundColor Green
 
 # Step 4: Verify index.html exists

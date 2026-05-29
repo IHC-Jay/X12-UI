@@ -1,0 +1,253 @@
+<form [formGroup]="form" class="kw-form" (ngSubmit)="onSearch()">
+  <div class="kw-page">
+
+    <!-- SEARCH FILTERS -->
+    <table class="kw-input-table">
+      <tr class="kw-filter-row">
+
+        <!-- Date range -->
+        <td class="kw-cell">
+          <label class="kw-label">Receipt Start Date:</label>
+          <div>
+            <input type="date" class="kw-date-input" formControlName="startDate"
+              [value]="startDate" (change)="onStartDateChange($event)" />
+            <input type="time" class="kw-date-input" formControlName="startTm"
+              [value]="startTm" (change)="onStartTimeChange($event)" />
+          </div>
+        </td>
+        <td class="kw-cell">
+          <label class="kw-label">Receipt End Date:</label>
+          <div>
+            <input type="date" class="kw-date-input" formControlName="endDate"
+              [value]="endDate" (change)="onEndDateChange($event)" />
+            <input type="time" class="kw-date-input" formControlName="endTm"
+              [value]="endTm" (change)="onEndTimeChange($event)" />
+          </div>
+        </td>
+
+        <!-- Sender / Receiver -->
+        <td class="kw-cell">
+          <table class="kw-inner-table">
+            <tr>
+              <td><label class="kw-label">Sender ID:</label></td>
+              <td><input type="text" class="kw-text-input" formControlName="senderID" /></td>
+            </tr>
+            <tr>
+              <td><label class="kw-label">Receiver ID:</label></td>
+              <td><input type="text" class="kw-text-input" formControlName="receiverID" /></td>
+            </tr>
+          </table>
+        </td>
+
+        <!-- Batch / Subscriber -->
+        <td class="kw-cell">
+          <table class="kw-inner-table">
+            <tr>
+              <td><label class="kw-label">Batch Ctrl #:</label></td>
+              <td><input type="text" class="kw-text-input" formControlName="batchControlNumber" /></td>
+            </tr>
+            <tr>
+              <td><label class="kw-label">Subscriber Name:</label></td>
+              <td><input type="text" class="kw-text-input" formControlName="subscriberName" /></td>
+            </tr>
+            <tr>
+              <td><label class="kw-label">Subscriber ID:</label></td>
+              <td><input type="text" class="kw-text-input" formControlName="subscriberIdentifier" /></td>
+            </tr>
+            <tr>
+              <td><label class="kw-label">Additional Search:</label></td>
+              <td><input type="text" class="kw-text-input" formControlName="additionalSearch" /></td>
+            </tr>
+          </table>
+        </td>
+
+        <!-- Buttons -->
+        <td class="kw-cell kw-btn-cell">
+          <button type="button" class="kw-search-btn" (click)="onSearch()">Search</button>
+          <button type="button" class="kw-clear-btn"  (click)="clearSearch()">Clear</button>
+        </td>
+
+      </tr>
+    </table>
+
+    <!-- RESULTS TABLE -->
+    <div class="kw-table-wrapper">
+      @if (loading) {
+        <div class="kw-loading">Loading&hellip;</div>
+      }
+
+      @if (canRenderDetails) {
+        <table mat-table [dataSource]="dataSource" matSort class="kw-data-table">
+
+          <ng-container matColumnDef="ID">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>ID</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.ID}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="SessionID">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Session ID</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.SessionID}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="InterchangeSenderID">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Sender ID</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.InterchangeSenderID}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="InterchangeReceiverID">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Receiver ID</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.InterchangeReceiverID}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="InterchangeControlNumber">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>ICN</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.InterchangeControlNumber}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="InterchangeDateTime">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Interchange DtTm</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.InterchangeDateTime}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="GroupControlNumber">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Group Ctrl #</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.GroupControlNumber}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="BatchControlNumber">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Batch Ctrl #</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.BatchControlNumber}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="BillingProviderName">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Billing Provider</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.BillingProviderName}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="BillingProviderNpi">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Provider NPI</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.BillingProviderNpi}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="BillingProvidertaxIdentifier">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Provider Tax ID</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.BillingProvidertaxIdentifier}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="ClaimTotalcharge">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Claim Charge</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.ClaimTotalcharge}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="ClearinghouseTraceNumber">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>CH Trace #</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.ClearinghouseTraceNumber}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="PatientControlNumber">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Patient Ctrl #</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.PatientControlNumber}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="SubscriberName">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Subscriber Name</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.SubscriberName}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="SubscriberIdentifier">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Subscriber ID</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.SubscriberIdentifier}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="ApplicationSendersCode">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>App Sender Code</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.ApplicationSendersCode}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="ApplicationReceiversCode">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>App Receiver Code</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.ApplicationReceiversCode}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="InterchangeSenderName">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Sender Name</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.InterchangeSenderName}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="InterchangeSenderIdentifier">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Sender Identifier</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.InterchangeSenderIdentifier}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="InterchangeReceiverName">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Receiver Name</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.InterchangeReceiverName}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="DestinationFileName">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Destination File</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.DestinationFileName}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="FileName">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>File Name</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.FileName}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="ReceiptDtTm">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Receipt DtTm</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.ReceiptDtTm}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="ProcessDtTm">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>Process DtTm</mat-header-cell>
+            <mat-cell *matCellDef="let r">{{r.ProcessDtTm}}</mat-cell>
+          </ng-container>
+
+          <ng-container matColumnDef="kwData">
+            <mat-header-cell mat-sort-header class="kw-header-cell" *matHeaderCellDef>KW Data</mat-header-cell>
+            <mat-cell class="kw-data-cell" *matCellDef="let r" [title]="r.kwData">{{r.kwData}}</mat-cell>
+          </ng-container>
+
+          <mat-header-row *matHeaderRowDef="displayedColumns; sticky: true"></mat-header-row>
+          <mat-row
+            class="kw-data-row"
+            *matRowDef="let row; columns: displayedColumns;"
+            (contextmenu)="onContextMenu($event, row)">
+          </mat-row>
+
+        </table>
+
+        <div
+          style="visibility: hidden; position: fixed"
+          [style.left]="contextMenuPosition.x"
+          [style.top]="contextMenuPosition.y"
+          [matMenuTriggerFor]="contextMenu"
+          #contextMenuTrigger="matMenuTrigger">
+        </div>
+
+        <mat-menu #contextMenu="matMenu">
+          <ng-template matMenuContent let-item="item">
+            <button mat-menu-item (click)="handleContextMenu(item, 'Details')">Details</button>
+          </ng-template>
+        </mat-menu>
+      }
+
+      @if (canRenderDetails) {
+        <div style="font-size: 10px; font-weight: bold; margin-top: 4px; margin-bottom: 4px;">
+          {{ getResultCountSummary() }}
+        </div>
+      }
+
+      <mat-paginator #dataPaginator
+        [pageIndex]="pageIndex"
+        [pageSize]="pageSize"
+        [length]="pageLength"
+        [pageSizeOptions]="[25, 50, 100, 200]"
+        (page)="onPaginateChange($event)"
+        showFirstLastButtons>
+      </mat-paginator>
+    </div>
+
+  </div>
+</form>

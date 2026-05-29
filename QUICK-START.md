@@ -123,6 +123,20 @@ Once both services are running:
 
 When ready to deploy to a server, see: [INTEGRATED-DEPLOYMENT.md](./INTEGRATED-DEPLOYMENT.md)
 
+### Build / Publish by Profile
+
+```powershell
+# Build
+npm run build:sh
+npm run build:rco
+npm run build:all
+
+# Publish
+npm run publish:sh
+npm run publish:rco
+npm run publish:all
+```
+
 ---
 
 ## Project Structure

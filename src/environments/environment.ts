@@ -12,24 +12,28 @@ export const environment = {
   batchDevTransUrl:'',
   batchDevWFUrl:'',
   rtDevWFUrl:'',
+  batchDevKwUrl:'',
 
   tpQaUrl:'TradingPartner',
   rtQaTransUrl:'Transaction',
   batchQaTransUrl:'',
   batchQaWFUrl:'',
   rtQaWFUrl:'',
+  batchQaKwUrl:'',
 
   tpUatUrl:'TradingPartner',
   rtUatTransUrl:'Transaction',
   batchUatTransUrl:'',
   batchUatWFUrl:'',
   rtUatWFUrl:'',
+  batchUatKwUrl:'',
 
   tpProdUrl:'TradingPartner',
   rtProdTransUrl:'Transaction',
   batchProdTransUrl:'',
   batchProdWFUrl:'',
   rtProdWFUrl:'',
+  batchProdKwUrl:'',
 
   tpType:'',
   logo:'',

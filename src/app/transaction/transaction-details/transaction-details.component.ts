@@ -5,11 +5,14 @@ import { transition } from '@angular/animations';
 import { Router, ActivatedRoute } from '@angular/router';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { TransRestServiceComponent } from '../../services/transrest-service.component';
+import { KwRestServiceComponent } from '../../services/kwrest-service.component';
 import { MatTableDataSource } from '@angular/material/table';
 import { MatDialog } from '@angular/material/dialog';
 import { Modalx12Component } from './modal/modal-x12.component';
+import { SharedDetailDialogComponent } from '../../shared-detail-dialog/shared-detail-dialog.component';
 import { DialogRef } from '@angular/cdk/dialog';
 import { StorageService } from '../../services/storage.service';
+import { environment } from '../../../environments/environment';
 import e from 'express';
 
 @Component({
@@ -24,6 +27,7 @@ export class TransactionDetailComponent implements OnDestroy {
   prevWindow: boolean = false;
   displayedColumns = [];
   mode:string = "RealTime";
+  org:string = `${environment.org}`;
 
   dataSource = new MatTableDataSource<any>();
 
@@ -43,6 +47,7 @@ export class TransactionDetailComponent implements OnDestroy {
 
   constructor(
     private TransactionService: TransRestServiceComponent,
+    private KeywordsService: KwRestServiceComponent,
     private formBuilder: FormBuilder,
     private route: ActivatedRoute,
     private router: Router,
@@ -51,6 +56,61 @@ export class TransactionDetailComponent implements OnDestroy {
   )
   {
 
+  }
+
+  openRelatedKeywordModel(): void {
+    const traceNumber = (this.dataSource.data[0]?.ClearinghouseTraceNumber || '').toString().trim();
+    const sessionId = (this.sessionID || this.dataSource.data[0]?.SessionID || '').toString().trim();
+    const claimId = (this.dataSource.data[0]?.ClaimId || '').toString().trim();
+
+    const andConditions: string[] = [];
+    if (traceNumber) {
+      andConditions.push(`ClearinghouseTraceNumber='${traceNumber.replaceAll("'", "''")}'`);
+    }
+
+    if (sessionId) {
+      andConditions.push(`SessionID='${sessionId.replaceAll("'", "''")}'`);
+    }
+
+    if (claimId) {
+      andConditions.push(`PatientControlNumber='${claimId.replaceAll("'", "''")}'`);
+    }
+
+    if (andConditions.length === 0) {
+      alert('Neither ClearinghouseTraceNumber nor ClaimId found for this transaction.');
+      return;
+    }
+
+    const whereClause = andConditions.join(' AND ');
+
+    const paramsList: string[] = [
+      `addSql::${whereClause}`,
+      'pageIndex::0',
+      'pageSize::1'
+    ];
+
+    console.info('[TransactionDetail] Looking up related keyword', { traceNumber, sessionId, claimId });
+    this.KeywordsService.fetchKeywords(paramsList).subscribe({
+      next: (res: any) => {
+        const row = Array.isArray(res?.Items) ? res.Items[0] : null;
+        if (!row) {
+          alert(`Related keyword not found. where: ${whereClause}`);
+          return;
+        }
+        this.dialog.open(SharedDetailDialogComponent, {
+          width: '1300px',
+          maxWidth: '95vw',
+          data: {
+            title: `Related Keyword${traceNumber ? ' - ClearinghouseTraceNumber=' + traceNumber : ''}${sessionId ? ' SessionID=' + sessionId : ''}${claimId ? ' ClaimId=' + claimId : ''}`,
+            record: row
+          }
+        });
+      },
+      error: (err) => {
+        console.error('[TransactionDetail] Related keyword lookup failed', err);
+        alert('Error looking up related keyword.');
+      }
+    });
   }
 
   ngOnInit() {

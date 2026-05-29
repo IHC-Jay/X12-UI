@@ -13,6 +13,7 @@ export const tabLinks: Link[] = [
   {name:'Transmissions', link:"/summary"},
   {name:'Transactions', link:"/transaction"},
   {name:'Work Flow', link:"/workflow"},
+  {name:'Keywords', link:"/keywords"},
   {
     name: 'Utilities',
     children: [

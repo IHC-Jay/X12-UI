@@ -39,7 +39,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/RCO/",
+              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",
@@ -163,7 +163,7 @@
           },
           "configurations": {
             "production": {
-              "baseHref": "/SH/",
+              "baseHref": "/",
               "budgets": [
                 {
                   "type": "initial",

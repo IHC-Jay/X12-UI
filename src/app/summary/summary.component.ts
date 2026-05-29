@@ -75,9 +75,13 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
  transactionTypes: string[] ;
 
    pageLength= 25;
+   initialTotalCount = 0;
+   currentRemainingCount = 0;
    pageIndex = 0;
    pageSize = 25;
    currentPageIndex = 0;
+   startX12Id = 1;
+   lastRowId = 1;
    @ViewChild('dataPaginator') dataPaginator: MatPaginator;
 
 
@@ -414,6 +418,9 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
       if (resetPage) {
         this.currentPageIndex = 0;
         this.pageIndex = 0;
+        this.startX12Id = 1;
+        this.initialTotalCount = 0;
+        this.currentRemainingCount = 0;
         if (this.dataPaginator) {
           this.dataPaginator.pageIndex = 0;
         }
@@ -429,6 +436,7 @@ export class SummaryComponent implements OnInit, AfterViewInit, OnDestroy {
       this.paramsList.push("endDtTm::" + this.formFields.endDate+" " +this.formFields.endTm );
   this.paramsList.push("pageIndex::" + this.currentPageIndex);
   this.paramsList.push("pageSize::" + this.form.controls.rowCnt.value);
+  this.paramsList.push("startX12Id::" + this.startX12Id);
 
 
       console.info("onSearchSummary count: " +this.form.controls.rowCnt.value)
@@ -633,10 +641,24 @@ onRowCnt()
 private handleFetchResult(res: any) {
   if (res && !Array.isArray(res) && res.Items !== undefined) {
     this.dataSource.data = res.Items;
-    this.pageLength = res.totalCount ?? res.Items.length;
+    const responseTotal = Number(res.totalCount ?? res.Items.length);
+    this.currentRemainingCount = Number.isFinite(responseTotal) ? responseTotal : res.Items.length;
+    if (this.initialTotalCount === 0) {
+      this.initialTotalCount = this.currentRemainingCount;
+    }
+    this.pageLength = this.initialTotalCount;
   } else {
     this.dataSource.data = Array.isArray(res) ? res : [];
-    this.pageLength = this.dataSource.data.length;
+    this.currentRemainingCount = this.dataSource.data.length;
+    if (this.initialTotalCount === 0) {
+      this.initialTotalCount = this.currentRemainingCount;
+    }
+    this.pageLength = this.initialTotalCount;
+  }
+  const rows = this.dataSource.data;
+  if (rows && rows.length > 0) {
+    const lastRow = rows[rows.length - 1];
+    this.lastRowId = lastRow.ID ?? lastRow.rowId ?? this.lastRowId;
   }
   this.dataSource.sort = this.sort;
   this.canRenderDetails = true;
@@ -644,10 +666,35 @@ private handleFetchResult(res: any) {
   console.info('Summary rows: ' + this.dataSource.data.length + ', totalCount: ' + this.pageLength);
 }
 
+getResultCountSummary(): string {
+  if (!this.canRenderDetails) {
+    return '';
+  }
+
+  const loaded = this.dataSource.data?.length ?? 0;
+  const initial = this.initialTotalCount;
+  const remaining = this.currentRemainingCount;
+
+  if (initial <= 0) {
+    return loaded > 0 ? `Showing 1-${loaded}` : '';
+  }
+
+  const start = Math.max(initial - remaining + 1, 1);
+  const end = loaded > 0 ? (start + loaded - 1) : (start - 1);
+
+  return loaded > 0
+    ? `Showing ${start}-${end} of ${initial} (${remaining} remaining)`
+    : `Showing 0 of ${initial} (${remaining} remaining)`;
+}
+
 clearSearch()
     {
       this.canRenderDetails = false;
       this.searchSummary = false;
+      this.initialTotalCount = 0;
+      this.currentRemainingCount = 0;
+      this.startX12Id = 1;
+      this.lastRowId = 1;
       console.info('clearSearch fields');
     }
 
@@ -1205,6 +1252,7 @@ onPaginateChange(event: any)
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.currentPageIndex = event.pageIndex;
+    this.startX12Id = this.lastRowId;
     this.form.controls.rowCnt.setValue(String(event.pageSize), { emitEvent: false });
     this.onSearchSummary(false);
 

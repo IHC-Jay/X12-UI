@@ -1,0 +1,35 @@
+<div class="kwd-container">
+  <div class="kwd-header">
+    <h2 class="kwd-title">Keyword Details (ID: {{data?.ID}})</h2>
+    <div class="kwd-actions">
+      <button *ngIf="hasRelatedTransaction" type="button" class="kwd-related" (click)="openRelatedTransactionModel()">
+        X12 837 Transaction
+      </button>
+      <button type="button" class="kwd-close" (click)="close()">Close</button>
+    </div>
+  </div>
+
+  <div class="kwd-body">
+    <table class="kwd-table kwd-grid-table">
+      <tbody>
+        @for (row of groupedEntries; track $index) {
+          <tr>
+            @for (entry of row; track $index) {
+              <td class="kwd-grid-key" [class.kwd-grid-empty]="!entry">{{entry?.key || ''}}</td>
+              <td class="kwd-grid-value" [class.kwd-grid-empty]="!entry">{{entry?.value || ''}}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    <table class="kwd-table kwd-kwdata-table">
+      <tbody>
+        <tr>
+          <td class="kwd-key">{{kwDataEntry.key}}</td>
+          <td class="kwd-value">{{kwDataEntry.value}}</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+</div>

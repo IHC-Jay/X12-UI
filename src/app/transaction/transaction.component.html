@@ -237,6 +237,12 @@
       }
     </table>
 
+      @if (canRenderDetails) {
+        <div style="font-size: 10px; font-weight: bold; background-color: azure; margin-top: 4px; margin-bottom: 4px;">
+          {{ getResultCountSummary() }}
+        </div>
+      }
+
       <mat-paginator  #dataPaginator
             [pageIndex]="pageIndex"
             [pageSize]="pageSize"

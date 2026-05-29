@@ -231,6 +231,8 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
     ngOnInit() {
       console.log('HeaderComponent ngOnInit')
 
+        this.links = tabLinks.filter(link => `${environment.org}` === 'SH' || link.name !== 'Keywords');
+
       this.initializeTheme();
 
       this.loginForm = this.formBuilder.group({
@@ -547,7 +549,9 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
             this.router.navigate([selectedLink.link], {queryParams: { 'WFitems':  numItems}} );
       }
       else{
-          this.getWFitems()
+          if (selectedLink.name !== 'Keywords') {
+            this.getWFitems()
+          }
           if (event.index != 0)
           {
             this.storage.removeItem("currentTab")

@@ -1,0 +1,28 @@
+<div class="sdd-container">
+  <div class="sdd-header">
+    <h2 class="sdd-title">{{data?.title || 'Related Details'}}</h2>
+    <button type="button" class="sdd-close" (click)="close()">Close</button>
+  </div>
+
+  <div class="sdd-body">
+    <table class="sdd-table">
+      <tbody>
+        @for (row of groupedEntries; track $index) {
+          <tr>
+            @for (entry of row; track $index) {
+              <td class="sdd-key" [class.sdd-empty]="!entry">{{entry?.key || ''}}</td>
+              <td class="sdd-value" [class.sdd-empty]="!entry">{{entry?.value || ''}}</td>
+            }
+          </tr>
+        }
+      </tbody>
+    </table>
+
+    @for (entry of specialEntries; track entry.key) {
+      <div class="sdd-special-row">
+        <div class="sdd-special-key">{{entry.key}}</div>
+        <div class="sdd-special-value">{{entry.value}}</div>
+      </div>
+    }
+  </div>
+</div>

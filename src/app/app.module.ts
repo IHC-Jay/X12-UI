@@ -73,6 +73,10 @@ import {DashBoardComponent} from './dashboard/dashboard.component'
 import { WorkflowComponent } from './workflow/workflow.component';
 import {WorkflowDetailsComponent} from './workflow/workflowDetails/workflowDetails.component';
 import {WorkflowHistoryComponent} from './workflow/workflowHistory/workflowHistory.component';
+import { KeywordsComponent } from './keywords/keywords.component';
+import { KeywordsDetailDialogComponent } from './keywords/keywords-detail-dialog.component';
+import { SharedDetailDialogComponent } from './shared-detail-dialog/shared-detail-dialog.component';
+import { KwRestServiceComponent } from './services/kwrest-service.component';
 
 import { MatSnackBarModule } from '@angular/material/snack-bar';
 
@@ -113,6 +117,9 @@ import { HelpDialogComponent } from './help/help-dialog.component';
         WorkflowDetailsComponent,
         WorkflowHistoryComponent,
         RdpValidationErrorsComponent,
+        KeywordsComponent,
+        KeywordsDetailDialogComponent,
+        SharedDetailDialogComponent,
         PdfReaderComponent,
         HelpDialogComponent
     ],

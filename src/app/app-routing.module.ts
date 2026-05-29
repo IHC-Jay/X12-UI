@@ -18,6 +18,7 @@ import {TransactionDetailComponent} from './transaction/transaction-details/tran
 import {TransactionSettingsComponent} from "./transaction/transaction-settings/transaction-settings.component"
 import { WorkflowComponent } from './workflow/workflow.component';
 import {WorkflowDetailsComponent} from './workflow/workflowDetails/workflowDetails.component';
+import { KeywordsComponent } from './keywords/keywords.component';
 import {WorkflowHistoryComponent} from './workflow/workflowHistory/workflowHistory.component';
 import {RdpValidationErrorsComponent} from './workflow/rdpValidationErrors/rdpValidationErrors.component';
 
@@ -52,6 +53,7 @@ const appRoutes: Routes = [
   {path: 'tp-manage-sync', component: TpConnectPageComponent, canActivate: [AuthGuard], title: 'TP Manage Sync'},
   {path: 'tp-manage-sync/trading-partners', component: TpTradingPartnersPageComponent, canActivate: [AuthGuard], title: 'TP Sync Partners'},
   {path: 'workflow', component: WorkflowComponent, canActivate: [AuthGuard] , title: 'WorkFlow'},
+  {path: 'keywords', component: KeywordsComponent, canActivate: [AuthGuard], title: 'Keywords'},
   {path: 'summary', component: SummaryComponent, canActivate: [AuthGuard] , title: 'Transmissions'},
   {path: 'dashboard', component: DashBoardComponent, canActivate: [AuthGuard], title: 'Dashboard'},
   {path: 'workflow/workflowDetails', component: WorkflowDetailsComponent, canActivate: [AuthGuard] , title: 'WF Details'},
