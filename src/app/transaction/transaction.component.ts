@@ -402,10 +402,8 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
           }
           this.additionalSearchStr = params['additionalSearch'] || '';
           console.info("Query params, additionalSearchStr: " + this.additionalSearchStr +", " + this.formFields.currentTransType +", " + this.transUserFlds)
-          let fInd = this.additionalSearchStr.indexOf("FileName=") + "FileName=".length;
-          let val = this.additionalSearchStr.substring( fInd)
-          console.log(fInd + ". FileName:" + val )
-          this.fileName = val
+          this.fileName = this.extractFileNameFromAdditionalSearch(this.additionalSearchStr);
+          console.log("Query params restored FileName filter: " + this.fileName)
         } else {
           console.info('No query params found for Transactions route; preserving session-restored state.');
         }
@@ -484,7 +482,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
           this.formFields.endTm = endDtTm.substring(splitIndex + 1).trim();
         }
       } else if (entry.startsWith('sql::')) {
-        restoredSql = entry.substring('sql::'.length).trim();
+        restoredSql = entry.substring('sql::'.length).trim().replaceAll('%25', '%');
         const parsedValues = this.parseSqlSearchValues(restoredSql);
         this.restoredSearchValues = { ...this.restoredSearchValues, ...parsedValues };
       } else if (entry.startsWith("addSql::FileName=")) {
@@ -842,7 +840,7 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   private handleAdditionalSearchStr(formArr: FormArray) {
     console.info("handleAdditionalSearchStr: START with additionalSearchStr = " + this.additionalSearchStr);
-    this.staticSearchStr = this.additionalSearchStr;
+    this.staticSearchStr = (this.additionalSearchStr || '').replaceAll('%25', '%');
     console.info("handleAdditionalSearchStr: SET staticSearchStr = " + this.staticSearchStr);
 
     const parsedFromSql = this.parseSqlSearchValues(this.staticSearchStr);
