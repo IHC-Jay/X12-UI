@@ -13,12 +13,20 @@ import { Router, ActivatedRoute } from '@angular/router';
 import {SelectionModel} from '@angular/cdk/collections';
 import { BrowserModule } from '@angular/platform-browser';
 import { MatPaginator } from '@angular/material/paginator';
+import { MatDialog } from '@angular/material/dialog';
 
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { first } from 'rxjs/operators';
+import { forkJoin, of } from 'rxjs';
+import { catchError } from 'rxjs/operators';
 
 import {x12err} from './WfDetails';
 import { Console } from 'node:console';
 import { downloadTextFile } from '../../utils/file-download.util';
+import { TpRestServiceComponent } from '../../services/tprest-service.component';
+import { ConfirmDialogComponent } from '../../confirm-dialog/confirm-dialog.component';
+import { WorkFlowEntry } from '../WorkFlowEntry';
+import { tpLinks } from '../../tradingPartners/tpIds/tp-links/tp-links';
 
 @Component({
     selector: 'app-workflowDetails',
@@ -49,6 +57,7 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
 
   wfStatus: string = "";
   transTypeStr = '';
+  currentEntryTransactionType = '';
   wfMode = '';
   errorTypeStr = '';
   submitted = false;
@@ -58,6 +67,20 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
 
   tpId:string="";
   tpRelId:string="";
+  tpExistsForError = false;
+  tpExistsName = '';
+  tpExistenceCheckedForId = '';
+  tpExistencePopupShownForId = '';
+  missingTpIds: string[] = [];
+  existingTpIdsForError: string[] = [];
+  existingTpNamesForError: string[] = [];
+  tpLinkExistsForError = false;
+  tpLinkExistenceCheckedSignature = '';
+  tpLinkExistencePopupShownSignature = '';
+  relationSenderTpId = '';
+  relationReceiverTpId = '';
+  relationVersion = '';
+  relationMode = '';
 
   canRenderDetails = false;
   dataSource = new MatTableDataSource<any>();
@@ -112,10 +135,12 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
 
   constructor(
     private WfService: WfRestServiceComponent,
+    private tpService: TpRestServiceComponent,
     private formBuilder: FormBuilder,
     private router: Router,
     private route: ActivatedRoute,
-    private storageService: StorageService
+    private storageService: StorageService,
+    private dialog: MatDialog
   ) {
     tpId: new FormControl();
   }
@@ -147,6 +172,7 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   }
 
   private handleQueryParams(searchParams: any) {
+    this.currentEntryTransactionType = (searchParams['TransactionType'] || '').toString().trim();
     const sessionId = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'];
     if (sessionId !== undefined && sessionId !== null && sessionId !== '') {
       console.log("sessionID query sessionID provided!");
@@ -203,10 +229,16 @@ private processX12Response(res: any) {
   if (!res || !res.length) return;
   // First record - WF entry
   const entry = res[0];
+  this.currentEntryTransactionType = String(entry.TransactionType || this.currentEntryTransactionType || '').trim();
   const x12DataLns = entry.X12.split("~");
   this.separator = entry.X12.substr(3, 1);
   console.log("Sep: " + this.separator);
   const wfErr = String(entry.Error).replaceAll(";", "\n");
+  console.warn('[WorkflowDetails] processX12Response error text', {
+    workflowId: entry.ID,
+    status: entry.Status,
+    wfErr
+  });
   this.extractTPInfo(wfErr);
   this.errorStr = this.composeErrorStr(entry, wfErr);
   this.wfCurrentStat = entry.Status;
@@ -263,20 +295,462 @@ private processX12Response(res: any) {
 private extractTPInfo(wfErr: string) {
   const tpNotFoundLabel = "TP Not found:";
   const relationNotFoundLabel = "Relation Not found:";
+  console.warn('[WorkflowDetails] extractTPInfo start', {
+    workflowId: this.ID,
+    wfErr
+  });
+  this.tpId = '';
+  this.tpRelId = '';
+  this.tpExistsForError = false;
+  this.tpExistsName = '';
+  this.missingTpIds = [];
+  this.existingTpIdsForError = [];
+  this.existingTpNamesForError = [];
+  this.tpLinkExistsForError = false;
+  this.tpLinkExistenceCheckedSignature = '';
+  this.relationSenderTpId = '';
+  this.relationReceiverTpId = '';
+  this.relationVersion = '';
+  this.relationMode = '';
+  this.tpCreate = false;
 
-  let tpInd = wfErr.indexOf(tpNotFoundLabel);
-  if (tpInd >= 0) {
+  const tpMatches = Array.from(wfErr.matchAll(/TP Not found:\s*([^\r\n]+)/g));
+  this.missingTpIds = tpMatches
+    .map(match => (match[1] || '').trim())
+    .filter((value, index, array) => value !== '' && array.indexOf(value) === index);
+
+  console.warn('[WorkflowDetails] extractTPInfo parsed TPIDs', {
+    workflowId: this.ID,
+    missingTpIds: this.missingTpIds
+  });
+
+  if (this.missingTpIds.length > 0) {
     this.tpCreate = true;
-    this.tpId = wfErr.substring(tpInd + tpNotFoundLabel.length).trim();
-    if (this.tpId.indexOf(tpNotFoundLabel) >= 0) {
-      this.tpId = this.tpId.substring(0, this.tpId.indexOf(tpNotFoundLabel)).trim();
-    }
+    this.tpId = this.missingTpIds[0];
   }
-  tpInd = wfErr.indexOf(relationNotFoundLabel);
+
+  const tpInd = wfErr.indexOf(relationNotFoundLabel);
   if (tpInd >= 0) {
     this.tpCreate = true;
     this.tpRelId = wfErr.substring(tpInd + relationNotFoundLabel.length).trim();
   }
+
+  const relationMatch = /Relation Not found:\s*([^\s,]+)\s*->\s*([^\s,]+)\s*,\s*Version:\s*([^,\r\n]+)\s*,\s*Mode:\s*([^,\r\n]+)/i.exec(wfErr);
+  if (relationMatch) {
+    this.relationSenderTpId = (relationMatch[1] || '').trim();
+    this.relationReceiverTpId = (relationMatch[2] || '').trim();
+    this.relationVersion = (relationMatch[3] || '').trim();
+    this.relationMode = (relationMatch[4] || '').trim();
+  }
+
+  console.warn('[WorkflowDetails] extractTPInfo parsed relation/setup state', {
+    workflowId: this.ID,
+    tpId: this.tpId,
+    tpRelId: this.tpRelId,
+    tpCreate: this.tpCreate,
+    relationSenderTpId: this.relationSenderTpId,
+    relationReceiverTpId: this.relationReceiverTpId,
+    relationVersion: this.relationVersion,
+    relationMode: this.relationMode
+  });
+
+  this.updateTpCreateAvailability();
+  this.checkExistingTpId();
+}
+
+private checkExistingTpId() {
+  const currentTpIds = this.missingTpIds.map(id => id.trim()).filter(id => id !== '');
+  const currentSignature = currentTpIds.join('|');
+  console.warn('[WorkflowDetails] checkExistingTpId start', {
+    workflowId: this.ID,
+    currentTpIds,
+    currentSignature,
+    relation: this.tpRelId,
+    cachedSignature: this.tpExistenceCheckedForId
+  });
+  if (currentTpIds.length <= 0) {
+    console.warn('[WorkflowDetails] checkExistingTpId skipped', {
+      reason: 'no-tpids',
+      currentTpIds,
+      currentSignature
+    });
+    this.checkExistingTpLink([]);
+    return;
+  }
+
+  if (this.tpExistenceCheckedForId === currentSignature) {
+    console.warn('[WorkflowDetails] checkExistingTpId skipped', {
+      reason: 'already-checked',
+      currentTpIds,
+      currentSignature
+    });
+    return;
+  }
+
+  this.tpExistenceCheckedForId = currentSignature;
+  forkJoin(
+    currentTpIds.map(id =>
+      (console.info('[WorkflowDetails] calling fetchTPforTpId', { workflowId: this.ID, tpId: id, urlHint: 'TPforTPID?tpid=' + id }),
+      this.tpService.fetchTPforTpId(id).pipe(
+        first(),
+        catchError((error) => {
+          console.error('[WorkflowDetails] fetchTPforTpId error', { workflowId: this.ID, tpId: id, error });
+          return of(null);
+        })
+      ))
+    )
+  )
+    .subscribe({
+      next: (results: any[]) => {
+        console.info('[WorkflowDetails] fetchTPforTpId responses received', {
+          workflowId: this.ID,
+          currentTpIds,
+          results
+        });
+        const existingTpIds: string[] = [];
+        const existingTpNames: string[] = [];
+        const missingTpIds: string[] = [];
+
+        currentTpIds.forEach((id, index) => {
+          const matches = this.normalizeTpLookupResult(results[index]);
+          console.info('[WorkflowDetails] normalized TP lookup result', {
+            workflowId: this.ID,
+            tpId: id,
+            rawResult: results[index],
+            normalizedMatches: matches
+          });
+          if (matches.length > 0) {
+            existingTpIds.push(id);
+            const tpName = matches[0].Name || '';
+            if (tpName !== '') {
+              existingTpNames.push(`${id} → ${tpName}`);
+            } else {
+              existingTpNames.push(id);
+            }
+          } else {
+            missingTpIds.push(id);
+          }
+        });
+
+        this.missingTpIds = missingTpIds;
+        this.existingTpIdsForError = existingTpIds;
+        this.existingTpNamesForError = existingTpNames;
+        this.tpExistsForError = existingTpIds.length > 0;
+        this.tpExistsName = existingTpNames.length > 0 ? existingTpNames[0] : '';
+        this.tpId = missingTpIds.length > 0 ? missingTpIds[0] : '';
+        this.updateTpCreateAvailability();
+        console.info('[WorkflowDetails] TP existence decision', {
+          workflowId: this.ID,
+          existingTpIds,
+          existingTpNames,
+          missingTpIds,
+          nextTpIdForSetup: this.tpId,
+          tpCreate: this.tpCreate,
+          tpRelId: this.tpRelId
+        });
+
+        this.checkExistingTpLink(missingTpIds);
+
+  // Only show TPID popup if some are MISSING but others exist (partial match)
+  // Don't show if all are found or if none are found
+  if (existingTpIds.length > 0 && missingTpIds.length > 0 && this.tpExistencePopupShownForId !== currentSignature) {
+          this.tpExistencePopupShownForId = currentSignature;
+          this.dialog.open(ConfirmDialogComponent, {
+            width: '680px',
+            maxWidth: '90vw',
+            data: {
+              title: 'Some TPIDs found, some missing',
+              message:
+                'Found TPID(s): ' + existingTpNames.join(', ') +
+                '\n\nStill missing: ' + missingTpIds.join(', ') +
+                '\n\nThe workflow error may be partially resolved. Continue with relation setup if needed.',
+              cancelText: 'OK',
+              showConfirm: false
+            }
+          });
+        }
+      }
+    });
+}
+
+private checkExistingTpLink(unresolvedTpIds: string[]) {
+  const sender = (this.relationSenderTpId || '').trim();
+  const receiver = (this.relationReceiverTpId || '').trim();
+  const version = (this.relationVersion || '').trim();
+  const mode = (this.relationMode || '').trim();
+  const unresolved = (unresolvedTpIds || []).map(id => (id || '').trim()).filter(id => id !== '');
+
+  const signature = `${sender}|${receiver}|${version}|${mode}`;
+  console.warn('[WorkflowDetails] checkExistingTpLink start', {
+    workflowId: this.ID,
+    sender,
+    receiver,
+    version,
+    mode,
+    unresolved,
+    signature,
+    cachedSignature: this.tpLinkExistenceCheckedSignature
+  });
+
+  if (sender === '' || receiver === '' || mode === '' || version === '') {
+    console.warn('[WorkflowDetails] checkExistingTpLink skipped', { reason: 'relation-fields-missing', sender, receiver, version, mode });
+    return;
+  }
+
+  if (unresolved.includes(sender) || unresolved.includes(receiver)) {
+    console.warn('[WorkflowDetails] checkExistingTpLink skipped', { reason: 'tpid-still-missing', unresolved, sender, receiver });
+    return;
+  }
+
+  if (this.tpLinkExistenceCheckedSignature === signature) {
+    console.warn('[WorkflowDetails] checkExistingTpLink skipped', { reason: 'already-checked', signature });
+    return;
+  }
+
+  this.tpLinkExistenceCheckedSignature = signature;
+  const preferredTpId = (this.tpId || '').trim();
+  const lookupTpId = (preferredTpId !== '' ? preferredTpId : '') || sender;
+  console.info('[WorkflowDetails] checkExistingTpLink lookup TPID', {
+    workflowId: this.ID,
+    lookupTpId,
+    preferredTpId,
+    sender,
+    receiver,
+    unresolved,
+    missingTpIds: this.missingTpIds
+  });
+  this.tpService.fetchTpLinks(lookupTpId).pipe(
+    first(),
+    catchError((error) => {
+      console.error('[WorkflowDetails] fetchTpLinks error', { workflowId: this.ID, tpId: lookupTpId, error });
+      return of([] as tpLinks[]);
+    })
+  ).subscribe((links: tpLinks[]) => {
+    const uniqueLinks = (links || []).filter((link, index, array) => {
+      const key = `${link?.ID || ''}|${link?.Link || ''}|${link?.IsaSenderId || ''}|${link?.IsaReceiverId || ''}|${link?.Mode || ''}|${link?.TransType || ''}|${link?.TransactionSetId || ''}`;
+      return array.findIndex(item => `${item?.ID || ''}|${item?.Link || ''}|${item?.IsaSenderId || ''}|${item?.IsaReceiverId || ''}|${item?.Mode || ''}|${item?.TransType || ''}|${item?.TransactionSetId || ''}` === key) === index;
+    });
+
+    const normalize = (value: any) => String(value || '').trim().toLowerCase();
+    const senderNorm = normalize(sender);
+    const receiverNorm = normalize(receiver);
+    const modeNorm = normalize(mode);
+    const versionNorm = normalize(version);
+
+    const matches = uniqueLinks.filter(link => {
+      const isaSender = normalize(link?.IsaSenderId);
+      const isaReceiver = normalize(link?.IsaReceiverId);
+      const gsSender = normalize(link?.GsSenderId);
+      const gsReceiver = normalize(link?.GsReceiverId);
+      const modeMatches = normalize(link?.Mode) === modeNorm;
+      const tpidMatches =
+        (isaSender === senderNorm && isaReceiver === receiverNorm) ||
+        (isaSender === receiverNorm && isaReceiver === senderNorm) ||
+        (gsSender === senderNorm && gsReceiver === receiverNorm) ||
+        (gsSender === receiverNorm && gsReceiver === senderNorm);
+      const transType = normalize(link?.TransType);
+      const transactionSetId = normalize(link?.TransactionSetId);
+      const transactionMatches = transType.includes(versionNorm) || transactionSetId.includes(versionNorm);
+      return modeMatches && tpidMatches && transactionMatches;
+    });
+
+    this.tpLinkExistsForError = matches.length > 0;
+    this.updateTpCreateAvailability();
+
+    console.info('[WorkflowDetails] TP link existence decision', {
+      workflowId: this.ID,
+      sender,
+      receiver,
+      version,
+      mode,
+      lookupTpId,
+      totalLinksFetched: uniqueLinks.length,
+      matchedLinks: matches.map(link => ({
+        ID: link?.ID,
+        Link: link?.Link,
+        IsaSenderId: link?.IsaSenderId,
+        IsaReceiverId: link?.IsaReceiverId,
+        Mode: link?.Mode,
+        TransType: link?.TransType,
+        TransactionSetId: link?.TransactionSetId
+      })),
+      tpLinkExistsForError: this.tpLinkExistsForError,
+      tpCreate: this.tpCreate
+    });
+
+    if (this.tpLinkExistsForError && this.tpLinkExistencePopupShownSignature !== signature) {
+      this.tpLinkExistencePopupShownSignature = signature;
+      const transactionType = this.currentEntryTransactionType || this.transTypeStr || '';
+      this.dialog.open(ConfirmDialogComponent, {
+        width: '680px',
+        maxWidth: '90vw',
+        data: {
+          title: 'TP Link already exists',
+          message:
+            'A TP Link already exists for:\n' +
+            `${sender} -> ${receiver}\n` +
+            `Version: ${version}\n` +
+            `Mode: ${mode}\n\n` +
+            'The original relation-not-found workflow error may be outdated.\n\n' +
+            'Click "Close WF Entries" to close all matching open workflow entries.',
+          cancelText: 'Cancel',
+          confirmText: 'Close WF Entries',
+          confirmClass: '',
+          showConfirm: true
+        }
+      }).afterClosed().pipe(first()).subscribe((confirmed: boolean) => {
+        if (confirmed) {
+          this.closeMatchingWfEntries(sender, receiver, mode, transactionType);
+        }
+      });
+    }
+  });
+}
+
+private closeMatchingWfEntries(sender: string, receiver: string, mode: string, transactionType: string) {
+  const statusCriteria = '!= Resolved, != Ignored';
+  const searchParams: string[] = [
+    'senderID::' + sender,
+    'receiverID::' + receiver,
+    'mode::' + mode,
+    'ErrorType::TP',
+    'StatusTypes::All'
+  ];
+  if (transactionType && transactionType !== '' && transactionType.toLowerCase() !== 'all') {
+    searchParams.push('TransactionType::' + transactionType);
+  }
+  const displayParams = [
+    'Sender: ' + sender,
+    'Receiver: ' + receiver,
+    'Mode: ' + mode,
+    'Transaction: ' + (transactionType || 'All'),
+    'StatusTypes: ' + statusCriteria,
+    'ErrorType: TP'
+  ].join('\n');
+
+  console.info('[WorkflowDetails] closeMatchingWfEntries fetching', { sender, receiver, mode, transactionType, searchParams });
+  this.WfService.fetchWorkFlowItems(mode, [...searchParams]).subscribe({
+    next: (rawEntries: WorkFlowEntry[]) => {
+      // Always include the current entry — it's the one the user clicked
+      const searchResults = (rawEntries || []).filter(e =>
+        e.WorkStatus !== 'Resolved' && e.WorkStatus !== 'Ignored'
+      );
+      let closeable = searchResults;
+      
+      // Guarantee current entry is always closeable, even if not in search results or already resolved
+      if (this.ID && !closeable.some(e => String(e.ID) === String(this.ID))) {
+        console.error('[WorkflowDetails] closeMatchingWfEntries CURRENT ENTRY NOT IN CLOSEABLE RESULTS — FORCING IT IN', {
+          currentEntry: {
+            ID: this.ID,
+            WorkStatus: this.wfCurrentStat,
+            senderTpId: this.relationSenderTpId,
+            receiverTpId: this.relationReceiverTpId,
+            TransactionType: this.transTypeStr,
+            ErrorType: this.errorTypeStr
+          },
+          searchCondition: {
+            senderID: sender,
+            receiverID: receiver,
+            mode: mode,
+            transactionType: transactionType,
+            ErrorType: 'TP',
+            StatusTypes: 'All'
+          },
+          searchParams,
+          searchResultCount: (rawEntries || []).length,
+          closeableCount: closeable.length
+        });
+        closeable = [...closeable, { ID: this.ID, WorkStatus: this.wfCurrentStat } as WorkFlowEntry];
+      }
+      console.info('[WorkflowDetails] closeMatchingWfEntries found', { searchResults: searchResults.length, closeable: closeable.length });
+
+      if (closeable.length === 0) {
+        this.dialog.open(ConfirmDialogComponent, {
+          width: '560px', maxWidth: '90vw',
+          data: {
+            title: 'No entries to close',
+            message: 'No open workflow entries found matching:\n\n' + displayParams,
+            cancelText: 'OK', showConfirm: false
+          }
+        });
+        return;
+      }
+
+      forkJoin(
+        closeable.map(entry =>
+          this.WfService.updateWorkFlowItem(mode, [
+            'ID::' + entry.ID,
+            'Status::Resolved',
+            'AssignedUser::'
+          ]).pipe(
+            first(),
+            catchError(err => {
+              console.error('[WorkflowDetails] closeMatchingWfEntries update error', { id: entry.ID, err });
+              return of(null);
+            })
+          )
+        )
+      ).subscribe(() => {
+        this.dialog.open(ConfirmDialogComponent, {
+          width: '560px', maxWidth: '90vw',
+          data: {
+            title: 'Workflow entries closed',
+            message:
+              closeable.length + ' workflow entr' + (closeable.length === 1 ? 'y' : 'ies') +
+              ' closed as Resolved.\n\n' +
+              'Parameters used:\n' + displayParams +
+              '\n\nEntry IDs: ' + closeable.map(e => e.ID).join(', '),
+            cancelText: 'OK', showConfirm: false
+          }
+        });
+      });
+    },
+    error: (err) => {
+      console.error('[WorkflowDetails] closeMatchingWfEntries fetch error', err);
+      this.dialog.open(ConfirmDialogComponent, {
+        width: '560px', maxWidth: '90vw',
+        data: { title: 'Error', message: 'Failed to fetch workflow entries. Please try again.', cancelText: 'OK', showConfirm: false }
+      });
+    }
+  });
+}
+
+private normalizeTpLookupResult(res: any): any[] {
+  console.info('[WorkflowDetails] normalizeTpLookupResult input', {
+    workflowId: this.ID,
+    resultType: Array.isArray(res) ? 'array' : typeof res,
+    result: res
+  });
+  if (!res) {
+    return [];
+  }
+
+  if (Array.isArray(res)) {
+    return res.filter(item => item && item.Name !== undefined && item.Name !== '');
+  }
+
+  if (typeof res === 'object') {
+    const values = Object.values(res);
+    console.info('[WorkflowDetails] normalizeTpLookupResult object values', {
+      workflowId: this.ID,
+      values
+    });
+    return values.filter((item: any) => item && typeof item === 'object' && item.Name !== undefined && item.Name !== '');
+  }
+
+  return [];
+}
+
+private updateTpCreateAvailability() {
+  this.tpCreate = (this.tpRelId !== '' && !this.tpLinkExistsForError) || (this.tpId !== '' && !this.tpExistsForError);
+  console.warn('[WorkflowDetails] updateTpCreateAvailability', {
+    workflowId: this.ID,
+    tpId: this.tpId,
+    tpRelId: this.tpRelId,
+    tpExistsForError: this.tpExistsForError,
+    tpLinkExistsForError: this.tpLinkExistsForError,
+    tpCreate: this.tpCreate
+  });
 }
 
 private composeErrorStr(entry: any, wfErr: string): string {
@@ -355,6 +829,13 @@ private removeCurrentStatusFromTypes() {
 
   toTpCreate() {
     console.log('To TP create: ' + this.tpId + ", " + this.tpRelId);
+    this.storageService.setItem("FromWorkflowTp", "true");
+    this.storageService.removeItem("TpOperation");
+    this.storageService.removeItem("NewTpId");
+    this.storageService.removeItem("NewTpRelId");
+    this.storageService.setItem("NewWfId", this.ID || "");
+    this.storageService.setItem("NewWfMode", this.wfMode || "");
+    this.storageService.setItem("NewWfStatus", this.wfCurrentStat || this.wfStatus || "");
     if (this.tpId !== "") {
       this.storageService.setItem("TpOperation", "tp-add");
       this.storageService.setItem("NewTpId", this.tpId);
@@ -370,7 +851,20 @@ private removeCurrentStatusFromTypes() {
     }
     this.storageService.removeItem("currentTab");
     this.storageService.setItem("currentTab", "Trading Partners");
-    this.router.navigate(["/TradingPartners"]);
+    const tpOperation = this.storageService.getItem<string>("TpOperation") || "";
+    if (tpOperation.indexOf("tp-add") >= 0) {
+      this.router.navigate(["/TradingPartners/tp-add"], {
+        queryParams: { fromWorkflowTp: 'true' }
+      });
+    } else if (tpOperation.indexOf("tpLink-add") >= 0) {
+      this.router.navigate(["/TradingPartners/tpIds/tp-links/add-edit/tp-add/WF/TPID"], {
+        queryParams: { fromWorkflowTp: 'true' }
+      });
+    } else {
+      this.router.navigate(["/TradingPartners"], {
+        queryParams: { fromWorkflowTp: 'true' }
+      });
+    }
   }
 
   toWorkFlow() {

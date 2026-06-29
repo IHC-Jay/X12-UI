@@ -180,6 +180,7 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
       let url = '';
 
       url = this.tpUrl + 'TPforTPID?tpid='+tpName;
+      console.info('[TpRestService] fetchTPforTpId request', { tpId: tpName, url });
 
 
       return this.http.get<{ [key: string]: TpId }>(
@@ -188,12 +189,16 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
         )
         .pipe(
           map(responseData => {
-           console.info("fetchTPforTpId Response: " + responseData.Length);
+           console.info('[TpRestService] fetchTPforTpId raw response', {
+             tpId: tpName,
+             responseType: Array.isArray(responseData) ? 'array' : typeof responseData,
+             responseData
+           });
            return responseData;
           }),
           catchError(errorRes => {
             // Send to analytics server
-            console.error('In fetchTPforTpId catchError');
+            console.error('[TpRestService] fetchTPforTpId catchError', { tpId: tpName, error: errorRes });
             return throwError(errorRes);
           })
         );
@@ -312,9 +317,10 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
         .pipe(
           map(responseData => {
             const TpLinksArray: tpLinks[] = [];
+            const total = responseData ? Object.keys(responseData).length : 0;
+            console.info('[TpRestService] fetchTpLinks response size', { tpid, total });
             for (const key in responseData) {
               if (responseData.hasOwnProperty(key)) {
-                console.info( tpid + ": TPlinks # " + Object.keys(responseData).length);
                 if(responseData[key].Link !== undefined)
                 {
                   TpLinksArray.push({ ...responseData[key], ID: key });

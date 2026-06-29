@@ -10,6 +10,9 @@ import { CreateNoteComponent } from '../create-note/create-note.component';
 import { SingleNoteComponent } from '../single-note/single-note.component';
 import { environment } from '../../../../../environments/environment';
 import {MatSnackBar, MatSnackBarModule} from '@angular/material/snack-bar';
+import { WfRestServiceComponent } from '../../../../services/wfrest-service.component';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmDialogComponent } from '../../../../confirm-dialog/confirm-dialog.component';
 
 export class TransTypes
 {
@@ -68,6 +71,8 @@ export class AddEditTpLink implements OnInit {
     workflowMode: string = "";
     sub:any;
     customProp: KVP[] = [];
+    workflowEntryId: string = '';
+    workflowEntryStatus: string = '';
 
     trn: tpLinks;
 
@@ -81,6 +86,8 @@ export class AddEditTpLink implements OnInit {
         private route: ActivatedRoute,
         private router: Router,
         private tpService: TpRestServiceComponent,
+      private wfService: WfRestServiceComponent,
+      private dialog: MatDialog,
         private cdRef: ChangeDetectorRef
     ) {
 
@@ -179,6 +186,9 @@ public initializeData()
     private handleSessionWorkflow() {
       let inpStr = sessionStorage.getItem("NewTpRelId") || '';
       console.info('Set TPID: ' + inpStr);
+      this.workflowEntryId = sessionStorage.getItem('NewWfId') || '';
+      this.workflowMode = sessionStorage.getItem('NewWfMode') || this.workflowMode;
+      this.workflowEntryStatus = sessionStorage.getItem('NewWfStatus') || '';
 
       const stripWrapQuotes = (value: string) => {
         return (value || '').trim().replace(/^["']+|["']+$/g, '').trim();
@@ -218,8 +228,6 @@ public initializeData()
         this.form.controls.IsaSenderId.setValue(this.parentTpId);
         this.form.controls.GsReceiverId.setValue(receiverId);
         this.form.controls.Mode.setValue(this.workflowMode);
-        this.ownerTpIds.push(receiverId);
-        this.ownerTpIds.push(this.parentTpId);
       } catch (error) {
         console.error('Unable to parse NewTpRelId from workflow:', error, inpStr);
         alert('Unable to parse workflow link details. Please reopen from Workflow and try again.');
@@ -400,6 +408,7 @@ public initializeData()
       console.info('On Cancel, got back to: ' + this.parentTpId);
       sessionStorage.removeItem("TpOperation");
       sessionStorage.removeItem("NewTpRelId");
+      this.clearWorkflowSessionContext();
       for (let el in this.form.controls) {
         if (this.form.controls[el].value) {
           console.log(el +': ' + this.form.controls[el].value)
@@ -509,6 +518,19 @@ public initializeData()
      * Set TPId help text and lists based on direction
      */
     private setTpIdHelpersAndLists(typeObj: TransTypes) {
+      const currentGsReceiver = this.form.controls.GsReceiverId.value;
+      const currentIsaReceiver = this.form.controls.IsaReceiverId.value;
+      const currentGsSender = this.form.controls.GsSenderId.value;
+      const currentIsaSender = this.form.controls.IsaSenderId.value;
+
+      const pickPreferred = (options: string[], preferred: string) => {
+        const normalizedPreferred = (preferred || '').toString().trim();
+        if (normalizedPreferred !== '' && options.includes(normalizedPreferred)) {
+          return normalizedPreferred;
+        }
+        return options.length > 0 ? options[0] : '';
+      };
+
       if (this.form.controls['Direction'].value === 'In') {
         this.sendertpIdHelp = 'Parent TPId';
         this.receivertpIdHelp = 'TPIds for owner';
@@ -519,10 +541,10 @@ public initializeData()
         }
         this.receivingTpIds = this.ownerTpIds;
         if (this.isAddMode) {
-          this.form.controls.GsReceiverId.setValue(this.receivingTpIds[0]);
-          this.form.controls.IsaReceiverId.setValue(this.receivingTpIds[0]);
-          this.form.controls.GsSenderId.setValue(this.sendingTpIds[0]);
-          this.form.controls.IsaSenderId.setValue(this.sendingTpIds[0]);
+          this.form.controls.GsReceiverId.setValue(pickPreferred(this.receivingTpIds, currentGsReceiver));
+          this.form.controls.IsaReceiverId.setValue(pickPreferred(this.receivingTpIds, currentIsaReceiver));
+          this.form.controls.GsSenderId.setValue(pickPreferred(this.sendingTpIds, currentGsSender));
+          this.form.controls.IsaSenderId.setValue(pickPreferred(this.sendingTpIds, currentIsaSender));
         }
       } else {
         this.sendertpIdHelp = 'TPIds for owner';
@@ -534,10 +556,10 @@ public initializeData()
         }
         this.sendingTpIds = this.ownerTpIds;
         if (this.isAddMode) {
-          this.form.controls.GsReceiverId.setValue(this.receivingTpIds[0]);
-          this.form.controls.IsaReceiverId.setValue(this.receivingTpIds[0]);
-          this.form.controls.GsSenderId.setValue(this.sendingTpIds[0]);
-          this.form.controls.IsaSenderId.setValue(this.sendingTpIds[0]);
+          this.form.controls.GsReceiverId.setValue(pickPreferred(this.receivingTpIds, currentGsReceiver));
+          this.form.controls.IsaReceiverId.setValue(pickPreferred(this.receivingTpIds, currentIsaReceiver));
+          this.form.controls.GsSenderId.setValue(pickPreferred(this.sendingTpIds, currentGsSender));
+          this.form.controls.IsaSenderId.setValue(pickPreferred(this.sendingTpIds, currentIsaSender));
         }
       }
     }
@@ -580,7 +602,7 @@ public initializeData()
               console.error('createUpdateTpLink status: ' + res.Status);
               if(res.Status === 'OK')
               {
-                 this.router.navigate(["/TradingPartners/tpIds/tp-links/" + this.parentTpId + "/" + this.tpName]);
+                this.handleSuccessfulSave();
                  retStr = 'OK'
               }
               else
@@ -601,6 +623,70 @@ public initializeData()
           })
           .add(() => this.loading = false);
 
+    }
+
+    private handleSuccessfulSave() {
+      if (!this.isWorkflowCloseEligible()) {
+        this.clearWorkflowSessionContext();
+        this.router.navigate(["/TradingPartners/tpIds/tp-links/" + this.parentTpId + "/" + this.tpName]);
+        return;
+      }
+
+      const workflowIds = [this.workflowEntryId].filter(id => (id || '').trim() !== '');
+      this.dialog.open(ConfirmDialogComponent, {
+        width: '680px',
+        maxWidth: '90vw',
+        data: {
+          title: 'Close workflow entry?',
+          message:
+            'TP Link was created successfully.\n\n' +
+            'Workflow ID(s) to be closed as Resolved: ' + workflowIds.join(', ') + '\n\n' +
+            'Note: There can be other related workflow entries that are not closed automatically.',
+          cancelText: 'Leave Entry Open',
+          confirmText: 'Close Listed Entry',
+          confirmClass: ''
+        }
+      }).afterClosed().pipe(first()).subscribe((closeWorkflow: boolean) => {
+        if (!closeWorkflow) {
+          this.clearWorkflowSessionContext();
+          this.router.navigate(["/TradingPartners/tpIds/tp-links/" + this.parentTpId + "/" + this.tpName]);
+          return;
+        }
+
+        const paramsList: string[] = [];
+        paramsList.push("ID::" + this.workflowEntryId);
+        paramsList.push("Status::Resolved");
+        paramsList.push("AssignedUser::");
+        this.wfService.updateWorkFlowItem(this.workflowMode, paramsList)
+          .pipe(first())
+          .subscribe({
+            next: () => {
+              this.openSnackBar('Workflow Entry', 'Closed as Resolved');
+              this.clearWorkflowSessionContext();
+              this.router.navigate(["/TradingPartners/tpIds/tp-links/" + this.parentTpId + "/" + this.tpName]);
+            },
+            error: (error) => {
+              console.error('Unable to close workflow entry after TP link save', error);
+              alert('TP Link was created, but closing the workflow entry failed. Please close it manually from Workflow.');
+              this.clearWorkflowSessionContext();
+              this.router.navigate(["/TradingPartners/tpIds/tp-links/" + this.parentTpId + "/" + this.tpName]);
+            }
+          });
+      });
+    }
+
+    private isWorkflowCloseEligible(): boolean {
+      const status = (this.workflowEntryStatus || '').trim().toLowerCase();
+      const hasWorkflowContext = this.workflowEntryId.trim() !== '' && this.workflowMode.trim() !== '';
+      return hasWorkflowContext && status !== 'resolved' && status !== 'ignored';
+    }
+
+    private clearWorkflowSessionContext() {
+      sessionStorage.removeItem('TpOperation');
+      sessionStorage.removeItem('NewTpRelId');
+      sessionStorage.removeItem('NewWfId');
+      sessionStorage.removeItem('NewWfMode');
+      sessionStorage.removeItem('NewWfStatus');
     }
 
     createKV(kv: KVP) {

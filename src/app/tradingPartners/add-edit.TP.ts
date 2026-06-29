@@ -33,6 +33,7 @@ export class AddEditTP implements OnInit {
     isAddMode!: boolean;
     loading = false;
     createLink: boolean = false;
+    fromWorkflowTpAdd: boolean = false;
 
     submitted = false;
 
@@ -136,7 +137,9 @@ public initializeData()
         this.tpId = stripWrapQuotes(sessionStorage.getItem("NewTpId") || '');
         this.form.controls['TpId'].setValue(this.tpId);
         console.info('Set TPID: ' + this.tpId);
-        if (sessionStorage.getItem("TpOperation")?.indexOf("tpLink-add") >= 0) {
+        const tpOperation = sessionStorage.getItem("TpOperation") || '';
+        this.fromWorkflowTpAdd = this.tpId !== '';
+        if (tpOperation.indexOf("tpLink-add") >= 0) {
           this.createLink = true;
         }
       }
@@ -196,7 +199,7 @@ public initializeData()
       this.createOrUpdateTradingPartner();
       this.loading = false;
       if (this.createLink) {
-        this.router.navigate(["TradingPartners/tpIds/tp-links/add-edit/tp-add/WF/TPID"]);
+        this.router.navigate(["/TradingPartners/tpIds/tp-links/add-edit/tp-add/WF/TPID"]);
       }
     }
 

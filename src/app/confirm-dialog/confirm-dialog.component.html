@@ -1,8 +1,10 @@
-<mat-dialog-content>
-
-<h1 mat-dialog-title>Are you sure you want to delete?</h1>
+<h1 mat-dialog-title>{{ title }}</h1>
+<mat-dialog-content class="confirm-dialog-content">
+    <div class="confirm-dialog-message" [style.white-space]="'pre-line'">{{ message }}</div>
 </mat-dialog-content>
 <div mat-dialog-actions align="center">
-    <button mat-button [mat-dialog-close]>Cancel</button>
-    <button class="delete-button" mat-button [mat-dialog-close]="true">Delete</button>
+    <button mat-raised-button color="primary" [mat-dialog-close]="false">{{ cancelText }}</button>
+    @if (showConfirm) {
+    <button [ngClass]="confirmClass" mat-raised-button color="primary" cdkFocusInitial [mat-dialog-close]="true">{{ confirmText }}</button>
+    }
 </div>

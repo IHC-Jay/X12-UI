@@ -1,3 +1,12 @@
 .delete-button {
     color: red;
 }
+
+.confirm-dialog-content {
+    max-height: 55vh;
+    overflow-y: auto;
+}
+
+.confirm-dialog-message {
+    overflow-wrap: anywhere;
+}

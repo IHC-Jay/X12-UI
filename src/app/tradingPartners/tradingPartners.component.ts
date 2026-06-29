@@ -68,6 +68,7 @@ export class TradingPartnersComponent implements OnInit, AfterViewInit, OnDestro
     @ViewChild(MatPaginator) paginator: MatPaginator;
 
     constructor(public dialog: MatDialog, private router: Router,
+      private route: ActivatedRoute,
       private TradingPartnerService: TpRestServiceComponent,
       private storageService: StorageService)
     {
@@ -80,7 +81,11 @@ export class TradingPartnersComponent implements OnInit, AfterViewInit, OnDestro
       this.storageService.removeItem("currentTab");
       this.storageService.setItem("currentTab", "Trading Partners");
       let continueOn = true;
-      if (sessionStorage.getItem("TpOperation") != null)
+      const fromWorkflowQuery = this.route.snapshot.queryParamMap.get('fromWorkflowTp') === 'true';
+      const fromWorkflowSession = this.storageService.getItem<string>("FromWorkflowTp") === 'true';
+      const fromWorkflowTp = fromWorkflowQuery || fromWorkflowSession;
+      this.storageService.removeItem("FromWorkflowTp");
+      if (fromWorkflowTp && sessionStorage.getItem("TpOperation") != null)
       {
          console.info("TradingPartnersComponent ngOnInit" + sessionStorage.getItem("NewTpId") + ", " + sessionStorage.getItem("TpOperation") );
          if (sessionStorage.getItem("TpOperation").indexOf("tp-add") >= 0)
@@ -90,7 +95,7 @@ export class TradingPartnersComponent implements OnInit, AfterViewInit, OnDestro
          }
          else if (sessionStorage.getItem("TpOperation").indexOf("tpLink-add") >= 0)
          {
-            this.router.navigate(["TradingPartners/tpIds/tp-links/add-edit/tp-add/WF/TPID" ]);
+          this.router.navigate(["/TradingPartners/tpIds/tp-links/add-edit/tp-add/WF/TPID" ]);
             continueOn = false ;
          }
       }

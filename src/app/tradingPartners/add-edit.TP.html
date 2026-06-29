@@ -10,7 +10,7 @@
     <div>
 @if(isAddMode)
     {
-<h1 >Add a New Trading Partner</h1>
+<h1 >Add a New Trading Partner@if(fromWorkflowTpAdd && tpId !== '') { for TPID: {{tpId}} }</h1>
     }
     @else {
       <h2>Edit Trading Partner - {{tradingPartner}}</h2>

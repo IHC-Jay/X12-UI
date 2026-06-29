@@ -576,8 +576,12 @@ onDetailsClicked(row) {
           "wfEndDtTm::" + this.endDate+" " +this.endTm +";" ;
 
   console.log('Row clicked, ID: ' + row.ID + ", Transaction: " + searchParamsString);
+  const errorType = String(row?.ErrorType || '').trim().toLowerCase();
+  const isTpError = errorType === 'tp';
+  const detailsRoute = isTpError ? "/workflow/workflowDetails/" : "/workflow/rdpValidationErrors/";
+  console.info('[Workflow] details route decision', { workflowId: row?.ID, errorType: row?.ErrorType, detailsRoute });
 
- this.router.navigate(["/workflow/rdpValidationErrors/"],
+ this.router.navigate([detailsRoute],
   {queryParams: { ID:  row.ID, TransactionType: row.TransactionType, searchParams:  searchParamsString } }
    );
 

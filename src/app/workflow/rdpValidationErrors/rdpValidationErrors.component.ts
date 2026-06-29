@@ -56,9 +56,6 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
   separator:string;
   dataError:boolean;
 
-  tpId:string="";
-  tpRelId:string="";
-
   canRenderDetails = false;
   dataSource = new MatTableDataSource<any>();
   errorDataSource = new MatTableDataSource<any>();
@@ -95,8 +92,6 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
   isSelected: boolean = true;
 
   sub:any;
-
-  tpCreate:boolean = false;
 
   ID:string = "";
   TransactionType:string = "";
@@ -292,6 +287,11 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
     this.separator = res[0].X12.substr(3, 1);
     console.log("Sep: " + this.separator);
     const wfErr = String(res[0].Error).replaceAll(";", "\n");
+    console.warn('[RdpValidationErrors] processX12Response error text', {
+      workflowId: this.ID,
+      status: this.wfStatus,
+      wfErr
+    });
     // Store non-data error message for display in error table area
     if (!this.isDataErrorPayload) {
       this.nonDataErrorMessage = wfErr;
@@ -299,7 +299,6 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
     } else {
       this.nonDataErrorMessage = "";
     }
-    this.handleTPNotFound(wfErr);
     this.x12Array.splice(0, this.x12Array.length);
     this.errArray.splice(0, this.errArray.length);
     let lenNum = 0;
@@ -459,28 +458,6 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Handle TP Not found and Relation Not found errors.
-   */
-  private handleTPNotFound(wfErr: string) {
-    const tpNotFoundLabel = "TP Not found:";
-    const relationNotFoundLabel = "Relation Not found:";
-
-    let tpInd = wfErr.indexOf(tpNotFoundLabel);
-    if (tpInd >= 0) {
-      this.tpCreate = true;
-      this.tpId = wfErr.substring(tpInd + tpNotFoundLabel.length).trim();
-      if (this.tpId.indexOf(tpNotFoundLabel) >= 0) {
-        this.tpId = this.tpId.substring(0, this.tpId.indexOf(tpNotFoundLabel)).trim();
-      }
-    }
-    tpInd = wfErr.indexOf(relationNotFoundLabel);
-    if (tpInd >= 0) {
-      this.tpCreate = true;
-      this.tpRelId = wfErr.substring(tpInd + relationNotFoundLabel.length).trim();
-    }
-  }
-
-  /**
    * Update workflow and error info strings.
    */
   private updateErrorInfo(wfErr: string, res: any) {
@@ -578,33 +555,6 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
   this.checked = !this.checked;
   this.getX12("ID=" + this.ID +'&SessionID=');
  }
-
-
- toTpCreate()
-  {
-
-      console.log('To TP create: ' + this.tpId +", " + this.tpRelId  );
-
-      if (this.tpId !== "") {
-        this.storageService.setItem("TpOperation", "tp-add");
-        this.storageService.setItem("NewTpId", this.tpId);
-      }
-      if (this.tpRelId !== "") {
-        const tpOperation = this.storageService.getItem<string>("TpOperation");
-        if (tpOperation == null || tpOperation == "") {
-          this.storageService.setItem("TpOperation", "tpLink-add");
-        } else {
-          this.storageService.setItem("TpOperation", "tp-add;tpLink-add");
-        }
-        this.storageService.setItem("NewTpRelId", this.tpRelId);
-      }
-
-      this.storageService.removeItem("currentTab");
-      this.storageService.setItem("currentTab", "Trading Partners");
-
-      this.router.navigate(["/TradingPartners"]);
-  }
-
   toWorkFlow()
   {
 
