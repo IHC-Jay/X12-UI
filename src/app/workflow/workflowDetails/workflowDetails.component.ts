@@ -130,6 +130,7 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
   errArray:any[] = [];
 
   x12Data:string;
+  sessionID: string = '';
   selection = new SelectionModel<x12err>(false, []);
 
 
@@ -173,7 +174,13 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
 
   private handleQueryParams(searchParams: any) {
     this.currentEntryTransactionType = (searchParams['TransactionType'] || '').toString().trim();
+    this.ID = (searchParams['ID'] || this.ID || '').toString();
+    this.searchParams = (searchParams['searchParams'] || '').toString();
+    const modeFromQuery = (searchParams['mode'] || '').toString().trim();
+    const modeFromSearchParams = this.extractSearchParamValue(this.searchParams, 'mode::');
+    this.wfMode = modeFromQuery || modeFromSearchParams || this.wfMode;
     const sessionId = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'];
+    this.sessionID = (sessionId || '').toString();
     if (sessionId !== undefined && sessionId !== null && sessionId !== '') {
       console.log("sessionID query sessionID provided!");
       this.wfStatus = searchParams['Status'] || searchParams['status'] || this.wfStatus;
@@ -181,11 +188,31 @@ export class WorkflowDetailsComponent implements OnInit, OnDestroy {
         this.form.controls.statusType.setValue(this.wfStatus);
       }
       this.fileName = searchParams['searchParams'];
-      this.getX12('ID=&SessionID=' + sessionId);
+      this.getX12(this.buildWorkflowEntrySearchString());
     } else {
       this.parseSearchParams(searchParams);
-      this.getX12("ID=" + this.ID + '&SessionID=');
+      this.getX12(this.buildWorkflowEntrySearchString());
     }
+  }
+
+  private extractSearchParamValue(paramStr: string, key: string): string {
+    const source = (paramStr || '').toString();
+    const startIndex = source.indexOf(key);
+    if (startIndex < 0) {
+      return '';
+    }
+
+    const valueStart = startIndex + key.length;
+    const valueEnd = source.indexOf(';', valueStart);
+    if (valueEnd < 0) {
+      return source.substring(valueStart).trim();
+    }
+
+    return source.substring(valueStart, valueEnd).trim();
+  }
+
+  private buildWorkflowEntrySearchString(): string {
+    return 'ID=' + (this.ID || '') + '&SessionID=' + (this.sessionID || '');
   }
 
   private parseSearchParams(searchParams: any) {
@@ -229,6 +256,7 @@ private processX12Response(res: any) {
   if (!res || !res.length) return;
   // First record - WF entry
   const entry = res[0];
+  this.sessionID = String(entry?.SessionID || entry?.SessionId || entry?.sessionID || this.sessionID || '').trim();
   this.currentEntryTransactionType = String(entry.TransactionType || this.currentEntryTransactionType || '').trim();
   const x12DataLns = entry.X12.split("~");
   this.separator = entry.X12.substr(3, 1);
@@ -824,7 +852,7 @@ private removeCurrentStatusFromTypes() {
 
   clickChkBox() {
     this.checked = !this.checked;
-    this.getX12("ID=" + this.ID + '&SessionID=');
+    this.getX12(this.buildWorkflowEntrySearchString());
   }
 
   toTpCreate() {

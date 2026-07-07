@@ -579,10 +579,11 @@ onDetailsClicked(row) {
   const errorType = String(row?.ErrorType || '').trim().toLowerCase();
   const isTpError = errorType === 'tp';
   const detailsRoute = isTpError ? "/workflow/workflowDetails/" : "/workflow/rdpValidationErrors/";
+  const sessionId = row?.sessionID || row?.SessionID || row?.SessionId || '';
   console.info('[Workflow] details route decision', { workflowId: row?.ID, errorType: row?.ErrorType, detailsRoute });
 
  this.router.navigate([detailsRoute],
-  {queryParams: { ID:  row.ID, TransactionType: row.TransactionType, searchParams:  searchParamsString } }
+  {queryParams: { ID:  row.ID, SessionID: sessionId, TransactionType: row.TransactionType, searchParams:  searchParamsString } }
    );
 
 }

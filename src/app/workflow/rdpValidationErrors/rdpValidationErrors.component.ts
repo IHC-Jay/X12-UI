@@ -182,13 +182,16 @@ export class RdpValidationErrorsComponent implements OnInit, OnDestroy {
     this.sessionID = searchParams['sessionID'] || searchParams['SessionID'] || searchParams['SessionId'] || '';
     this.TransactionType = searchParams['TransactionType'];
     this.searchParams = searchParams['searchParams'] || '';
+    const modeFromQuery = (searchParams['mode'] || '').toString().trim();
+    const modeFromSearchParams = this.extractParam(this.searchParams, 'mode::');
+    this.wfMode = modeFromQuery || modeFromSearchParams || this.wfMode || 'Batch';
     this.wfStatus = searchParams['Status'] || searchParams['status'] || this.wfStatus;
     if (this.form?.controls?.statusType && this.wfStatus) {
       this.form.controls.statusType.setValue(this.wfStatus);
     }
     console.log("sessionID query sessionID provided!" + this.sessionID + ", WF ID: " + this.ID + ", FileName: " + searchParams['searchParams'] + ", TransactionType: " + this.TransactionType);
     this.fileName = searchParams['searchParams'];
-    this.wfMode = searchParams['mode'];
+    console.info('[RdpValidationErrors] resolved mode for session flow', { modeFromQuery, modeFromSearchParams, wfMode: this.wfMode });
     this.getX12();
   }
 
