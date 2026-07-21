@@ -44,14 +44,14 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
     this.rtTransUrl = `${environment.rtQaTransUrl}`;
     this.batchTransUrl = `${environment.batchQaTransUrl}`;
     this.batchWfUrl =  `${environment.batchQaWFUrl}`;
-    this.rtWfUrl = "";
+    this.rtWfUrl = `${environment.rtQaWFUrl}`;
   }
   else if(env == 'UAT')
   {
     this.rtTransUrl = `${environment.rtUatTransUrl}`;
     this.batchTransUrl = `${environment.batchUatTransUrl}`;
     this.batchWfUrl =  `${environment.batchUatWFUrl}`;
-    this.rtWfUrl = "";
+    this.rtWfUrl = `${environment.rtUatWFUrl}`;
   }
   else if(env == 'PROD')
   {
@@ -60,7 +60,7 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
     this.batchWfUrl =  `${environment.batchProdWFUrl}`;
     this.rtWfUrl = `${environment.rtProdWFUrl}`;
   }
-  console.log(this.batchWfUrl);
+  console.log('[WfService] env=' + env + ' | batchWfUrl=' + this.batchWfUrl + ' | rtWfUrl=' + this.rtWfUrl);
 }
 
 updateWFitems(items:any)
@@ -105,7 +105,7 @@ fetchWorkFlowItems(mode: string, searchArr: string[]) {
      url = this.rtWfUrl + 'WorkFlowEntries?searchArr=' + searchArr;
   }
 
-  console.log('URL: ' + url)
+  console.log('[fetchWorkFlowItems] mode=' + mode + ' | rtWfUrl=' + this.rtWfUrl + ' | batchWfUrl=' + this.batchWfUrl + ' | Full URL: ' + url);
 
   return this.http
     .get<{ [key: string]: WorkFlowEntry }>(
@@ -142,7 +142,7 @@ fetchIrisUsers() {
   console.log('Fetch Users');
 
   let url = this.batchWfUrl + "GetIrisUsers";
-
+  console.log('[fetchIrisUsers] Full URL: ' + url);
 
   return this.http
     .get<{ [key: string]: IrisUsers }>(
@@ -180,7 +180,7 @@ fetchWorkFlowEntry(mode: string, searchStr: string) {
      url = this.rtWfUrl +  'WorkFlowEntry?' +  searchStr+"&userNm="+ this.currentUser;
   }
 
-  console.log('Fetch WF Entry ' + url + ' with Auth for '+ this.currentUser );
+  console.log('[fetchWorkFlowEntry] Full URL: ' + url + ' | user: ' + this.currentUser);
 
   return this.http
     .get<{ [key: string]: WorkFlowEntry }>(
@@ -227,7 +227,7 @@ updateWorkFlowItem(mode: string, paramsList: string[]) {
   }
 
   url += 'UpdateWorkFlowEntry?searchArr=' + paramsList;
-  console.log('Update WF Entry: ' + url)
+  console.log('[updateWorkFlowItem] Full URL: ' + url);
 
   return this.http
     .get<{ [key: string]: WorkFlowEntry }>(
@@ -270,7 +270,7 @@ fetchRdpCrytalEntries(mode: string, searchStr: string, sessionId: string = '') {
   {
      url = this.rtWfUrl +  'RdpCrystalEntries?' +  searchString+"&userNm="+ this.currentUser;
   }
-  console.log('Fetch RdpCrystalEntries with Auth for '+ this.currentUser +", URL: " + url);
+  console.log('[fetchRdpCrystalEntries] Full URL: ' + url + ' | user: ' + this.currentUser);
 
   return this.http
     .get<{ [key: string]: WorkFlowEntry }>(

@@ -186,12 +186,17 @@ fetchEligibilityBenefitResponses(mode: string, searchArr: string[]) {
 
 
   let url = this.batchTransUrl + 'EligibilityBenefitResponses?searchStr=' + searchArr;
+  const isRealTime271 = mode === 'RealTime';
 
-  if (mode === 'RealTime')
+  if (isRealTime271)
   {
      url = this.rtTransUrl + 'EligibilityBenefitResponses?searchStr=' + searchArr;
   }
+  const requestStartedAt = new Date();
   console.log('Fetch Eligibility Benefit Responses with Auth ' + url);
+  if (isRealTime271) {
+    console.log('[271 RtTransactions/EligibilityBenefitResponses] Request started at:', requestStartedAt.toISOString());
+  }
   return this.http2
     .get<{ [key: string]: TransactionData }>(
       url
@@ -199,6 +204,10 @@ fetchEligibilityBenefitResponses(mode: string, searchArr: string[]) {
 
     .pipe(
       map(responseData => {
+        if (isRealTime271) {
+          const requestCompletedAt = new Date();
+          console.log('[271 RtTransactions/EligibilityBenefitResponses] Response received at:', requestCompletedAt.toISOString(), 'Elapsed ms:', requestCompletedAt.getTime() - requestStartedAt.getTime());
+        }
         console.info(responseData);
 
         return this.mapPagedResponse<TransactionData>(responseData);
@@ -208,6 +217,10 @@ fetchEligibilityBenefitResponses(mode: string, searchArr: string[]) {
 
       catchError(errorRes => {
         // Send to analytics server
+        if (isRealTime271) {
+          const requestFailedAt = new Date();
+          console.log('[271 RtTransactions/EligibilityBenefitResponses] Request failed at:', requestFailedAt.toISOString(), 'Elapsed ms:', requestFailedAt.getTime() - requestStartedAt.getTime());
+        }
         console.error('In fetchEligibilityBenefitResponses catchError: ' + errorRes);
         return errorRes;
       })

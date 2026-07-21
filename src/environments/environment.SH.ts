@@ -28,20 +28,20 @@ export const environment = {
   rtUatWFUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRest/RtWorkFlow/',
   batchUatKwUrl: '',
 
-  tpProdUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRest/TpManage/',
-  rtProdTransUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRest/RtTransactions/',
-  batchProdTransUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRest/BatchTransactions/',
-  batchProdWFUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRest/BatchWorkFlow/',
-  rtProdWFUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRest/RtWorkFlow/',
+  tpProdUrl: 'https://itf-webapache-prod.co.ihc.com:8443/EdiRest/TpManage/',
+  rtProdTransUrl: 'https://itf-webapache-prod.co.ihc.com:8443/EdiRest/RtTransactions/',
+  batchProdTransUrl: 'https://itf-webapache-prod.co.ihc.com:8443/EdiRest/BatchTransactions/',
+  batchProdWFUrl: 'https://itf-webapache-prod.co.ihc.com:8443/EdiRest/BatchWorkFlow/',
+  rtProdWFUrl: 'https://itf-webapache-prod.co.ihc.com:8443/EdiRest/RtWorkFlow/',
   batchProdKwUrl: '',
   tpType: 'Provider',
   logo: 'assets/sh_logo.jpg',
-  appVersion: 'SH-2026.07.07.1',
+  appVersion: 'SH-2026.07.21.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
   rtRoutes: ["UhinRT","IntermountainHealthcare", "BitBucket", "SDS", "NA"],
   batchRoutes: ["UhinBatch","StLukesBatch","UMRBatch","IntermountainHealthcare", "BitBucket", "SDS", "NA"],
 
-  allowedEnvironments: ['DEV', 'QA']
+  allowedEnvironments: ['DEV', 'QA', 'UAT', 'PROD']
 
 };
 
