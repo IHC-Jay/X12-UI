@@ -13,6 +13,7 @@ type TradingPartnersNavState = {
   message?: string;
   syncTime?: string;
   sqlUsed?: string;
+  sessionToken?: string;
   username?: string;
   serverPort?: string;
   sourceServerPort?: string;
@@ -48,6 +49,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
   sqlUsed = '';
   username = '';
   private password = '';
+  private sessionToken = '';
   serverPort = 'Server:Port';
   sourceServerPort = 'Server:Port';
   destinationServerPort = 'Server:Port';
@@ -188,6 +190,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
     this.message = typeof resolved.message === 'string' ? resolved.message : '';
     this.syncTime = typeof resolved.syncTime === 'string' ? resolved.syncTime : '';
     this.sqlUsed = typeof resolved.sqlUsed === 'string' ? resolved.sqlUsed : '';
+    this.sessionToken = typeof resolved.sessionToken === 'string' ? resolved.sessionToken : '';
     this.username = typeof resolved.username === 'string' && resolved.username.trim()
       ? resolved.username
       : (typeof currentUser?.username === 'string' ? currentUser.username : '');
@@ -291,11 +294,30 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
     return Array.from(keys);
   }
 
+  private hasSessionToken(): boolean {
+    return typeof this.sessionToken === 'string' && this.sessionToken.trim().length > 0;
+  }
+
+  private hasAuthContext(): boolean {
+    return this.hasSessionToken() || (!!this.username && !!this.password);
+  }
+
+  private buildCredentialPayload(): Record<string, unknown> {
+    if (this.hasSessionToken()) {
+      return { sessionToken: this.sessionToken };
+    }
+
+    return {
+      username: this.username,
+      password: this.password
+    };
+  }
+
   async syncSelectedTable(): Promise<void> {
     if (this.isSyncing) return;
     const selectedKeys = this.getSelectedSyncKeys();
     if (selectedKeys.length === 0) { this.syncStatus = 'Select at least one row to sync.'; return; }
-    if (!this.username || !this.password || !this.sourceServerPort || !this.destinationServerPort) {
+    if (!this.hasAuthContext() || !this.sourceServerPort || !this.destinationServerPort) {
       this.syncStatus = 'Missing connection details. Go back and connect again.'; return;
     }
     if (this.migrateDirection === 'toProd') {
@@ -310,8 +332,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
     try {
       const payload = await firstValueFrom(
         this.http.post<any>(`${this.apiBaseUrl}/sync-last-run`, {
-          username: this.username,
-          password: this.password,
+          ...this.buildCredentialPayload(),
           serverPort: this.sourceServerPort,
           sourceServerPort: this.sourceServerPort,
           sourceNamespace: this.namespace,
@@ -405,12 +426,11 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
     this.syncDisconnected = true;
     this.syncStatus = 'Sync disconnected.';
 
-    if (this.username && this.sourceServerPort && this.destinationServerPort) {
+    if (this.hasAuthContext() && this.sourceServerPort && this.destinationServerPort) {
       try {
         await firstValueFrom(
           this.http.post<any>(`${this.apiBaseUrl}/disconnect`, {
-            username: this.username,
-            password: this.password,
+            ...this.buildCredentialPayload(),
             serverPort: this.sourceServerPort,
             sourceServerPort: this.sourceServerPort,
             sourceNamespace: this.namespace,
@@ -432,6 +452,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
     this.selectedRowIndexes.clear();
     this.username = '';
     this.password = '';
+    this.sessionToken = '';
     this.serverPort = 'Server:Port';
     this.sourceServerPort = 'Server:Port';
     this.destinationServerPort = 'Server:Port';
@@ -463,7 +484,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
   }
 
   private async loadTable(table: TableKey): Promise<void> {
-    if (!this.username || !this.password || !this.sourceServerPort || !this.destinationServerPort) {
+    if (!this.hasAuthContext() || !this.sourceServerPort || !this.destinationServerPort) {
       this.loadError = 'Missing connection details. Go back and connect again.';
       return;
     }
@@ -482,8 +503,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
       console.log('[TpSync][TABLE] Load start', { table, path });
       const payload = await firstValueFrom(
         this.http.post<any>(`${this.apiBaseUrl}${path}`, {
-          username: this.username,
-          password: this.password,
+          ...this.buildCredentialPayload(),
           serverPort: this.sourceServerPort,
           sourceServerPort: this.sourceServerPort,
           sourceNamespace: this.namespace,

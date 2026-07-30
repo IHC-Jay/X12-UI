@@ -1,6 +1,7 @@
 using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
+using System.Security.Cryptography;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using InterSystems.Data.IRISClient;
@@ -44,6 +45,11 @@ var apiPort = int.TryParse(Environment.GetEnvironmentVariable("API_PORT"), out v
     : 3100;
 
 var syncConnectionRegistry = new ConcurrentDictionary<string, string>(StringComparer.Ordinal);
+var tpSyncSessionRegistry = new ConcurrentDictionary<string, TpSyncSessionContext>(StringComparer.Ordinal);
+var tpSyncSessionTtlMinutes = int.TryParse(Environment.GetEnvironmentVariable("TP_SYNC_SESSION_TTL_MINUTES"), out var configuredSessionTtl)
+    ? configuredSessionTtl
+    : 30;
+var tpSyncSessionTtl = TimeSpan.FromMinutes(Math.Max(5, tpSyncSessionTtlMinutes));
 
 app.MapGet("/api/health", () =>
 {
@@ -111,6 +117,16 @@ app.MapPost("/api/connect-status", async (ApiRequest request) =>
 
     return await HandleIrisRequest(request, "/api/connect-status", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, context =>
     {
+        var sessionToken = string.IsNullOrWhiteSpace(request.SessionToken)
+            ? CreateTpSyncSessionToken(
+                request,
+                context.Username,
+                context.SourceServerPortText,
+                $"{context.DestinationTarget.Host}:{context.DestinationTarget.Port}",
+                context.SourceNamespace,
+                context.DestinationNamespace)
+            : request.SessionToken!;
+
         var syncAt = IrisSyncService.UpdateTpSyncTimeGlobal(context.SourceSession, context.SourceNamespace, "ConnectStatus", context.SourceServerPortText, context.Username);
         var syncTime = IrisSyncService.GetTpSyncTimeGlobal(context.SourceSession) ?? syncAt;
 
@@ -118,24 +134,39 @@ app.MapPost("/api/connect-status", async (ApiRequest request) =>
         {
             ok = true,
             message = "Connected",
-            syncTime
+            syncTime,
+            sessionToken
         }));
     });
 });
 
 app.MapPost("/api/disconnect", (ApiRequest request) =>
 {
+    var effectiveUsername = request.Username;
     var syncLockKey = BuildSyncLockKey(request, sourceNamespaceDefault, destinationNamespaceDefault);
-    if (string.IsNullOrWhiteSpace(syncLockKey) || string.IsNullOrWhiteSpace(request.Username))
+
+    if ((string.IsNullOrWhiteSpace(syncLockKey) || string.IsNullOrWhiteSpace(effectiveUsername))
+        && TryGetTpSyncSessionContext(request.SessionToken, out var sessionContext))
+    {
+        effectiveUsername = sessionContext.Username;
+        syncLockKey = BuildSyncLockKeyFromSession(sessionContext);
+    }
+
+    if (string.IsNullOrWhiteSpace(syncLockKey) || string.IsNullOrWhiteSpace(effectiveUsername))
     {
         return Results.Json(new
         {
             ok = false,
-            message = "Username, source server:port, and destination server:port are required."
+            message = "Username/sessionToken, source server:port, and destination server:port are required."
         }, statusCode: StatusCodes.Status400BadRequest);
     }
 
-    ReleaseSyncLock(syncConnectionRegistry, syncLockKey, request.Username!);
+    ReleaseSyncLock(syncConnectionRegistry, syncLockKey, effectiveUsername!);
+    if (!string.IsNullOrWhiteSpace(request.SessionToken))
+    {
+        tpSyncSessionRegistry.TryRemove(request.SessionToken!, out _);
+    }
+
     return Results.Json(new
     {
         ok = true,
@@ -949,7 +980,70 @@ static void ReleaseSyncLock(ConcurrentDictionary<string, string> registry, strin
     registry.TryRemove(syncLockKey, out _);
 }
 
-static async Task<IResult> HandleIrisRequest(
+string BuildSyncLockKeyFromSession(TpSyncSessionContext sessionContext)
+{
+    return $"{sessionContext.SourceServerPort.Trim().ToUpperInvariant()}|{sessionContext.SourceNamespace.Trim().ToUpperInvariant()}|{sessionContext.DestinationServerPort.Trim().ToUpperInvariant()}|{sessionContext.DestinationNamespace.Trim().ToUpperInvariant()}";
+}
+
+bool TryGetTpSyncSessionContext(string? sessionToken, out TpSyncSessionContext sessionContext)
+{
+    sessionContext = default!;
+    if (string.IsNullOrWhiteSpace(sessionToken))
+    {
+        return false;
+    }
+
+    if (!tpSyncSessionRegistry.TryGetValue(sessionToken.Trim(), out var existing))
+    {
+        return false;
+    }
+
+    if (existing.ExpiresAtUtc < DateTime.UtcNow)
+    {
+        tpSyncSessionRegistry.TryRemove(sessionToken.Trim(), out _);
+        return false;
+    }
+
+    var refreshed = existing with
+    {
+        LastUsedAtUtc = DateTime.UtcNow,
+        ExpiresAtUtc = DateTime.UtcNow.Add(tpSyncSessionTtl)
+    };
+    tpSyncSessionRegistry[sessionToken.Trim()] = refreshed;
+    sessionContext = refreshed;
+    return true;
+}
+
+string CreateTpSyncSessionToken(
+    ApiRequest request,
+    string username,
+    string sourceServerPort,
+    string destinationServerPort,
+    string sourceNamespace,
+    string destinationNamespace)
+{
+    if (string.IsNullOrWhiteSpace(request.Password))
+    {
+        throw new InvalidOperationException("Password is required to create TP sync session token.");
+    }
+
+    var token = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
+    var now = DateTime.UtcNow;
+    tpSyncSessionRegistry[token] = new TpSyncSessionContext(
+        token,
+        username,
+        request.Password!,
+        sourceServerPort,
+        destinationServerPort,
+        sourceNamespace,
+        destinationNamespace,
+        now,
+        now.Add(tpSyncSessionTtl));
+
+    return token;
+}
+
+async Task<IResult> HandleIrisRequest(
     ApiRequest request,
     string endpointName,
     string sourceNamespaceDefault,
@@ -965,16 +1059,28 @@ static async Task<IResult> HandleIrisRequest(
     var effectiveDestinationNamespace = string.IsNullOrWhiteSpace(request.DestinationNamespace)
         ? destinationNamespaceDefault
         : request.DestinationNamespace!;
+    var effectiveUsername = request.Username;
+    var effectivePassword = request.Password;
 
-    if (string.IsNullOrWhiteSpace(request.Username)
-        || string.IsNullOrWhiteSpace(request.Password)
+    if (TryGetTpSyncSessionContext(request.SessionToken, out var sessionContext))
+    {
+        effectiveUsername = sessionContext.Username;
+        effectivePassword = sessionContext.Password;
+        effectiveServerPort = sessionContext.SourceServerPort;
+        effectiveDestinationServerPort = sessionContext.DestinationServerPort;
+        effectiveSourceNamespace = sessionContext.SourceNamespace;
+        effectiveDestinationNamespace = sessionContext.DestinationNamespace;
+    }
+
+    if (string.IsNullOrWhiteSpace(effectiveUsername)
+        || string.IsNullOrWhiteSpace(effectivePassword)
         || string.IsNullOrWhiteSpace(effectiveServerPort)
         || string.IsNullOrWhiteSpace(effectiveDestinationServerPort))
     {
         return Results.Json(new
         {
             ok = false,
-            message = "Username, password, source server:port, and destination server:port are required."
+            message = "Username/password (or sessionToken), source server:port, and destination server:port are required."
         }, statusCode: StatusCodes.Status400BadRequest);
     }
 
@@ -1003,11 +1109,11 @@ static async Task<IResult> HandleIrisRequest(
 
     try
     {
-        sourceSession = IrisSyncService.GetPooledIrisSession(sourceTarget, effectiveSourceNamespace, request.Username!, request.Password!, connectTimeoutMs);
-        destinationSession = IrisSyncService.GetPooledIrisSession(destinationTarget, effectiveDestinationNamespace, request.Username!, request.Password!, connectTimeoutMs);
+        sourceSession = IrisSyncService.GetPooledIrisSession(sourceTarget, effectiveSourceNamespace, effectiveUsername!, effectivePassword!, connectTimeoutMs);
+        destinationSession = IrisSyncService.GetPooledIrisSession(destinationTarget, effectiveDestinationNamespace, effectiveUsername!, effectivePassword!, connectTimeoutMs);
 
         var result = await handler(new ServerConnectionContext(
-            request.Username!,
+            effectiveUsername!,
             sourceTarget,
             destinationTarget,
             effectiveServerPort!,
@@ -1051,6 +1157,7 @@ sealed record ApiRequest
 {
     public string? Username { get; init; }
     public string? Password { get; init; }
+    public string? SessionToken { get; init; }
     public string? ServerPort { get; init; }
     public string? SourceServerPort { get; init; }
     public string? DestinationServerPort { get; init; }
@@ -1063,6 +1170,17 @@ sealed record ApiRequest
     public string? SinceFilterMode { get; init; }
     public bool? UseHardcodedRouting { get; init; }
 }
+
+sealed record TpSyncSessionContext(
+    string Token,
+    string Username,
+    string Password,
+    string SourceServerPort,
+    string DestinationServerPort,
+    string SourceNamespace,
+    string DestinationNamespace,
+    DateTime LastUsedAtUtc,
+    DateTime ExpiresAtUtc);
 
 sealed record ServerTarget(string Host, int Port);
 sealed record ServerConnectionInfo(string Host, int Port, string Namespace);

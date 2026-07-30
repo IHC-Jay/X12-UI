@@ -14,6 +14,7 @@ import { ApiConfigService } from '../services/api-config.service';
 export class TpConnectPageComponent implements OnInit {
   private username = '';
   private password = '';
+  private sessionToken = '';
   sourceServerPort = 'lp-itfdevvp2:6973';
   sourceNamespace = 'EDIPAYER';
   destinationServerPort = 'lp-itfdevvp1:6972';
@@ -101,6 +102,7 @@ export class TpConnectPageComponent implements OnInit {
 
   async connect(): Promise<void> {
     const connectStartedAt = performance.now();
+    this.sessionToken = '';
     console.log('[TpSync] Connect clicked', {
       username: this.username,
       sourceServerPort: this.sourceServerPort,
@@ -127,11 +129,19 @@ export class TpConnectPageComponent implements OnInit {
       };
 
       const statusData = await this.postApi('/connect-status', requestPayload);
+      this.sessionToken = typeof statusData?.sessionToken === 'string' ? statusData.sessionToken : '';
       this.statusType = 'success';
       this.statusMessage = statusData?.syncTime ? `Connected (${statusData.syncTime})` : 'Connected';
       console.log('[TpSync] Status label set', { statusMessage: this.statusMessage });
 
-      const baselineData = await this.postApi('/sync-baseline', requestPayload);
+      const authenticatedPayload = this.sessionToken
+        ? { sessionToken: this.sessionToken }
+        : requestPayload;
+
+      const baselineData = await this.postApi('/sync-baseline', {
+        ...authenticatedPayload,
+        sourceTimezoneOffsetMinutes: new Date().getTimezoneOffset()
+      });
       const lastRunByTable = baselineData?.lastRunByTable ?? {};
       const tradingPartnerLastRun = typeof lastRunByTable?.TradingPartner === 'string'
         ? lastRunByTable.TradingPartner
@@ -139,7 +149,8 @@ export class TpConnectPageComponent implements OnInit {
       console.log('[TpSync] Baseline lastRunByTable', { lastRunByTable });
 
       const data = await this.postApi('/connect', {
-        ...requestPayload,
+        ...authenticatedPayload,
+        sourceTimezoneOffsetMinutes: new Date().getTimezoneOffset(),
         sinceLastRunAt: tradingPartnerLastRun
       });
 
@@ -153,6 +164,7 @@ export class TpConnectPageComponent implements OnInit {
         message: data.message,
         syncTime: data.syncTime,
         sqlUsed: data.sqlUsed,
+        sessionToken: this.sessionToken,
         username: this.username,
         serverPort: this.sourceServerPort,
         sourceServerPort: this.sourceServerPort,
