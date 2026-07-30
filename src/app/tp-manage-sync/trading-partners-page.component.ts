@@ -6,6 +6,7 @@ import { Router } from '@angular/router';
 import { firstValueFrom, TimeoutError } from 'rxjs';
 import { timeout } from 'rxjs/operators';
 import { ApiConfigService } from '../services/api-config.service';
+import { AuthenticationService } from '../services/authentication.service';
 
 type TradingPartnersNavState = {
   rows?: Record<string, unknown>[];
@@ -13,7 +14,6 @@ type TradingPartnersNavState = {
   syncTime?: string;
   sqlUsed?: string;
   username?: string;
-  password?: string;
   serverPort?: string;
   sourceServerPort?: string;
   destinationServerPort?: string;
@@ -47,7 +47,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
   syncTime = '';
   sqlUsed = '';
   username = '';
-  password = '';
+  private password = '';
   serverPort = 'Server:Port';
   sourceServerPort = 'Server:Port';
   destinationServerPort = 'Server:Port';
@@ -165,21 +165,33 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
     private readonly router: Router,
     private readonly http: HttpClient,
     private readonly cdr: ChangeDetectorRef,
-    private readonly apiConfig: ApiConfigService
+    private readonly apiConfig: ApiConfigService,
+    private readonly authService: AuthenticationService
   ) {
     this.apiBaseUrl = this.apiConfig.getApiBaseUrl();
     const state = (this.router.getCurrentNavigation()?.extras.state ?? history.state ?? {}) as TradingPartnersNavState;
     const storedRaw = sessionStorage.getItem('tpManageSync.tradingPartners');
-    const stored = storedRaw ? (JSON.parse(storedRaw) as TradingPartnersNavState) : {};
+    let stored: TradingPartnersNavState = {};
+    if (storedRaw) {
+      const parsed = JSON.parse(storedRaw) as Record<string, unknown>;
+      if (parsed && typeof parsed === 'object' && 'password' in parsed) {
+        delete parsed['password'];
+        sessionStorage.setItem('tpManageSync.tradingPartners', JSON.stringify(parsed));
+      }
+      stored = parsed as TradingPartnersNavState;
+    }
     const resolved = { ...stored, ...state };
+    const currentUser = this.authService.currentUserValue;
 
     this.rows = Array.isArray(resolved.rows) ? resolved.rows : [];
     this.columns = this.rows.length > 0 ? Object.keys(this.rows[0]) : [];
     this.message = typeof resolved.message === 'string' ? resolved.message : '';
     this.syncTime = typeof resolved.syncTime === 'string' ? resolved.syncTime : '';
     this.sqlUsed = typeof resolved.sqlUsed === 'string' ? resolved.sqlUsed : '';
-    this.username = typeof resolved.username === 'string' ? resolved.username : '';
-    this.password = typeof resolved.password === 'string' ? resolved.password : '';
+    this.username = typeof resolved.username === 'string' && resolved.username.trim()
+      ? resolved.username
+      : (typeof currentUser?.username === 'string' ? currentUser.username : '');
+    this.password = typeof currentUser?.password === 'string' ? currentUser.password : '';
     this.serverPort = typeof resolved.serverPort === 'string' && resolved.serverPort.trim() ? resolved.serverPort : 'Server:Port';
     this.sourceServerPort = typeof resolved.sourceServerPort === 'string' && resolved.sourceServerPort.trim()
       ? resolved.sourceServerPort : this.serverPort;

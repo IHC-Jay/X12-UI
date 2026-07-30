@@ -154,7 +154,6 @@ export class TpConnectPageComponent implements OnInit {
         syncTime: data.syncTime,
         sqlUsed: data.sqlUsed,
         username: this.username,
-        password: this.password,
         serverPort: this.sourceServerPort,
         sourceServerPort: this.sourceServerPort,
         sourceNamespace: this.sourceNamespace,
