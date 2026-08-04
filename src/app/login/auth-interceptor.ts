@@ -9,7 +9,20 @@ export class AuthInterceptor implements HttpInterceptor {
     constructor(private authenticationService: AuthenticationService) { }
 
     intercept(request: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+        const url = request.url || '';
+
         if (request.url.includes('/x12-api/') || request.url.includes('x12-api/')) {
+            return next.handle(request);
+        }
+
+        // TP Sync API uses sessionToken or explicit headers. Do not auto-inject
+        // username/password for these calls.
+        if (url.includes('/api/') || url.endsWith('/api')) {
+            return next.handle(request);
+        }
+
+        // Respect explicitly provided authorization headers.
+        if (request.headers.has('Authorization')) {
             return next.handle(request);
         }
 

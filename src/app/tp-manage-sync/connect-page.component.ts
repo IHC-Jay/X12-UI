@@ -60,9 +60,23 @@ export class TpConnectPageComponent implements OnInit {
     return this.postApiWithHeaders(path, body);
   }
 
+  private sanitizeBody(body: unknown): unknown {
+    if (!body || typeof body !== 'object' || Array.isArray(body)) {
+      return body;
+    }
+
+    const copy = { ...(body as Record<string, unknown>) };
+    if ('password' in copy) {
+      delete copy['password'];
+    }
+
+    return copy;
+  }
+
   private async postApiWithHeaders(path: string, body: unknown, headers?: Record<string, string>): Promise<any> {
+    const sanitizedBody = this.sanitizeBody(body);
     const startedAt = performance.now();
-    const safeBody = { ...(body as Record<string, unknown>), password: '***' };
+    const safeBody = { ...(sanitizedBody as Record<string, unknown>), password: '***' };
     console.log('[TpSync][API] Request start', { path, body: safeBody });
 
     return this.withClientTimeout(
@@ -72,7 +86,7 @@ export class TpConnectPageComponent implements OnInit {
           response = await fetch(`${this.apiBaseUrl}${path}`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', ...(headers ?? {}) },
-            body: JSON.stringify(body)
+            body: JSON.stringify(sanitizedBody)
           });
         } catch (error) {
           const message = error instanceof Error ? error.message : String(error);
