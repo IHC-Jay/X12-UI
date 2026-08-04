@@ -57,6 +57,10 @@ export class TpConnectPageComponent implements OnInit {
   }
 
   private async postApi(path: string, body: unknown): Promise<any> {
+    return this.postApiWithHeaders(path, body);
+  }
+
+  private async postApiWithHeaders(path: string, body: unknown, headers?: Record<string, string>): Promise<any> {
     const startedAt = performance.now();
     const safeBody = { ...(body as Record<string, unknown>), password: '***' };
     console.log('[TpSync][API] Request start', { path, body: safeBody });
@@ -67,7 +71,7 @@ export class TpConnectPageComponent implements OnInit {
         try {
           response = await fetch(`${this.apiBaseUrl}${path}`, {
             method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
+            headers: { 'Content-Type': 'application/json', ...(headers ?? {}) },
             body: JSON.stringify(body)
           });
         } catch (error) {
@@ -117,9 +121,8 @@ export class TpConnectPageComponent implements OnInit {
     this.statusMessage = 'Connecting to IRIS...';
 
     try {
-      const requestPayload = {
+      const connectStatusPayload = {
         username: this.username,
-        password: this.password,
         serverPort: this.sourceServerPort,
         sourceServerPort: this.sourceServerPort,
         sourceNamespace: this.sourceNamespace,
@@ -127,16 +130,20 @@ export class TpConnectPageComponent implements OnInit {
         destinationNamespace: this.destinationNamespace,
         sourceTimezoneOffsetMinutes: new Date().getTimezoneOffset()
       };
+      const authHeaders = {
+        Authorization: `Basic ${btoa(`${this.username}:${this.password}`)}`
+      };
 
-      const statusData = await this.postApi('/connect-status', requestPayload);
+      const statusData = await this.postApiWithHeaders('/connect-status', connectStatusPayload, authHeaders);
       this.sessionToken = typeof statusData?.sessionToken === 'string' ? statusData.sessionToken : '';
+      if (!this.sessionToken) {
+        throw new Error('Connected, but no session token was returned.');
+      }
       this.statusType = 'success';
       this.statusMessage = statusData?.syncTime ? `Connected (${statusData.syncTime})` : 'Connected';
       console.log('[TpSync] Status label set', { statusMessage: this.statusMessage });
 
-      const authenticatedPayload = this.sessionToken
-        ? { sessionToken: this.sessionToken }
-        : requestPayload;
+      const authenticatedPayload = { sessionToken: this.sessionToken };
 
       const baselineData = await this.postApi('/sync-baseline', {
         ...authenticatedPayload,

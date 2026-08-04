@@ -2,6 +2,7 @@ import { ChangeDetectorRef, Component, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { HttpClient } from '@angular/common/http';
+import { HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { firstValueFrom, TimeoutError } from 'rxjs';
 import { timeout } from 'rxjs/operators';
@@ -308,9 +309,20 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
     }
 
     return {
-      username: this.username,
-      password: this.password
+      username: this.username
     };
+  }
+
+  private buildRequestOptions(): { headers?: HttpHeaders } {
+    if (!this.hasSessionToken() && this.username && this.password) {
+      return {
+        headers: new HttpHeaders({
+          Authorization: `Basic ${btoa(`${this.username}:${this.password}`)}`
+        })
+      };
+    }
+
+    return {};
   }
 
   async syncSelectedTable(): Promise<void> {
@@ -344,7 +356,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
           sourceTimezoneOffsetMinutes: new Date().getTimezoneOffset(),
           sinceFilterMode: this.sinceFilterMode,
           useHardcodedRouting: this.useHardcodedRouting
-        }).pipe(timeout(this.syncRequestTimeoutMs))
+        }, this.buildRequestOptions()).pipe(timeout(this.syncRequestTimeoutMs))
       );
       if (!payload?.ok) { this.syncStatus = payload?.message || 'Sync read failed.'; return; }
       this.syncStatus = typeof payload?.message === 'string' && payload.message.trim()
@@ -436,7 +448,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
             sourceNamespace: this.namespace,
             destinationServerPort: this.destinationServerPort,
             destinationNamespace: this.destinationNamespace
-          }).pipe(timeout(this.requestTimeoutMs))
+          }, this.buildRequestOptions()).pipe(timeout(this.requestTimeoutMs))
         );
         console.log('[TpSync] Backend sync lock released');
       } catch (error) {
@@ -513,7 +525,7 @@ export class TpTradingPartnersPageComponent implements OnDestroy {
           sinceLastRunAt: this.lastRunByTable[table] || undefined,
           sinceFilterMode: this.sinceFilterMode,
           limit: 100
-        }).pipe(timeout(this.requestTimeoutMs))
+        }, this.buildRequestOptions()).pipe(timeout(this.requestTimeoutMs))
       );
       const durationMs = Math.round(performance.now() - startedAt);
       console.log('[TpSync][TABLE] Load response', { table, ok: payload?.ok, durationMs });

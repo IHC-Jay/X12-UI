@@ -2,6 +2,7 @@ using System.Collections.Concurrent;
 using System.Data;
 using System.Globalization;
 using System.Security.Cryptography;
+using System.Text;
 using System.Text.Json;
 using System.Text.RegularExpressions;
 using InterSystems.Data.IRISClient;
@@ -62,9 +63,9 @@ app.MapGet("/api/health", () =>
     });
 });
 
-app.MapPost("/api/connect", async (ApiRequest request) =>
+app.MapPost("/api/connect", async (HttpContext httpContext, ApiRequest request) =>
 {
-    return await HandleIrisRequest(request, "/api/connect", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
+    return await HandleIrisRequest(httpContext, request, "/api/connect", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
     {
         var sinceLastRunAt = string.IsNullOrWhiteSpace(request.SinceLastRunAt)
             ? IrisSyncService.GetTpSyncLastRunAtGlobal(context.DestinationSession, context.DestinationNamespace, "TradingPartner")
@@ -93,10 +94,18 @@ app.MapPost("/api/connect", async (ApiRequest request) =>
     });
 });
 
-app.MapPost("/api/connect-status", async (ApiRequest request) =>
+app.MapPost("/api/connect-status", async (HttpContext httpContext, ApiRequest request) =>
 {
+    var requestUsername = request.Username;
+    if (string.IsNullOrWhiteSpace(requestUsername)
+        && TryReadBasicAuthCredentials(httpContext, out var basicUsername, out _)
+        && !string.IsNullOrWhiteSpace(basicUsername))
+    {
+        requestUsername = basicUsername;
+    }
+
     var syncLockKey = BuildSyncLockKey(request, sourceNamespaceDefault, destinationNamespaceDefault);
-    if (string.IsNullOrWhiteSpace(syncLockKey) || string.IsNullOrWhiteSpace(request.Username))
+    if (string.IsNullOrWhiteSpace(syncLockKey) || string.IsNullOrWhiteSpace(requestUsername))
     {
         return Results.Json(new
         {
@@ -105,7 +114,7 @@ app.MapPost("/api/connect-status", async (ApiRequest request) =>
         }, statusCode: StatusCodes.Status400BadRequest);
     }
 
-    if (!TryAcquireSyncLock(syncConnectionRegistry, syncLockKey, request.Username!, out var connectedUser))
+    if (!TryAcquireSyncLock(syncConnectionRegistry, syncLockKey, requestUsername!, out var connectedUser))
     {
         return Results.Json(new
         {
@@ -115,12 +124,12 @@ app.MapPost("/api/connect-status", async (ApiRequest request) =>
         }, statusCode: StatusCodes.Status409Conflict);
     }
 
-    return await HandleIrisRequest(request, "/api/connect-status", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, context =>
+    return await HandleIrisRequest(httpContext, request with { Username = requestUsername }, "/api/connect-status", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, context =>
     {
         var sessionToken = string.IsNullOrWhiteSpace(request.SessionToken)
             ? CreateTpSyncSessionToken(
-                request,
                 context.Username,
+                context.Password,
                 context.SourceServerPortText,
                 $"{context.DestinationTarget.Host}:{context.DestinationTarget.Port}",
                 context.SourceNamespace,
@@ -174,9 +183,9 @@ app.MapPost("/api/disconnect", (ApiRequest request) =>
     });
 });
 
-app.MapPost("/api/tpids", async (ApiRequest request) =>
+app.MapPost("/api/tpids", async (HttpContext httpContext, ApiRequest request) =>
 {
-    return await HandleIrisRequest(request, "/api/tpids", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
+    return await HandleIrisRequest(httpContext, request, "/api/tpids", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
     {
         var limit = request.Limit ?? 100;
         var sinceLastRunAt = string.IsNullOrWhiteSpace(request.SinceLastRunAt)
@@ -215,9 +224,9 @@ app.MapPost("/api/tpids", async (ApiRequest request) =>
     });
 });
 
-app.MapPost("/api/tradelinks", async (ApiRequest request) =>
+app.MapPost("/api/tradelinks", async (HttpContext httpContext, ApiRequest request) =>
 {
-    return await HandleIrisRequest(request, "/api/tradelinks", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
+    return await HandleIrisRequest(httpContext, request, "/api/tradelinks", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
     {
         var limit = request.Limit ?? 100;
         var sinceLastRunAt = string.IsNullOrWhiteSpace(request.SinceLastRunAt)
@@ -256,9 +265,9 @@ app.MapPost("/api/tradelinks", async (ApiRequest request) =>
     });
 });
 
-app.MapPost("/api/transactiontypes", async (ApiRequest request) =>
+app.MapPost("/api/transactiontypes", async (HttpContext httpContext, ApiRequest request) =>
 {
-    return await HandleIrisRequest(request, "/api/transactiontypes", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
+    return await HandleIrisRequest(httpContext, request, "/api/transactiontypes", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
     {
         var limit = request.Limit ?? 100;
         var sinceLastRunAt = string.IsNullOrWhiteSpace(request.SinceLastRunAt)
@@ -297,9 +306,9 @@ app.MapPost("/api/transactiontypes", async (ApiRequest request) =>
     });
 });
 
-app.MapPost("/api/sync-baseline", async (ApiRequest request) =>
+app.MapPost("/api/sync-baseline", async (HttpContext httpContext, ApiRequest request) =>
 {
-    return await HandleIrisRequest(request, "/api/sync-baseline", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, context =>
+    return await HandleIrisRequest(httpContext, request, "/api/sync-baseline", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, context =>
     {
         var lastRunByTable = new Dictionary<string, string?>
         {
@@ -317,9 +326,9 @@ app.MapPost("/api/sync-baseline", async (ApiRequest request) =>
     });
 });
 
-app.MapPost("/api/sync-last-run", async (ApiRequest request) =>
+app.MapPost("/api/sync-last-run", async (HttpContext httpContext, ApiRequest request) =>
 {
-    return await HandleIrisRequest(request, "/api/sync-last-run", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
+    return await HandleIrisRequest(httpContext, request, "/api/sync-last-run", sourceNamespaceDefault, destinationNamespaceDefault, connectTimeoutMs, async context =>
     {
         var syncFlowStartedAt = DateTime.UtcNow;
         var stageDurationsMs = new Dictionary<string, long>();
@@ -1015,14 +1024,14 @@ bool TryGetTpSyncSessionContext(string? sessionToken, out TpSyncSessionContext s
 }
 
 string CreateTpSyncSessionToken(
-    ApiRequest request,
     string username,
+    string password,
     string sourceServerPort,
     string destinationServerPort,
     string sourceNamespace,
     string destinationNamespace)
 {
-    if (string.IsNullOrWhiteSpace(request.Password))
+    if (string.IsNullOrWhiteSpace(password))
     {
         throw new InvalidOperationException("Password is required to create TP sync session token.");
     }
@@ -1032,7 +1041,7 @@ string CreateTpSyncSessionToken(
     tpSyncSessionRegistry[token] = new TpSyncSessionContext(
         token,
         username,
-        request.Password!,
+        password,
         sourceServerPort,
         destinationServerPort,
         sourceNamespace,
@@ -1043,7 +1052,50 @@ string CreateTpSyncSessionToken(
     return token;
 }
 
+bool TryReadBasicAuthCredentials(HttpContext httpContext, out string username, out string password)
+{
+    username = string.Empty;
+    password = string.Empty;
+
+    if (!httpContext.Request.Headers.TryGetValue("Authorization", out var authorizationValues))
+    {
+        return false;
+    }
+
+    var authorizationHeader = authorizationValues.FirstOrDefault();
+    if (string.IsNullOrWhiteSpace(authorizationHeader)
+        || !authorizationHeader.StartsWith("Basic ", StringComparison.OrdinalIgnoreCase))
+    {
+        return false;
+    }
+
+    var encodedCredentials = authorizationHeader.Substring("Basic ".Length).Trim();
+    if (string.IsNullOrWhiteSpace(encodedCredentials))
+    {
+        return false;
+    }
+
+    try
+    {
+        var decoded = Encoding.UTF8.GetString(Convert.FromBase64String(encodedCredentials));
+        var delimiterIndex = decoded.IndexOf(':');
+        if (delimiterIndex <= 0)
+        {
+            return false;
+        }
+
+        username = decoded[..delimiterIndex];
+        password = decoded[(delimiterIndex + 1)..];
+        return !string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(password);
+    }
+    catch
+    {
+        return false;
+    }
+}
+
 async Task<IResult> HandleIrisRequest(
+    HttpContext httpContext,
     ApiRequest request,
     string endpointName,
     string sourceNamespaceDefault,
@@ -1070,6 +1122,18 @@ async Task<IResult> HandleIrisRequest(
         effectiveDestinationServerPort = sessionContext.DestinationServerPort;
         effectiveSourceNamespace = sessionContext.SourceNamespace;
         effectiveDestinationNamespace = sessionContext.DestinationNamespace;
+    }
+    else if (TryReadBasicAuthCredentials(httpContext, out var basicUsername, out var basicPassword))
+    {
+        if (string.IsNullOrWhiteSpace(effectiveUsername))
+        {
+            effectiveUsername = basicUsername;
+        }
+
+        if (string.IsNullOrWhiteSpace(effectivePassword))
+        {
+            effectivePassword = basicPassword;
+        }
     }
 
     if (string.IsNullOrWhiteSpace(effectiveUsername)
@@ -1114,6 +1178,7 @@ async Task<IResult> HandleIrisRequest(
 
         var result = await handler(new ServerConnectionContext(
             effectiveUsername!,
+            effectivePassword!,
             sourceTarget,
             destinationTarget,
             effectiveServerPort!,
@@ -1187,6 +1252,7 @@ sealed record ServerConnectionInfo(string Host, int Port, string Namespace);
 
 sealed record ServerConnectionContext(
     string Username,
+    string Password,
     ServerTarget SourceTarget,
     ServerTarget DestinationTarget,
     string SourceServerPortText,
