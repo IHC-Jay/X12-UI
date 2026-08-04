@@ -12,10 +12,13 @@ param(
 $ErrorActionPreference = "Stop"
 
 $X12UIPath = Get-Location
-$backendCandidate = Join-Path $X12UIPath "backend"
+$backendCandidate = Join-Path $X12UIPath "src\backend"
+$legacyBackendCandidate = Join-Path $X12UIPath "backend"
 $serverCandidate = Join-Path $X12UIPath "server"
 $BackendPath = if (Test-Path $backendCandidate) {
     $backendCandidate
+} elseif (Test-Path $legacyBackendCandidate) {
+    $legacyBackendCandidate
 } elseif (Test-Path $serverCandidate) {
     $serverCandidate
 } else {

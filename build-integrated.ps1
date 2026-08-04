@@ -17,17 +17,21 @@ $AngularProjectPath = Get-Location
 $repoRoot = $AngularProjectPath.Path
 
 if ([string]::IsNullOrWhiteSpace($DotNetProjectPath)) {
-    $backendCandidate = Join-Path $repoRoot "backend"
+    $backendCandidate = Join-Path $repoRoot "src\backend"
+    $legacyBackendCandidate = Join-Path $repoRoot "backend"
     $serverCandidate = Join-Path $repoRoot "server"
 
     if (Test-Path $backendCandidate) {
         $DotNetProjectPath = $backendCandidate
     }
+    elseif (Test-Path $legacyBackendCandidate) {
+        $DotNetProjectPath = $legacyBackendCandidate
+    }
     elseif (Test-Path $serverCandidate) {
         $DotNetProjectPath = $serverCandidate
     }
     else {
-        Write-Error "No backend folder found. Expected '$backendCandidate' or '$serverCandidate'."
+        Write-Error "No backend folder found. Expected '$backendCandidate', '$legacyBackendCandidate', or '$serverCandidate'."
     }
 }
 

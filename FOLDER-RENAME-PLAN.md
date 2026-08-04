@@ -1,4 +1,4 @@
-# Folder Rename Summary: `server` → `backend`
+# Folder Rename Summary: `server` → `src/backend`
 
 Status: Completed on 2026-08-04.
 
@@ -7,20 +7,19 @@ This repo can keep working as-is, but if you want a cleaner structure, this is a
 ## Recommendation
 
 - Keep frontend in `src/`
-- Keep .NET backend at top level, renamed to `backend/`
-- Avoid moving backend under `src/` to prevent tooling/deploy friction
+- Keep .NET backend in `src/backend/`
 
 ## Current state
 
-- Backend folder now exists at `backend/`
-- Runtime scripts support **both** folder names (`backend` preferred, `server` fallback):
+- Backend folder now exists at `src/backend/`
+- Runtime scripts support **both** folder names (`src/backend` preferred, then `backend`, then `server` fallback):
   - `build-integrated.ps1`
   - `start-dev.ps1`
 
 ## Migration steps that were applied
 
 1. Renamed folder in git:
-   - `git mv server backend`
+   - `git mv server src/backend`
 2. Re-ran local build scripts:
    - `./build-integrated.ps1 -Profile SH -Configuration production`
    - `./start-dev.ps1 -BackendOnly`
@@ -36,6 +35,7 @@ This repo can keep working as-is, but if you want a cleaner structure, this is a
 - Windows service / executable path currently observed on Win12:
   - `C:\Services\TpManageSync\publish\TpManageSync.Api.exe`
 - Any CI/CD scripts that call `dotnet` from `server/`
+- Any CI/CD scripts that call `dotnet` from `backend/`
 - Any documentation that hardcodes old external folders
 
 ## Rollback option
@@ -43,10 +43,11 @@ This repo can keep working as-is, but if you want a cleaner structure, this is a
 If needed:
 
 - `git mv backend server`
+- or `git mv src/backend server`
 - Re-run build/start/publish scripts
 
 ## Why this was low risk
 
 - No code behavior change required
-- Existing scripts now auto-detect `backend/` then `server/`
+- Existing scripts now auto-detect `src/backend` then `backend` then `server`
 - Rename was done in a single atomic commit and can be reverted
