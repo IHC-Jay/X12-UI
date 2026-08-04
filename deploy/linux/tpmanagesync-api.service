@@ -1,0 +1,22 @@
+[Unit]
+Description=TP Manage Sync API
+After=network.target
+
+[Service]
+Type=simple
+WorkingDirectory=/opt/x12/backend
+ExecStart=/usr/bin/dotnet /opt/x12/backend/TpManageSync.Api.dll
+Restart=always
+RestartSec=5
+Environment=ASPNETCORE_ENVIRONMENT=Production
+Environment=API_PORT=3100
+Environment=IRIS_NAMESPACE=EDIPAYER
+Environment=IRIS_DEST_NAMESPACE=MISC
+Environment=IRIS_CONNECT_TIMEOUT_MS=15000
+
+# Optional hardening
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
