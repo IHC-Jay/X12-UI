@@ -12,7 +12,15 @@ param(
 $ErrorActionPreference = "Stop"
 
 $X12UIPath = Get-Location
-$BackendPath = Join-Path $X12UIPath "server"
+$backendCandidate = Join-Path $X12UIPath "backend"
+$serverCandidate = Join-Path $X12UIPath "server"
+$BackendPath = if (Test-Path $backendCandidate) {
+    $backendCandidate
+} elseif (Test-Path $serverCandidate) {
+    $serverCandidate
+} else {
+    $backendCandidate
+}
 
 function Wait-ForHttpReady {
     param(
