@@ -183,6 +183,22 @@ export class TransactionDetailComponent implements OnDestroy {
     return end >= 0 ? paramStr.substring(valueStart, end) : paramStr.substring(valueStart);
   }
 
+  private formatX12ForDisplay(rawX12: string): string {
+    const x12Value = (rawX12 || '').toString();
+    if (!x12Value) {
+      return x12Value;
+    }
+
+    if (x12Value.startsWith('ISA') && x12Value.length > 105) {
+      const segmentTerminator = x12Value.charAt(105);
+      if (segmentTerminator) {
+        return x12Value.replaceAll(segmentTerminator, segmentTerminator + "\n");
+      }
+    }
+
+    return x12Value.replaceAll('~', '~\n');
+  }
+
   // --- Refactored fetch logic for ngOnInit ---
   private fetchTransactionDetailData(transaction: string, mode: string, paramsList: string[]) {
     console.info('[TransactionDetail] Dispatching service call', {
@@ -249,15 +265,7 @@ export class TransactionDetailComponent implements OnDestroy {
                 // console.info(loopnum + ". getSelectedValue: " + question +'= ' + val);
                 if(question === "x12Data" )
                 {
-                  if (val.startsWith("ISA"))
-                  {
-                  let letter = val.charAt(105);
-                  val = val.replaceAll(letter, letter + "\n")
-                  console.info("Split X12 with: " + letter);
-                  }
-                  else{
-                    val = val.replaceAll("~", "~\n")
-                  }
+                  val = this.formatX12ForDisplay(val);
                   this.x12Data = val;
                 }
                 else if (val === '')
@@ -335,22 +343,60 @@ export class TransactionDetailComponent implements OnDestroy {
 
     console.log(" fetchGetRelatedTransaction: " + this.transaction +", " + this.dataSource.data[0].GroupControlNumber)
 
+    const currentRow = this.dataSource.data[0] || {};
     let tranType = this.transaction;
-    let grpNum = this.dataSource.data[0].GroupControlNumber;
+    let grpNum = currentRow.GroupControlNumber;
+    let transRespControlNumber = '';
     if(this.transaction === '999')
     {
       console.log(" fetchGetRelatedTransaction: " + this.ak1CtrlNum +", " +  this.ak1ver);
       tranType = this.ak1ver;
       grpNum =  this.ak1CtrlNum ;
+
+      const transRespColumn = this.displayedColumns.find((col: any) => {
+        const label = (col?.label || '').toString().trim().toLowerCase();
+        return label === 'transaction resp control number' || label === 'trans resp control number';
+      });
+      if (transRespColumn?.key) {
+        transRespControlNumber = (currentRow[transRespColumn.key] || '').toString().trim();
+        console.log(' fetchGetRelatedTransaction TransRespControlNumber key: ' + transRespColumn.key);
+      }
+
+      const responseControlCandidates: string[] = [
+        'TransRespControlNumber',
+        'TransactionRespControlNumber',
+        'TransResponseControlNumber',
+        'RespControlNumber'
+      ];
+
+      for (const candidateKey of responseControlCandidates) {
+        const candidateValue = (currentRow[candidateKey] || '').toString().trim();
+        if (candidateValue !== '') {
+          transRespControlNumber = candidateValue;
+          break;
+        }
+      }
+
+      if (transRespControlNumber === '') {
+        const dynamicResponseKey = Object.keys(currentRow).find((key) =>
+          /Resp.*ControlNumber/i.test(key) && !/GroupRespControlNumber/i.test(key)
+        );
+        if (dynamicResponseKey) {
+          transRespControlNumber = (currentRow[dynamicResponseKey] || '').toString().trim();
+          console.log(' fetchGetRelatedTransaction TransRespControlNumber dynamic key: ' + dynamicResponseKey);
+        }
+      }
+
+      console.log(' fetchGetRelatedTransaction TransRespControlNumber: ' + transRespControlNumber);
     }
-    console.log(" fetchGetRelatedTransaction: " + this.dataSource.data[0].InterchangeControlNumber +"," +
-    this.dataSource.data[0].InterchangeReceiverID + "," +
-    this.dataSource.data[0].InterchangeSenderID)
+    console.log(" fetchGetRelatedTransaction: " + currentRow.InterchangeControlNumber +"," +
+    currentRow.InterchangeReceiverID + "," +
+    currentRow.InterchangeSenderID)
 
     this.TransactionService.fetchGetRelatedTransaction(tranType, grpNum,
-      this.dataSource.data[0].InterchangeSenderID,
-      this.dataSource.data[0].InterchangeReceiverID,
-      this.dataSource.data[0].InterchangeControlNumber, this.searchTypeString
+      currentRow.InterchangeSenderID,
+      currentRow.InterchangeReceiverID,
+      currentRow.InterchangeControlNumber, transRespControlNumber, this.searchTypeString
 
       ).subscribe((res: any) => {
       this.canRenderDetails = true;
@@ -360,9 +406,8 @@ export class TransactionDetailComponent implements OnDestroy {
       {
         if (res !== undefined && res && res.tranX12 !== undefined && res.tranX12.length > 0 )
         {
-          let letter = res.tranX12.charAt(105);
-          val = res.tranX12.replaceAll(letter, letter + "\n" )
-          console.info("Split tranX12 with: " + letter);
+          val = this.formatX12ForDisplay(res.tranX12)
+          console.info("Formatted tranX12 for display");
           fileName =  res.FileName.replace(/^.*[\\\/]/, '')
           }
           else{
@@ -373,9 +418,8 @@ export class TransactionDetailComponent implements OnDestroy {
       {
           if (res !== undefined && res && res.x12Data !== undefined && res.x12Data.length > 0 )
           {
-            let letter = res.x12Data.charAt(105);
-            val = res.x12Data.replaceAll(letter, letter + "\n" )
-            console.info("Split X12 with: " + letter);
+            val = this.formatX12ForDisplay(res.x12Data)
+            console.info("Formatted X12 for display");
             fileName =  res.FileName.replace(/^.*[\\\/]/, '')
             }
             else{

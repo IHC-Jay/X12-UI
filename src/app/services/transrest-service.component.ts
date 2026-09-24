@@ -852,7 +852,7 @@ openRelated2767Model(trans:string, SubscriberId: string, BhtId : string, TrnRefI
 
 fetchGetRelatedTransaction(trans: string, grpId: string, InterchangeSenderID : string,
  InterchangeReceiverID : string,
-  InterchangeControlNumber : string, searchTypeString: string) {
+  InterchangeControlNumber : string, TransRespControlNumber: string, searchTypeString: string) {
 
     let url = this. rtTransUrl
     if(searchTypeString.indexOf("Batch") >= 0)
@@ -863,6 +863,12 @@ fetchGetRelatedTransaction(trans: string, grpId: string, InterchangeSenderID : s
   url = url + "GetRelatedTransaction?GroupControlNumber="
   + grpId+"&transType="+trans+"&InterchangeSenderID="+InterchangeSenderID+"&InterchangeReceiverID="
   +InterchangeReceiverID+"&InterchangeControlNumber="+InterchangeControlNumber;
+
+  const transRespControlNumber = (TransRespControlNumber || '').toString().trim();
+  if (transRespControlNumber !== '')
+  {
+    url = url + "&TransRespControlNumber=" + transRespControlNumber;
+  }
 
   console.log('Fetch 999 X12 ' + url);
   return this.http2
