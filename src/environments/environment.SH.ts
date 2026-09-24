@@ -36,7 +36,7 @@ export const environment = {
   batchProdKwUrl: '',
   tpType: 'Provider',
   logo: 'assets/sh_logo.jpg',
-  appVersion: 'SH-2026.07.21.1',
+  appVersion: 'SH-2026.09.09.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
   rtRoutes: ["UhinRT","IntermountainHealthcare", "BitBucket", "SDS", "NA"],
   batchRoutes: ["UhinBatch","StLukesBatch","UMRBatch","IntermountainHealthcare", "BitBucket", "SDS", "NA"],

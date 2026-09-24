@@ -231,7 +231,10 @@ export class HeaderComponent implements AfterViewInit, OnInit, OnDestroy {
     ngOnInit() {
       console.log('HeaderComponent ngOnInit')
 
-        this.links = tabLinks.filter(link => link.name !== 'Keywords');
+      const currentOrg = (environment.org || '').trim().toUpperCase();
+      this.links = currentOrg === 'SH'
+        ? tabLinks
+        : tabLinks.filter(link => link.name !== 'Keywords');
 
       this.initializeTheme();
 
