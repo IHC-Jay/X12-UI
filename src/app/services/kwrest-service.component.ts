@@ -24,16 +24,18 @@ export class KwRestServiceComponent {
   }
 
   setEnvironment(env: string) {
-    if (env === 'QA') {
+    const normalizedEnv = (env || '').trim().toUpperCase();
+
+    if (normalizedEnv === 'QA') {
       this.kwUrl = `${environment.batchQaKwUrl}`;
-    } else if (env === 'UAT') {
+    } else if (normalizedEnv === 'UAT' || normalizedEnv === 'TEST') {
       this.kwUrl = `${environment.batchUatKwUrl}`;
-    } else if (env === 'PROD') {
+    } else if (normalizedEnv === 'PROD') {
       this.kwUrl = `${environment.batchProdKwUrl}`;
     } else {
       this.kwUrl = `${environment.batchDevKwUrl}`;
     }
-    console.log('KwRestServiceComponent: kwUrl set to ' + this.kwUrl);
+    console.log('KwRestServiceComponent: env=' + normalizedEnv + ', kwUrl set to ' + this.kwUrl);
   }
 
   fetchKeywords(searchArr: string[]) {

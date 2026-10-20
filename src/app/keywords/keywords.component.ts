@@ -14,6 +14,7 @@ import { environment } from '../../environments/environment';
 import { StorageService } from '../services/storage.service';
 import { DateTimeUtils } from '../utils/date-time.utils';
 import { parseDays } from '../utils/parseDays';
+import { User } from '../login/user';
 
 @Component({
   selector: 'app-keywords',
@@ -110,6 +111,13 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initFromUserConfig(): void {
+    const currentUser = this.storageService.getItem<User>('currentUser');
+    const userEnvironment = (currentUser?.environment || '').toString().trim().toUpperCase();
+    if (userEnvironment) {
+      this.env = userEnvironment;
+      console.info('[Keywords] Environment from currentUser: ' + this.env);
+    }
+
     const userConfig = this.storageService.getItem<string>('UserConfig');
     if (!userConfig) {
       return;
