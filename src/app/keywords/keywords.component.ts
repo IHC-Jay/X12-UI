@@ -15,6 +15,7 @@ import { StorageService } from '../services/storage.service';
 import { DateTimeUtils } from '../utils/date-time.utils';
 import { parseDays } from '../utils/parseDays';
 import { User } from '../login/user';
+import { AuthenticationService } from '../services/authentication.service';
 
 @Component({
   selector: 'app-keywords',
@@ -78,6 +79,7 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
     private kwService: KwRestServiceComponent,
     private formBuilder: FormBuilder,
     private storageService: StorageService,
+    private authenticationService: AuthenticationService,
     public dialog: MatDialog
   ) {}
 
@@ -111,11 +113,20 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   private initFromUserConfig(): void {
-    const currentUser = this.storageService.getItem<User>('currentUser');
-    const userEnvironment = (currentUser?.environment || '').toString().trim().toUpperCase();
+    const currentUser = this.authenticationService.currentUserValue
+      ?? this.storageService.getItem<User>('currentUser');
+
+    const userEnvironment = (currentUser?.environment || '')
+      .toString()
+      .replace(/^\s*"|"\s*$/g, '')
+      .trim()
+      .toUpperCase();
+
     if (userEnvironment) {
       this.env = userEnvironment;
       console.info('[Keywords] Environment from currentUser: ' + this.env);
+    } else {
+      console.info('[Keywords] No currentUser environment found. Using default: ' + this.env);
     }
 
     const userConfig = this.storageService.getItem<string>('UserConfig');

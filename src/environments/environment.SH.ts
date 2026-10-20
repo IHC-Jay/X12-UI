@@ -19,6 +19,7 @@ export const environment = {
   batchQaTransUrl: 'https://itf-webapache-qa.co.ihc.com:8443/EdiRest/BatchTransactions/',
   batchQaWFUrl: 'https://itf-webapache-qa.co.ihc.com:8443/EdiRest/BatchWorkFlow/',
   rtQaWFUrl: 'https://itf-webapache-qa.co.ihc.com:8443/EdiRest/RtWorkFlow/',
+  batchQaKwUrl: 'https://itf-webapache-qa.co.ihc.com:8443/EdiRest/Keywords/',
  
 
   tpUatUrl: 'https://itf-webapache-test.co.ihc.com:8443/EdiRest/TpManage/',
