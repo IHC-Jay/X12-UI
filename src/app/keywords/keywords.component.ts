@@ -48,7 +48,7 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
   currentRemainingCount = 0;
   pageIndex = 0;
   currentPageIndex = 0;
-  pageSize = 25;
+  pageSize = 5;
   startX12Id = 1;
   lastRowId = 1;
 
@@ -191,7 +191,6 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (resetPage) {
       this.currentPageIndex = 0;
-      this.pageIndex = 0;
       this.startX12Id = 1;
       this.initialTotalCount = 0;
       this.currentRemainingCount = 0;
@@ -220,28 +219,16 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (res) => {
         this.dataSource.data = res.Items ?? [];
         const rows = this.dataSource.data;
-        const loadedCount = rows?.length ?? 0;
-
         if (rows && rows.length > 0) {
           const lastId = Number(rows[rows.length - 1].ID);
           this.lastRowId = Number.isFinite(lastId) ? lastId : this.lastRowId;
         }
-
-        const responseTotal = Number(res.totalCount ?? 0);
-        const responseBatchCount = Number(res.batchCount ?? 0);
-        const inferredTotal = Math.max(
-          Number.isFinite(responseTotal) ? responseTotal : 0,
-          Number.isFinite(responseBatchCount) ? responseBatchCount : 0,
-          loadedCount,
-          this.initialTotalCount
-        );
-
-        this.initialTotalCount = inferredTotal;
-
-        const pageEnd = (this.currentPageIndex * this.pageSize) + loadedCount;
-        this.currentRemainingCount = Math.max(this.initialTotalCount - pageEnd, 0);
+        const responseTotal = Number(res.totalCount ?? res.Items?.length ?? 0);
+        this.currentRemainingCount = Number.isFinite(responseTotal) ? responseTotal : (res.Items?.length ?? 0);
+        if (this.initialTotalCount === 0) {
+          this.initialTotalCount = this.currentRemainingCount;
+        }
         this.pageLength = this.initialTotalCount;
-
         this.canRenderDetails = true;
         this.loading = false;
         console.log('[Keywords] rows:', this.dataSource.data.length, 'total:', this.pageLength);
@@ -257,10 +244,46 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
   }
 
   onPaginateChange(event: any): void {
+    const safePageSize = Number(event.pageSize || this.pageSize || 1);
+    const lastPageIndex = safePageSize > 0
+      ? Math.max(Math.ceil((this.pageLength || 0) / safePageSize) - 1, 0)
+      : 0;
+
+    if (event.pageIndex === 0) {
+      this.currentPageIndex = 0;
+      this.pageIndex = 0;
+      this.pageSize = event.pageSize;
+      this.startX12Id = 1;
+      this.onSearch(false);
+      return;
+    }
+
+    if (event.pageIndex === lastPageIndex) {
+      const totalCount = Number(this.pageLength || this.initialTotalCount || 0);
+      const lastPageStartX12Id = safePageSize > 0
+        ? ((totalCount % safePageSize) + 1)
+        : 0;
+
+      this.currentPageIndex = event.pageIndex;
+      this.pageIndex = event.pageIndex;
+      this.pageSize = event.pageSize;
+      this.startX12Id = lastPageStartX12Id;
+      this.onSearch(false);
+      return;
+    }
+
+    const isPreviousPage = event.pageIndex < this.currentPageIndex;
+    const idsOnPage = (this.dataSource.data ?? [])
+      .map(row => Number(row?.ID))
+      .filter(id => Number.isFinite(id));
+    const highestIdOnPage = idsOnPage.length > 0 ? Math.max(...idsOnPage) : this.lastRowId;
+
     this.currentPageIndex = event.pageIndex;
     this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
-    this.startX12Id = this.lastRowId;
+    this.startX12Id = isPreviousPage
+      ? (highestIdOnPage + this.pageSize + 1)
+      : this.lastRowId;
     this.onSearch(false);
   }
 
@@ -282,7 +305,6 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pageLength = 0;
     this.initialTotalCount = 0;
     this.currentRemainingCount = 0;
-    this.pageIndex = 0;
     this.startX12Id = 1;
     this.lastRowId = 1;
   }
@@ -294,14 +316,14 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const loaded = this.dataSource.data?.length ?? 0;
     const initial = this.initialTotalCount;
+    const remaining = this.currentRemainingCount;
 
     if (initial <= 0) {
       return loaded > 0 ? `Showing 1-${loaded}` : '';
     }
 
-    const start = loaded > 0 ? ((this.currentPageIndex * this.pageSize) + 1) : 0;
-    const end = loaded > 0 ? ((this.currentPageIndex * this.pageSize) + loaded) : 0;
-    const remaining = Math.max(initial - end, 0);
+    const start = Math.max(initial - remaining + 1, 1);
+    const end = loaded > 0 ? (start + loaded - 1) : (start - 1);
 
     return loaded > 0
       ? `Showing ${start}-${end} of ${initial} (${remaining} remaining)`
