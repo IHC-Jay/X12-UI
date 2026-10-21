@@ -48,7 +48,7 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
   currentRemainingCount = 0;
   pageIndex = 0;
   currentPageIndex = 0;
-  pageSize = 5;
+  pageSize = 25;
   startX12Id = 1;
   lastRowId = 1;
 
