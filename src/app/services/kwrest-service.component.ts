@@ -23,6 +23,30 @@ export class KwRestServiceComponent {
     console.log('**** KwRestServiceComponent constructor ****');
   }
 
+  private mapPagedResponse(responseData: any): PagedKeywordResponse {
+    const items = Array.isArray(responseData)
+      ? responseData
+      : (Array.isArray(responseData?.Items) ? responseData.Items : []);
+
+    const totalCount = Array.isArray(responseData)
+      ? items.length
+      : Number(responseData?.totalCount ?? items.length);
+
+    const batchCount = Array.isArray(responseData)
+      ? items.length
+      : Number(responseData?.batchCount ?? items.length);
+
+    const paged: PagedKeywordResponse = {
+      startIndex: Number(responseData?.startIndex ?? 0),
+      Items: items,
+      batchCount: Number.isFinite(batchCount) ? batchCount : items.length,
+      totalCount: Number.isFinite(totalCount) ? totalCount : items.length
+    };
+
+    console.info('Paged KW response: totalCount=' + paged.totalCount + ', batchCount=' + paged.batchCount + ', items=' + (paged.Items?.length ?? 0));
+    return paged;
+  }
+
   setEnvironment(env: string) {
     const normalizedEnv = (env || '').trim().toUpperCase();
 
@@ -43,28 +67,7 @@ export class KwRestServiceComponent {
     console.log('fetchKeywords URL: ' + url);
 
     return this.http.get<any>(url).pipe(
-      map(responseData => {
-        console.info('fetchKeywords response:', responseData);
-        const items = Array.isArray(responseData)
-          ? responseData
-          : (Array.isArray(responseData?.Items) ? responseData.Items : []);
-
-        const totalCount = Array.isArray(responseData)
-          ? responseData.length
-          : (responseData?.totalCount ?? items.length);
-
-        const batchCount = Array.isArray(responseData)
-          ? items.length
-          : (responseData?.batchCount ?? items.length);
-
-        const paged: PagedKeywordResponse = {
-          startIndex: responseData?.startIndex ?? 0,
-          Items: items,
-          batchCount: batchCount,
-          totalCount: totalCount
-        };
-        return paged;
-      }),
+      map(responseData => this.mapPagedResponse(responseData)),
       catchError(err => {
         console.error('fetchKeywords error:', err);
         throw err;

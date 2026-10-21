@@ -191,6 +191,7 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     if (resetPage) {
       this.currentPageIndex = 0;
+      this.pageIndex = 0;
       this.startX12Id = 1;
       this.initialTotalCount = 0;
       this.currentRemainingCount = 0;
@@ -219,16 +220,28 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
       next: (res) => {
         this.dataSource.data = res.Items ?? [];
         const rows = this.dataSource.data;
+        const loadedCount = rows?.length ?? 0;
+
         if (rows && rows.length > 0) {
           const lastId = Number(rows[rows.length - 1].ID);
           this.lastRowId = Number.isFinite(lastId) ? lastId : this.lastRowId;
         }
-        const responseTotal = Number(res.totalCount ?? res.Items?.length ?? 0);
-        this.currentRemainingCount = Number.isFinite(responseTotal) ? responseTotal : (res.Items?.length ?? 0);
-        if (this.initialTotalCount === 0) {
-          this.initialTotalCount = this.currentRemainingCount;
-        }
+
+        const responseTotal = Number(res.totalCount ?? 0);
+        const responseBatchCount = Number(res.batchCount ?? 0);
+        const inferredTotal = Math.max(
+          Number.isFinite(responseTotal) ? responseTotal : 0,
+          Number.isFinite(responseBatchCount) ? responseBatchCount : 0,
+          loadedCount,
+          this.initialTotalCount
+        );
+
+        this.initialTotalCount = inferredTotal;
+
+        const pageEnd = (this.currentPageIndex * this.pageSize) + loadedCount;
+        this.currentRemainingCount = Math.max(this.initialTotalCount - pageEnd, 0);
         this.pageLength = this.initialTotalCount;
+
         this.canRenderDetails = true;
         this.loading = false;
         console.log('[Keywords] rows:', this.dataSource.data.length, 'total:', this.pageLength);
@@ -245,6 +258,7 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
 
   onPaginateChange(event: any): void {
     this.currentPageIndex = event.pageIndex;
+    this.pageIndex = event.pageIndex;
     this.pageSize = event.pageSize;
     this.startX12Id = this.lastRowId;
     this.onSearch(false);
@@ -268,6 +282,7 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
     this.pageLength = 0;
     this.initialTotalCount = 0;
     this.currentRemainingCount = 0;
+    this.pageIndex = 0;
     this.startX12Id = 1;
     this.lastRowId = 1;
   }
@@ -279,14 +294,14 @@ export class KeywordsComponent implements OnInit, AfterViewInit, OnDestroy {
 
     const loaded = this.dataSource.data?.length ?? 0;
     const initial = this.initialTotalCount;
-    const remaining = this.currentRemainingCount;
 
     if (initial <= 0) {
       return loaded > 0 ? `Showing 1-${loaded}` : '';
     }
 
-    const start = Math.max(initial - remaining + 1, 1);
-    const end = loaded > 0 ? (start + loaded - 1) : (start - 1);
+    const start = loaded > 0 ? ((this.currentPageIndex * this.pageSize) + 1) : 0;
+    const end = loaded > 0 ? ((this.currentPageIndex * this.pageSize) + loaded) : 0;
+    const remaining = Math.max(initial - end, 0);
 
     return loaded > 0
       ? `Showing ${start}-${end} of ${initial} (${remaining} remaining)`
