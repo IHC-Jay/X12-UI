@@ -113,13 +113,18 @@
                   <div mat-line> <i style="color: blue;"> GS SenderId:  </i> {{element.GsSenderId}},
                   <i style="color: blue;">  GS ReceiverId:  </i> {{element.GsReceiverId}}</div>
                   <div mat-line>
-                    @if (element.Direction.value == 'Out' ) {
-                      <div>    <i style="color: blue;"> Routing: </i> </div>
+                    @if (element.Direction === 'Out') {
+                      <i style="color: blue;"> Routing: </i>
                     } @else {
                       <i style="color: blue;"> Ack Routing: </i>
                     }
                     {{element.Routing}},
-                    <i style="color: blue;">  Ack:  </i> {{element.Ack}}, <i>  SNIP:  </i> {{element.SNIP}}
+                    @if (element.Direction === 'In') {
+                      <i style="color: blue;"> ISA Ack: </i> {{element.ISAAck}},
+                      <i style="color: blue;"> GS Ack: </i> {{element.GSAck}},
+                      <i style="color: blue;"> ST Ack: </i> {{element.STAck}},
+                    }
+                    <i>  SNIP:  </i> {{element.SNIP}}
                     <i style="color: blue;"> Separators: </i>  {{element.Separators}},
                     <i style="color: blue;">  RuleFile:  </i> {{element.ValidationRuleFile}},
                     <i style="color: blue;">  Active:  </i> {{element.Active}}

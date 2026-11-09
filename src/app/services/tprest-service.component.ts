@@ -323,9 +323,27 @@ setcurrentUser(currentUser : string, env: string, authService: AuthenticationSer
               if (responseData.hasOwnProperty(key)) {
                 if(responseData[key].Link !== undefined)
                 {
-                  TpLinksArray.push({ ...responseData[key], ID: key });
+                  const raw: any = responseData[key];
+                  const row: tpLinks = {
+                    ...raw,
+                    ID: key,
+                    ISAAck: raw.ISAAck ?? raw.ISAACK ?? raw.IsaAck ?? '',
+                    GSAck: raw.GSAck ?? raw.GSACK ?? raw.GsAck ?? '',
+                    STAck: raw.STAck ?? raw.STACK ?? raw.StAck ?? ''
+                  };
+                  TpLinksArray.push(row);
                 }
               }
+            }
+            if (TpLinksArray.length > 0) {
+              const sample = TpLinksArray[0] as any;
+              console.info('[TpRestService] fetchTpLinks sample ack fields', {
+                link: sample.Link,
+                direction: sample.Direction,
+                ISAAck: sample.ISAAck,
+                GSAck: sample.GSAck,
+                STAck: sample.STAck
+              });
             }
             return TpLinksArray;
           }),

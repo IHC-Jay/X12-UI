@@ -37,7 +37,7 @@ export const environment = {
 
   tpType:'',
   logo:'',
-  appVersion: 'local-2026.07.21.1',
+  appVersion: 'local-2026.11.09.1',
   x12ValidationBaseUrl: 'http://lp-itfdev04:8585',
   allowedEnvironments: ['DEV', 'QA', 'UAT', 'PROD'],
   rtRoutes:[],
