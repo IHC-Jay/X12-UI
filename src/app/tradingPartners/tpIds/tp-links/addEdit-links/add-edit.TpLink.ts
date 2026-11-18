@@ -238,8 +238,8 @@ public initializeData()
 
     private handleRouteParams() {
       this.parentTpId = this.route.snapshot.params['tpId'];
-      this.tpName = this.route.snapshot.params['tpName'];
-      this.tpLinkNm = this.route.snapshot.params['tpLink'];
+      this.tpName = this.decodeRouteParam(this.route.snapshot.params['tpName']);
+      this.tpLinkNm = this.decodeRouteParam(this.route.snapshot.params['tpLink']);
       this.sub = this.route.queryParams.subscribe(params => {
         this.transaction = '' + params['transaction'];
       });
@@ -247,6 +247,18 @@ public initializeData()
       if (this.isAddMode) {
         this.parentTpId = this.route.snapshot.params['tpId'];
         console.info("Get parent: " + this.parentTpId);
+      }
+    }
+
+    private decodeRouteParam(value: string): string {
+      if (!value) {
+        return '';
+      }
+
+      try {
+        return decodeURIComponent(value);
+      } catch {
+        return value;
       }
     }
 

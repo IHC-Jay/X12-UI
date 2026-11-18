@@ -67,6 +67,8 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
    pageLength= 25;
     initialTotalCount = 0;
     currentRemainingCount = 0;
+    isTotalCountPending = false;
+    hasMoreResults = false;
    pageIndex = 0;
    pageSize = 25;
    currentPageIndex = 0;
@@ -126,9 +128,11 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
 
   sub: Subscription | undefined;
   private formValueChangesSub: Subscription | undefined;
+  private countLookupSub: Subscription | undefined;
   private openDetailsRedirectHandled = false;
   private requestId = '';
   private enableUserEditReset = false;
+  private activeCountUniqId = '';
 
   selDropdownList = [];
 
@@ -739,17 +743,28 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     if (this.formValueChangesSub) {
       this.formValueChangesSub.unsubscribe();
     }
+    if (this.countLookupSub) {
+      this.countLookupSub.unsubscribe();
+    }
   }
 
   get f() { return this.form.controls; }
 
   onSearchTransactions(resetPage: boolean = true) {
     this.canRenderDetails = false;
+    if (this.countLookupSub) {
+      this.countLookupSub.unsubscribe();
+      this.countLookupSub = undefined;
+    }
+    this.activeCountUniqId = '';
+    this.pageSize = Number(this.form.controls.rowCnt.value) || this.pageSize;
     if (resetPage) {
       this.currentPageIndex = 0;
       this.startX12Id = 1;
       this.initialTotalCount = 0;
       this.currentRemainingCount = 0;
+      this.isTotalCountPending = false;
+      this.hasMoreResults = false;
       if (this.dataPaginator) {
         this.dataPaginator.pageIndex = 0;
       }
@@ -1046,12 +1061,31 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
   private handleFetchResult(res: any) {
     if (res && !Array.isArray(res) && res.Items !== undefined) {
       this.dataSource.data = res.Items;
-      const responseTotal = Number(res.totalCount ?? res.Items.length);
-      this.currentRemainingCount = Number.isFinite(responseTotal) ? responseTotal : res.Items.length;
-      if (this.initialTotalCount === 0) {
-        this.initialTotalCount = this.currentRemainingCount;
+      const responseTotalRaw = res.totalCount;
+      const responseTotal = Number(responseTotalRaw);
+      const hasNumericTotal = responseTotalRaw !== null
+        && responseTotalRaw !== undefined
+        && responseTotalRaw !== ''
+        && Number.isFinite(responseTotal);
+
+      this.hasMoreResults = !!res.hasMore;
+      this.isTotalCountPending = !hasNumericTotal;
+
+      if (hasNumericTotal) {
+        this.currentRemainingCount = responseTotal;
+        if (this.initialTotalCount === 0) {
+          this.initialTotalCount = this.currentRemainingCount;
+        }
+        this.pageLength = this.initialTotalCount;
+      } else {
+        this.initialTotalCount = 0;
+        this.currentRemainingCount = 0;
+        const currentPageSize = Number(this.form.controls.rowCnt.value) || this.pageSize || 25;
+        const loadedRows = this.dataSource.data.length;
+        const virtualLength = (this.currentPageIndex * currentPageSize) + loadedRows + (this.hasMoreResults ? 1 : 0);
+        this.pageLength = Math.max(virtualLength, loadedRows);
+        this.tryFetchTotalCountInBackground(res);
       }
-      this.pageLength = this.initialTotalCount;
     } else {
       this.dataSource.data = Array.isArray(res) ? res : [];
       this.currentRemainingCount = this.dataSource.data.length;
@@ -1059,6 +1093,8 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
         this.initialTotalCount = this.currentRemainingCount;
       }
       this.pageLength = this.initialTotalCount;
+      this.isTotalCountPending = false;
+      this.hasMoreResults = false;
     }
     const rows = this.dataSource.data;
     if (rows && rows.length > 0) {
@@ -1070,12 +1106,54 @@ export class TransactionComponent implements OnInit, AfterViewInit, OnDestroy {
     console.info('Data rows: ' + this.dataSource.data.length + ', totalCount: ' + this.pageLength);
   }
 
+  private tryFetchTotalCountInBackground(res: any) {
+    const uniqId = String(res?.uniqId ?? '').trim();
+    if (!uniqId) {
+      return;
+    }
+
+    this.activeCountUniqId = uniqId;
+
+    if (this.countLookupSub) {
+      this.countLookupSub.unsubscribe();
+      this.countLookupSub = undefined;
+    }
+
+    this.countLookupSub = this.TransactionService.fetchTransactionCountByUniqId(uniqId).subscribe((countRes: any) => {
+      if (this.activeCountUniqId !== uniqId) {
+        return;
+      }
+
+      const resolvedCount = Number(countRes);
+      if (!Number.isFinite(resolvedCount)) {
+        return;
+      }
+
+      this.isTotalCountPending = false;
+      this.initialTotalCount = resolvedCount;
+      this.currentRemainingCount = resolvedCount;
+      this.pageLength = resolvedCount;
+      console.info('Resolved async total count for uniqId ' + uniqId + ': ' + resolvedCount);
+    });
+  }
+
   getResultCountSummary(): string {
     if (!this.canRenderDetails) {
       return '';
     }
 
     const loaded = this.dataSource.data?.length ?? 0;
+
+    if (this.isTotalCountPending) {
+      const currentPageSize = Number(this.form.controls.rowCnt.value) || this.pageSize || 25;
+      const start = loaded > 0 ? (this.currentPageIndex * currentPageSize) + 1 : 0;
+      const end = loaded > 0 ? (start + loaded - 1) : 0;
+      const moreText = this.hasMoreResults ? ' (more rows available)' : '';
+      return loaded > 0
+        ? `Showing ${start}-${end} of TBD${moreText}`
+        : 'Showing 0 of TBD';
+    }
+
     const initial = this.initialTotalCount;
     const remaining = this.currentRemainingCount;
 

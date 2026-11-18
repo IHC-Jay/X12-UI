@@ -23,7 +23,9 @@ export interface PagedTransactionResponse<T> {
   Transaction: string;
   Items: T[];
   batchCount: number;
-  totalCount: number;
+  totalCount: number | string;
+  hasMore?: boolean;
+  uniqId?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -48,15 +50,55 @@ export class TransRestServiceComponent {
 
   private mapPagedResponse<T>(responseData: any): PagedTransactionResponse<T> {
     const paged = responseData as PagedTransactionResponse<T>;
-    console.info('Paged response: totalCount=' + paged.totalCount + ', items=' + (paged.Items?.length ?? 0));
+    console.info('Paged response: totalCount=' + paged.totalCount + ', hasMore=' + paged.hasMore + ', uniqId=' + paged.uniqId + ', items=' + (paged.Items?.length ?? 0));
     return {
       startIndex: paged.startIndex ?? 0,
       Transaction: paged.Transaction ?? '',
       Items: paged.Items ?? [],
       batchCount: paged.batchCount ?? 0,
-      totalCount: paged.totalCount ?? 0
+      totalCount: paged.totalCount ?? 0,
+      hasMore: paged.hasMore ?? false,
+      uniqId: paged.uniqId
     };
   }
+
+fetchTransactionCountByUniqId(uniqId: string): Observable<number | string> {
+  const url = this.batchTransUrl + 'GetCount?uniqId=' + encodeURIComponent(uniqId || '');
+  console.info('[GetCount] Request start', { uniqId, url });
+
+  return this.http2
+    .get<any>(url)
+    .pipe(
+      map(responseData => {
+        console.info('[GetCount] Raw response', { uniqId, responseData });
+        if (responseData === null || responseData === undefined) {
+          console.info('[GetCount] Response is empty; keeping TBD', { uniqId });
+          return 'TBD';
+        }
+
+        if (typeof responseData === 'number' || typeof responseData === 'string') {
+          console.info('[GetCount] Parsed primitive count response', { uniqId, totalCount: responseData });
+          return responseData;
+        }
+
+        const objectCount = responseData.totalCount
+          ?? responseData.TotalCount
+          ?? responseData.ToalCount;
+
+        if (objectCount !== undefined) {
+          console.info('[GetCount] Parsed object count response', { uniqId, totalCount: objectCount });
+          return objectCount;
+        }
+
+        console.info('[GetCount] No totalCount in response; keeping TBD', { uniqId });
+        return 'TBD';
+      }),
+      catchError(errorRes => {
+        console.error('[GetCount] Request failed; keeping TBD', { uniqId, error: errorRes });
+        return of('TBD');
+      })
+    );
+}
 
  // Transactions REST
 

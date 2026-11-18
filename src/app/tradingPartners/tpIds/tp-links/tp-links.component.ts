@@ -193,10 +193,12 @@ export class tpLinksComponent implements OnInit, OnDestroy {
    */
   editRow(tpLink: tpLinks) {
     console.info(`Call edit for: ${typeof tpLink}, ${tpLink.IsaSenderId} -> ${tpLink.IsaReceiverId}, ${tpLink.Direction}`);
+    const tpNameParam = encodeURIComponent(this.tpName || '');
+    const tpLinkParam = encodeURIComponent(tpLink.Link || '');
     if (tpLink.Direction.indexOf("In") >= 0) {
-      this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-edit/${tpLink.IsaSenderId}/${this.tpName}/${tpLink.Link}`]);
+      this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-edit/${tpLink.IsaSenderId}/${tpNameParam}/${tpLinkParam}`]);
     } else {
-      this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-edit/${tpLink.IsaReceiverId}/${this.tpName}/${tpLink.Link}`]);
+      this.router.navigate([`/TradingPartners/tpIds/tp-links/add-edit/tp-edit/${tpLink.IsaReceiverId}/${tpNameParam}/${tpLinkParam}`]);
     }
   }
 
